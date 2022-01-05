@@ -1,2 +1,6 @@
-# slam-project-codynichoson
-## Project by Cody Nichoson
+# ME495 Sensing, Navigation and Machine Learning For Robotics
+* Cody Nichoson
+* Winter 2022
+# Package List
+This repository consists of several ROS packages
+- <PACKAGE1> - <one sentence description>
