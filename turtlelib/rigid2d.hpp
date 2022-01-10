@@ -60,6 +60,19 @@ namespace turtlelib
         double y = 0.0;
     };
 
+    /// \brief A 3-Dimension Vector
+    struct Twist2D
+    {
+        /// \brief rotational velocity (theta dot)
+        double thetadot = 0.0;
+
+        /// \brief x linear velocity (x dot)
+        double xdot = 0.0;
+
+        /// \brief y linear velocity (y dot)
+        double ydot = 0.0;
+    }
+
 
 
     /// \brief output a 2 dimensional vector as [xcomponent ycomponent]
