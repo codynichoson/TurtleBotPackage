@@ -1,2 +1,2 @@
-#include <stdio.hpp>
-#include <rigid2d.hpp>
+#include <iostream>
+#include <rigid2d>
