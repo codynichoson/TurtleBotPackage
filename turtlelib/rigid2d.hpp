@@ -22,6 +22,10 @@ namespace turtlelib
     /// if given a compile-time constant as input
     constexpr bool almost_equal(double d1, double d2, double epsilon=1.0e-12)
     {
+        if (abs(d1 - d2) < epsilon) {
+            return true;
+        }
+        else return false;
     }
 
     /// \brief convert degrees to radians
@@ -29,6 +33,7 @@ namespace turtlelib
     /// \returns radians
     constexpr double deg2rad(double deg)
     {
+        return deg*(PI/180);
     }
 
     /// \brief convert radians to degrees
@@ -36,19 +41,20 @@ namespace turtlelib
     /// \returns the angle in degrees
     constexpr double rad2deg(double rad)
     {
+        return rad*(180/PI);
     }
 
     /// static_assertions test compile time assumptions.
     /// You should write at least one more test for each function
     /// You should also purposely (and temporarily) make one of these tests fail
     /// just to see what happens
-    static_assert(almost_equal(0, 0), "is_zero failed");
+    // static_assert(almost_equal(0, 0), "is_zero failed");
 
-    static_assert(almost_equal(deg2rad(0.0), 0.0), "deg2rad failed");
+    // static_assert(almost_equal(deg2rad(0.0), 0.0), "deg2rad failed");
 
-    static_assert(almost_equal(rad2deg(0.0), 0.0), "rad2deg) failed");
+    // static_assert(almost_equal(rad2deg(0.0), 0.0), "rad2deg) failed");
 
-    static_assert(almost_equal(deg2rad(rad2deg(2.1)), 2.1), "deg2rad failed");
+    // static_assert(almost_equal(deg2rad(rad2deg(2.1)), 2.1), "deg2rad failed");
 
     /// \brief A 2-Dimensional Vector
     struct Vector2D
@@ -71,9 +77,7 @@ namespace turtlelib
 
         /// \brief y linear velocity (y dot)
         double ydot = 0.0;
-    }
-
-
+    };
 
     /// \brief output a 2 dimensional vector as [xcomponent ycomponent]
     /// os - stream to output to
@@ -99,6 +103,9 @@ namespace turtlelib
     /// peek looks at the next unprocessed character in the buffer without removing it
     /// get removes the next unprocessed character from the buffer.
     std::istream & operator>>(std::istream & is, Vector2D & v);
+
+    std::ostream & operator<<(std::ostream & os, const Twist2D & v);
+    std::istream & operator>>(std::istream & is, Twist2D & v);
 
     /// \brief a rigid body transformation in 2 dimensions
     class Transform2D
@@ -126,7 +133,6 @@ namespace turtlelib
         /// \return a vector in the new coordinate system
         Vector2D operator()(Vector2D v) const;
 
-
         /// \brief invert the transformation
         /// \return the inverse transformation. 
         Transform2D inv() const;
@@ -149,6 +155,8 @@ namespace turtlelib
         /// for a description
         friend std::ostream & operator<<(std::ostream & os, const Transform2D & tf);
 
+    private:
+        int T[3][3];
     };
 
 
