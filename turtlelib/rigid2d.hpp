@@ -48,13 +48,13 @@ namespace turtlelib
     /// You should write at least one more test for each function
     /// You should also purposely (and temporarily) make one of these tests fail
     /// just to see what happens
-    // static_assert(almost_equal(0, 0), "is_zero failed");
+    static_assert(almost_equal(0, 0), "is_zero failed");
 
-    // static_assert(almost_equal(deg2rad(0.0), 0.0), "deg2rad failed");
+    static_assert(almost_equal(deg2rad(0.0), 0.0), "deg2rad failed");
 
-    // static_assert(almost_equal(rad2deg(0.0), 0.0), "rad2deg) failed");
+    static_assert(almost_equal(rad2deg(0.0), 0.0), "rad2deg) failed");
 
-    // static_assert(almost_equal(deg2rad(rad2deg(2.1)), 2.1), "deg2rad failed");
+    static_assert(almost_equal(deg2rad(rad2deg(2.1)), 2.1), "deg2rad failed");
 
     /// \brief A 2-Dimensional Vector
     struct Vector2D
@@ -150,6 +150,15 @@ namespace turtlelib
         /// \brief get the angular displacement of the transform
         /// \return the angular displacement, in radians
         double rotation() const;
+
+        /// \brief convert a twist to a different reference frame
+        /// \param twist - what a twist!
+        /// \return the twist, in a new reference frame
+        Twist2D convertTwist(Twist2D twist);
+
+        /// \brief normalize a Vector2D
+        /// \return the Vector2D, but like totally normalized
+        Vector2D normalize(Vector2D);
 
         /// \brief \see operator<<(...) (declared outside this class)
         /// for a description

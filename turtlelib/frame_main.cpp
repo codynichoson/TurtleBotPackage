@@ -29,9 +29,6 @@ int main(){
     // Compute Tab, Tba, Tbc, Tcb, Tac, and Tca
     // Transform Tac = matrix_compose(*Tab_mat, *Tbc_mat);
 
-
-
-
     // Display Tab, Tba, Tbc, Tcb, Tac, and Tca
 
 }

@@ -28,12 +28,13 @@ namespace turtlelib{
         T[1][0] = sin(radians); T[1][1] = cos(radians); T[1][2] = trans.y;
         T[2][0] = 0;            T[2][1] = 0;            T[2][2] = 1;
     }
-}
 
-// Function prototypes
-constexpr bool almost_equal(double d1, double d2, double epsilon=1.0e-12);
-constexpr double deg2rad(double deg);
-constexpr double rad2deg(double rad);
+    Twist2D Transform2D::convertTwist(Twist2D twist){
+        Twist2D new_twist;
+        new_twist.thetadot = twist.thetadot + 0 + 0;
+        new_twist.xdot = twist.xdot*
+    }
+}
 
 // Main function
 int main(void){
