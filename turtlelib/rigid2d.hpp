@@ -33,7 +33,7 @@ namespace turtlelib
     /// \returns radians
     constexpr double deg2rad(double deg)
     {
-        return deg*(PI/180);
+        return deg*((double)PI/(double)180);
     }
 
     /// \brief convert radians to degrees
@@ -82,7 +82,7 @@ namespace turtlelib
     /// \brief output a 2 dimensional vector as [xcomponent ycomponent]
     /// os - stream to output to
     /// v - the vector to print
-    std::ostream & operator<<(std::ostream & os, const Vector2D & v);
+    std::ostream & operator << (std::ostream & os, const Vector2D & v);
 
     /// \brief input a 2 dimensional vector
     ///   You should be able to read vectors entered as follows:
@@ -102,10 +102,20 @@ namespace turtlelib
     /// We have lower level control however. For example:
     /// peek looks at the next unprocessed character in the buffer without removing it
     /// get removes the next unprocessed character from the buffer.
-    std::istream & operator>>(std::istream & is, Vector2D & v);
+    std::istream & operator >> (std::istream & is, Vector2D & v);
 
-    std::ostream & operator<<(std::ostream & os, const Twist2D & v);
-    std::istream & operator>>(std::istream & is, Twist2D & v);
+    /// \brief output a 3 dimensional vector as [thetadot xdot ydot]
+    /// os - stream to output to
+    /// v - the vector to print
+    std::ostream & operator << (std::ostream & os, const Twist2D & v);
+    
+    /// \brief input a 3 dimensional vector
+    /// You should be able to read vectors entered as follows:
+    /// [thetadot xdot ydot] or thetadot xdot ydot
+    /// is - stream from which to read
+    /// v [out] - output vector
+    std::istream & operator >> (std::istream & is, Twist2D & v);
+
 
     /// \brief a rigid body transformation in 2 dimensions
     class Transform2D
@@ -151,21 +161,24 @@ namespace turtlelib
         /// \return the angular displacement, in radians
         double rotation() const;
 
+        /// \brief convert a 2D vector to a different reference frame
+        /// \param tf - transformation matrix
+        /// \param vec - 2D vector
+        /// \return the vector, in a new reference frame
+        Vector2D convertVec(Transform2D tf, Vector2D vec);
+
         /// \brief convert a twist to a different reference frame
+        /// \param tf - transformation matrix
         /// \param twist - what a twist!
         /// \return the twist, in a new reference frame
-        Twist2D convertTwist(Twist2D twist);
-
-        /// \brief normalize a Vector2D
-        /// \return the Vector2D, but like totally normalized
-        Vector2D normalize(Vector2D);
+        Twist2D convertTwist(Transform2D tf, Twist2D twist);
 
         /// \brief \see operator<<(...) (declared outside this class)
         /// for a description
         friend std::ostream & operator<<(std::ostream & os, const Transform2D & tf);
 
     private:
-        int T[3][3];
+        double theta, x, y;
     };
 
 
@@ -188,8 +201,15 @@ namespace turtlelib
     /// HINT: This function should be implemented in terms of *=
     Transform2D operator*(Transform2D lhs, const Transform2D & rhs);
 
-
+    /// \brief normalize a Vector2D
+    /// \return the Vector2D, but like totally normalized
+    Vector2D normalize(Vector2D vec);
 
 }
 
 #endif
+
+// three ways to do normalized
+// include inside struct or class (member func)
+// as own stand alone function
+// entire class based on normalized (class is 'normalized')
