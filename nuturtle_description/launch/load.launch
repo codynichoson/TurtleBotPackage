@@ -2,7 +2,7 @@
     <arg name="use_rviz" default="true"/>
     <arg name="use_jsp" default="false"/>
     <arg name="color" default="black" />
-    <arg name="fixed_frame" default="" />
+    <arg name="fixed_frame" default="black_base_link" />
 
     <rosparam file="$(find nuturtle_description)/config/diff_params.yaml" />
 
