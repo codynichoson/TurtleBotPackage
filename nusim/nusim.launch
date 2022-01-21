@@ -1,0 +1,10 @@
+<launch>
+
+    <node name="nusim" pkg="nusim" type="nusim_node" />
+
+    <include file="$(find nuturtle_description)/launch/load.launch" pass_all_args="true">
+        <arg name="color"    value="red"/>
+        <arg name="use_jsp"  value="true"/>
+    </include>
+
+</launch>
