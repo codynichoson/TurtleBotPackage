@@ -19,6 +19,8 @@ static double x=-0.6, y=0.8, theta=1.57;
 enum class State {STOP, GO, END};
 static State state = State::STOP;
 
+// std::vector<double> radius, x, y ...
+
 bool reset_callback(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res)
 {
     timestep.data = 0;
