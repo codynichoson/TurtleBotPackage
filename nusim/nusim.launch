@@ -1,11 +1,15 @@
 <launch>
 
+    <arg name="color" value="red"/>
+
     <node name="nusim" pkg="nusim" type="nusim_node" />
 
     <include file="$(find nuturtle_description)/launch/load.launch" pass_all_args="true">
         <arg name="color"       value="red"/>
         <arg name="use_jsp"     value="true"/>
-        <arg name="fixed_frame" value="world"/>
+        <arg name="use_rviz"    value="false"/>
     </include>
+
+    <node pkg="rviz" type="rviz" name="rviz" required="true" args="-f world -d $(find nusim)/config/nusim.rviz" ns="$(arg color)"/>
 
 </launch>
