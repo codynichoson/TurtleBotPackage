@@ -9,6 +9,8 @@
 #include <iostream>
 #include <std_srvs/Trigger.h>
 #include "nusim/teleport.h"
+#include <visualization_msgs/Marker.h>
+#include <visualization_msgs/MarkerArray.h>
 
 static int rate;
 static std_msgs::UInt64 timestep;
@@ -53,6 +55,13 @@ int main(int argc, char * argv[])
     // create joint states publisher
     ros::Publisher joint_pub = nh.advertise<sensor_msgs::JointState>("red/joint_states", rate);
 
+    // create timestep publisher
+    ros::Publisher timestep_pub = nhp.advertise<std_msgs::UInt64>("timestep", rate);
+
+    // create obstacle publisher
+    ros::Publisher marker_pub = nhp.advertise<visualization_msgs::Marker>("/obstacles", 1000, true);
+    // ros::Publisher array_pub;
+
     // create reset service
     ros::ServiceServer reset = nhp.advertiseService("reset", reset_callback);
 
@@ -63,8 +72,8 @@ int main(int argc, char * argv[])
     {
         // increment time step and publish
         timestep.data = timestep.data + 1;
-        ros::Publisher timestep_pub = nhp.advertise<std_msgs::UInt64>("timestep", rate);
-
+        timestep_pub.publish(timestep);
+        
         // populate transform and publish
         transformStamped.header.stamp = ros::Time::now();
         transformStamped.header.frame_id = "world";
@@ -85,6 +94,32 @@ int main(int argc, char * argv[])
         joint_states.name = {"red_wheel_left_joint", "red_wheel_right_joint"};
         joint_states.position = {0.0, 0.0};
         joint_pub.publish(joint_states);
+
+        // create obstacles and publish
+        visualization_msgs::Marker marker;
+        marker.header.frame_id = "world";
+        marker.header.stamp = ros::Time::now();
+        // marker.ns = "marker_test_" + type_name;
+        marker.id = 1;
+        marker.ns = "obstacles";
+        marker.type = visualization_msgs::Marker::CYLINDER;
+        marker.action = visualization_msgs::Marker::ADD;
+        marker.pose.position.x = 1;
+        marker.pose.position.y = 1;
+        marker.pose.position.z = 0;
+        marker.pose.orientation.x = 0.0;
+        marker.pose.orientation.y = 0.0;
+        marker.pose.orientation.z = 0.0;
+        marker.pose.orientation.w = 1.0;
+        marker.scale.x = 0.2;
+        marker.scale.y = 0.2;
+        marker.scale.z = 1.0;
+        marker.color.r = 1.0;
+        marker.color.g = 0.0;
+        marker.color.b = 0.0;
+        marker.color.a = 1.0;
+        marker.lifetime = ros::Duration();
+        marker_pub.publish(marker);
 
         ros::spinOnce();
         r.sleep();
