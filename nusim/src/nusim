@@ -1,0 +1,39 @@
+// Static variables used by callbacks here
+#include "ros/ros.h"
+#include "std_msgs/String.h"
+
+enum class State {STOP, GO, END};
+
+static State state = State::STOP;
+
+void stop_callback(const MessageType & msg)
+{
+    // process message.  Maybe messages of this type
+    // mean its supposed to go into STOP mode
+    state = State::STOP;
+}
+
+void reset_callback()
+{
+}
+
+int main(int argc, char * argv[])
+{
+    ros::init(argc, argv, "nusim");
+    ros::NodeHandle nh;
+
+    // read parameters, create publishers/subscribers
+    const auto pub = nh.publisher("std_msgs/UInt64", 1000, timestep_callback);
+
+    // create reset service
+    ros::ServiceServer reset = nh.advertiseService("reset", reset_callback);
+
+    ros::Rate r(500) // make a private parameter eventually
+    while(ros::ok())
+    {
+        
+        ros::spinOnce();
+        r.sleep()
+    }
+    return 0;   
+}

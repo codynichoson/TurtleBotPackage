@@ -2,7 +2,7 @@
 <package format="2">
   <name>nusim</name>
   <version>0.0.1</version>
-  <description>The nusim package is used as a simulator and visualizer</description>
+  <description>A simulator and visualizer</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
@@ -49,7 +49,7 @@
   <!-- Use doc_depend for packages you need only for building documentation: -->
   <!--   <doc_depend>doxygen</doc_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
-  <depend>roscpp</depend>
+  <!-- <build_depend>roscpp</build_depend> -->
 
 
   <!-- The export tag contains other, unspecified, tags -->
