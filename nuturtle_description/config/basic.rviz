@@ -6,8 +6,8 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
+        - /RobotModel1
         - /RobotModel1/Status1
-        - /TF1/Frames1
       Splitter Ratio: 0.5
     Tree Height: 489
   - Class: rviz/Selection
@@ -103,46 +103,6 @@ Visualization Manager:
       Update Interval: 0
       Value: true
       Visual Enabled: true
-    - Class: rviz/TF
-      Enabled: true
-      Frame Timeout: 15
-      Frames:
-        All Enabled: false
-        black_base_footprint:
-          Value: false
-        black_base_link:
-          Value: false
-        black_base_scan:
-          Value: false
-        black_caster_back_link:
-          Value: false
-        black_imu_link:
-          Value: false
-        black_wheel_left_link:
-          Value: false
-        black_wheel_right_link:
-          Value: false
-      Marker Alpha: 1
-      Marker Scale: 1
-      Name: TF
-      Show Arrows: true
-      Show Axes: true
-      Show Names: true
-      Tree:
-        black_base_footprint:
-          black_base_link:
-            black_base_scan:
-              {}
-            black_caster_back_link:
-              {}
-            black_imu_link:
-              {}
-            black_wheel_left_link:
-              {}
-            black_wheel_right_link:
-              {}
-      Update Interval: 0
-      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -208,4 +168,4 @@ Window Geometry:
     collapsed: false
   Width: 1440
   X: 0
-  Y: 27
+  Y: 0
