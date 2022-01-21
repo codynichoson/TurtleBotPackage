@@ -1,0 +1,24 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../include/turtlelib/rigid2d.hpp
+iosfwd
+-
+cmath
+-
+
+/home/codynichoson/Q2/slam/slam_project/src/slam-project-codynichoson/turtlelib/src/frame_main.cpp
+iostream
+-
+string
+-
+cmath
+-
+turtlelib/rigid2d.hpp
+/home/codynichoson/Q2/slam/slam_project/src/slam-project-codynichoson/turtlelib/src/turtlelib/rigid2d.hpp
+
