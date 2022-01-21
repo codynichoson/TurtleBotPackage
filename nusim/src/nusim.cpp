@@ -8,9 +8,11 @@
 #include <sstream>
 #include <iostream>
 #include <std_srvs/Trigger.h>
+#include "nusim/teleport.h"
 
 static int rate;
 static std_msgs::UInt64 timestep;
+static double x=-0.6, y=0.8, theta=1.57;
 
 enum class State {STOP, GO, END};
 static State state = State::STOP;
@@ -18,7 +20,18 @@ static State state = State::STOP;
 bool reset_callback(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res)
 {
     timestep.data = 0;
-    std::cout << "Service Successful\n";
+    x = 0.0;
+    y = 0.0;
+    theta = 0.0;
+    return true;
+}
+
+bool teleport_callback(nusim::teleport::Request &req, nusim::teleport::Response &res)
+{
+    x = req.x;
+    y = req.y;
+    theta = req.theta;
+    
     return true;
 }
 
@@ -42,6 +55,9 @@ int main(int argc, char * argv[])
 
     // create reset service
     ros::ServiceServer reset = nhp.advertiseService("reset", reset_callback);
+
+    // create teleport service
+    ros::ServiceServer teleport = nhp.advertiseService("teleport", teleport_callback);
     
     while(ros::ok())
     {
@@ -53,11 +69,11 @@ int main(int argc, char * argv[])
         transformStamped.header.stamp = ros::Time::now();
         transformStamped.header.frame_id = "world";
         transformStamped.child_frame_id = "red_base_footprint";
-        transformStamped.transform.translation.x = 0.5;
-        transformStamped.transform.translation.y = 0.0;
+        transformStamped.transform.translation.x = x;
+        transformStamped.transform.translation.y = y;
         transformStamped.transform.translation.z = 0.0;
         tf2::Quaternion q;
-        q.setRPY(0, 0, 0);
+        q.setRPY(0, 0, theta);
         transformStamped.transform.rotation.x = q.x();
         transformStamped.transform.rotation.y = q.y();
         transformStamped.transform.rotation.z = q.z();
