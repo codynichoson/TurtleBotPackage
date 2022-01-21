@@ -15,9 +15,8 @@
 static int rate;
 static std_msgs::UInt64 timestep;
 static double x=-0.6, y=0.8, theta=1.57;
-
-enum class State {STOP, GO, END};
-static State state = State::STOP;
+static std::vector<double> obs_x, obs_y;
+static double radius, height;
 
 // std::vector<double> radius, x, y ...
 
@@ -50,25 +49,27 @@ int main(int argc, char * argv[])
     nhp.getParam("rate", rate);
     ros::Rate r(rate);
 
+    nhp.getParam("radius", radius);
+    nhp.getParam("height", height);
+    nhp.getParam("obs_x", obs_x);
+    nhp.getParam("obs_y", obs_y);
+
     // create transform broadcaster and broadcast message
     static tf2_ros::TransformBroadcaster br;
     geometry_msgs::TransformStamped transformStamped;
 
-    // create joint states publisher
+    // create publishers
     ros::Publisher joint_pub = nh.advertise<sensor_msgs::JointState>("red/joint_states", rate);
-
-    // create timestep publisher
     ros::Publisher timestep_pub = nhp.advertise<std_msgs::UInt64>("timestep", rate);
-
-    // create obstacle publisher
-    ros::Publisher marker_pub = nhp.advertise<visualization_msgs::Marker>("/obstacles", 1000, true);
-    // ros::Publisher array_pub;
-
-    // create reset service
+    // ros::Publisher marker_pub = nhp.advertise<visualization_msgs::Marker>("/obstacles", 1000, true);
+    ros::Publisher markers_pub = nhp.advertise<visualization_msgs::MarkerArray>("/obstacles", 1, true);
+    
+    // create services
     ros::ServiceServer reset = nhp.advertiseService("reset", reset_callback);
-
-    // create teleport service
     ros::ServiceServer teleport = nhp.advertiseService("teleport", teleport_callback);
+
+    visualization_msgs::MarkerArray marker_arr;
+    marker_arr.markers.resize(obs_x.size());
     
     while(ros::ok())
     {
@@ -76,6 +77,66 @@ int main(int argc, char * argv[])
         timestep.data = timestep.data + 1;
         timestep_pub.publish(timestep);
         
+        
+
+        // populate joint states and publish
+        sensor_msgs::JointState joint_states;
+        joint_states.name = {"red_wheel_left_joint", "red_wheel_right_joint"};
+        joint_states.position = {0.0, 0.0};
+        joint_pub.publish(joint_states);
+
+        // create obstacles and publish
+        // visualization_msgs::Marker marker;
+        
+
+        for(int i = 0; i < 3; i++){
+            marker_arr.markers[i].header.frame_id = "world";
+            marker_arr.markers[i].header.stamp = ros::Time::now();
+            marker_arr.markers[i].id = i;
+            // marker_arr.markers[i].ns = "obstacles";
+            marker_arr.markers[i].type = visualization_msgs::Marker::CYLINDER;
+            marker_arr.markers[i].action = visualization_msgs::Marker::ADD;
+            marker_arr.markers[i].pose.position.x = obs_x[i];
+            marker_arr.markers[i].pose.position.y = obs_y[i];
+            marker_arr.markers[i].pose.position.z = height/2;
+            marker_arr.markers[i].pose.orientation.x = 0.0;
+            marker_arr.markers[i].pose.orientation.y = 0.0;
+            marker_arr.markers[i].pose.orientation.z = 0.0;
+            marker_arr.markers[i].pose.orientation.w = 1.0;
+            marker_arr.markers[i].scale.x = 2*radius;
+            marker_arr.markers[i].scale.y = 2*radius;
+            marker_arr.markers[i].scale.z = height;
+            marker_arr.markers[i].color.r = 1.0;
+            marker_arr.markers[i].color.g = 0.0;
+            marker_arr.markers[i].color.b = 0.0;
+            marker_arr.markers[i].color.a = 1.0;
+            // marker_arr.markers[i].lifetime = ros::Duration(); 
+        }
+        markers_pub.publish(marker_arr);
+
+        // marker.header.frame_id = "world";
+        // marker.header.stamp = ros::Time::now();
+        // marker.id = 1;
+        // marker.ns = "obstacles";
+        // marker.type = visualization_msgs::Marker::CYLINDER;
+        // marker.action = visualization_msgs::Marker::ADD;
+        // marker.pose.position.x = obs_x[0];
+        // marker.pose.position.y = obs_y[0];
+        // marker.pose.position.z = 0;
+        // marker.pose.orientation.x = 0.0;
+        // marker.pose.orientation.y = 0.0;
+        // marker.pose.orientation.z = 0.0;
+        // marker.pose.orientation.w = 1.0;
+        // marker.scale.x = 0.2;
+        // marker.scale.y = 0.2;
+        // marker.scale.z = 1.0;
+        // marker.color.r = 1.0;
+        // marker.color.g = 0.0;
+        // marker.color.b = 0.0;
+        // marker.color.a = 1.0;
+        // marker.lifetime = ros::Duration();
+        // marker_pub.publish(marker);
+
         // populate transform and publish
         transformStamped.header.stamp = ros::Time::now();
         transformStamped.header.frame_id = "world";
@@ -90,39 +151,7 @@ int main(int argc, char * argv[])
         transformStamped.transform.rotation.z = q.z();
         transformStamped.transform.rotation.w = q.w();
         br.sendTransform(transformStamped);
-
-        // populate joint states and publish
-        sensor_msgs::JointState joint_states;
-        joint_states.name = {"red_wheel_left_joint", "red_wheel_right_joint"};
-        joint_states.position = {0.0, 0.0};
-        joint_pub.publish(joint_states);
-
-        // create obstacles and publish
-        visualization_msgs::Marker marker;
-        marker.header.frame_id = "world";
-        marker.header.stamp = ros::Time::now();
-        // marker.ns = "marker_test_" + type_name;
-        marker.id = 1;
-        marker.ns = "obstacles";
-        marker.type = visualization_msgs::Marker::CYLINDER;
-        marker.action = visualization_msgs::Marker::ADD;
-        marker.pose.position.x = 1;
-        marker.pose.position.y = 1;
-        marker.pose.position.z = 0;
-        marker.pose.orientation.x = 0.0;
-        marker.pose.orientation.y = 0.0;
-        marker.pose.orientation.z = 0.0;
-        marker.pose.orientation.w = 1.0;
-        marker.scale.x = 0.2;
-        marker.scale.y = 0.2;
-        marker.scale.z = 1.0;
-        marker.color.r = 1.0;
-        marker.color.g = 0.0;
-        marker.color.b = 0.0;
-        marker.color.a = 1.0;
-        marker.lifetime = ros::Duration();
-        marker_pub.publish(marker);
-
+        
         ros::spinOnce();
         r.sleep();
     }

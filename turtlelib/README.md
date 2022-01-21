@@ -33,7 +33,7 @@ Primarily, in a class, members are private by default. In a structure, members a
 
 3. Why is Vector2D a struct and Transform2DClass (refer to at least 2 specific C++ core guidelines in your answer)?
 
-
+Transform2D contains a lot of member functions that use private variables, so it makes sense to use a class.
 
 4. Why are some of the constructors in Transform2D explicit (refer to a specific C++ core guideline in your answer)?
 

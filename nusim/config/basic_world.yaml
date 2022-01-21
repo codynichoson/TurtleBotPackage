@@ -1,10 +1,7 @@
-cyl_radius: 0.038
-cyl1_x: -0.6
-cyl1_y: -0.8
-cyl2_x: 0.6
-cyl2_y: -0.8
-cyl3_x: 0.6
-cyl3_y: 0.8
-robot_start_x: -0.6
-robot_start_y: 0.8
-robot_start_theta: 1.57
+radius: 0.038
+height: 1
+obs_x: [-0.6 0.6 0.6]
+obs_y: [-0.8 -0.8 0.8]
+# robot_start_x: -0.6
+# robot_start_y: 0.8
+# robot_start_theta: 1.57
