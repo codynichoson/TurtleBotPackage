@@ -12,6 +12,6 @@
     <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher" ns="$(arg color)"/>
 
     <node pkg="rviz" type="rviz" name="rviz" required="true" 
-        args="-d $(find nuturtle_description)/config/basic.rviz -f world" if="$(eval arg('use_rviz')==true)" ns="$(arg color)"/>
+        args="-d $(find nuturtle_description)/config/basic.rviz" if="$(eval arg('use_rviz')==true)" ns="$(arg color)"/>
 
 </launch>
