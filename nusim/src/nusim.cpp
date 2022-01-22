@@ -43,11 +43,6 @@ int main(int argc, char * argv[])
     ros::NodeHandle nhp("~");
     ros::NodeHandle nh;
 
-    // set private parameters
-    nhp.setParam("rate", 500);
-    nhp.getParam("rate", rate);
-    ros::Rate r(rate);
-
     nhp.getParam("radius", radius);
     nhp.getParam("height", height);
     nhp.getParam("obs_x", obs_x);
@@ -55,6 +50,8 @@ int main(int argc, char * argv[])
     nhp.getParam("robot_start_x", robot_start_x);
     nhp.getParam("robot_start_y", robot_start_y);
     nhp.getParam("robot_start_theta", robot_start_theta);
+    nhp.getParam("rate", rate);
+    ros::Rate r(rate);
 
     // create transform broadcaster and broadcast message
     static tf2_ros::TransformBroadcaster br;
@@ -71,7 +68,7 @@ int main(int argc, char * argv[])
     ros::ServiceServer teleport = nhp.advertiseService("teleport", teleport_callback);
 
     visualization_msgs::MarkerArray marker_arr;
-    marker_arr.markers.resize(3);
+    marker_arr.markers.resize(obs_x.size());
     
     while(ros::ok())
     {
@@ -85,7 +82,7 @@ int main(int argc, char * argv[])
         joint_states.position = {0.0, 0.0};
         joint_pub.publish(joint_states);
 
-        for(int i = 0; i < 3; i++){
+        for(int i = 0; i < obs_x.size(); i++){
             marker_arr.markers[i].header.frame_id = "world";
             marker_arr.markers[i].header.stamp = ros::Time::now();
             marker_arr.markers[i].id = i;
