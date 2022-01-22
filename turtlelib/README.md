@@ -19,8 +19,8 @@ A library for handling transformations in SE(2) and other turtlebot-related math
       Cons - Classes are hard
    2. Pros - Don't have to worry about class syntax
       Cons - Can't access any class variables
-   3. Pros -
-      Cons -
+   3. Pros - Normalize is easily accessible everywhere within
+      Cons - Overcomplicated; requires the creation of class variables and member functions just to normalize
 
    - Which of the methods would you implement and why?
 
@@ -33,7 +33,7 @@ Primarily, in a class, members are private by default. In a structure, members a
 
 3. Why is Vector2D a struct and Transform2D a class (refer to at least 2 specific C++ core guidelines in your answer)?
 
-Transform2D is a class because its member functions contain private variables that must be accessed within the function. From C++ Core Guidelines C.2, Vector2D contains data members that can vary independently, so can be a struct.
+Transform2D is a class because it contains an invariant (C++ Core Guidelines C.2). The functions for Vector2D do not need direct access to the representation of the class, so it is a struct (C++ Core Guidelines C.4).
 
 4. Why are some of the constructors in Transform2D explicit (refer to a specific C++ core guideline in your answer)?
 
@@ -42,7 +42,29 @@ Under the "Classes" section in the C++ guidelines, point 3 states that single-ar
 5. Why is Transform2D::inv() declared const while Transform2D::operator*=() is not?
    - Refer to [[https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#con-constants-and-immutability][C++ Core Guidelines (Constants and Immutability)]] in your answer
 
+Transform2D::inv() is declared const because it does not change the object itself, it returns a different result. Transform2D::operator*=(), however, changes and returns the actual object itself. According to C++ Core Guidelines Con.1, you should only make objects non-const when there is a need to change its value (as is the case with operator*=).
+
 # Sample Run of frame_main
 ```
-<Put the output of a representative run here>
+Enter transform T_{a,b}: 
+deg: 90 x: 0 y: 1
+Enter transform T_{b,c}: 
+deg: 90 x: 1 y: 0
+T_{a,b}: deg: 90 x: 0 y: 1
+T_{b,a}: deg: -90 x: -1 y: -6.12323e-17
+T_{b,c}: deg: 90 x: 1 y: 0
+T_{c,b}: deg: -90 x: -6.12323e-17 y: 1
+T_{a,c}: deg: 180 x: 6.12323e-17 y: 2
+T_{c,a}: deg: -180 x: -1.83697e-16 y: 2
+Enter vector v_b: 
+1 1
+v_bhat: [0.707107 0.707107]
+v_a: [-1 2]
+v_b: [1 1]
+v_c: [1 1.11022e-16]
+Enter twist V_b: 
+1 1 1
+V_a [1 0 1]
+V_b [1 1 1]
+V_c [1 2 -1]
 ```
