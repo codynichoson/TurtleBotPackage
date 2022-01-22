@@ -1,7 +1,8 @@
-radius: 0.038
-height: 1
-obs_x: [-0.6 0.6 0.6]
-obs_y: [-0.8 -0.8 0.8]
-# robot_start_x: -0.6
-# robot_start_y: 0.8
-# robot_start_theta: 1.57
+nusim:
+  radius: 0.038
+  height: 0.25
+  obs_x: [-0.6, 0.6, 0.6]
+  obs_y: [-0.8, -0.8, 0.8]
+  robot_start_x: -0.6
+  robot_start_y: 0.8
+  robot_start_theta: 1.57
