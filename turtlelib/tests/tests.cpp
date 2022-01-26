@@ -1,6 +1,7 @@
 #define CATCH_CONFIG_MAIN
 #include "turtlelib/rigid2d.hpp"
-#include "catch.hpp"
+// #include <catch.hpp>
+#include <catch_ros/catch.hpp>
 
 TEST_CASE("normalize"){ // Cody, Nichoson
     turtlelib::Vector2D v_in, v_out;
