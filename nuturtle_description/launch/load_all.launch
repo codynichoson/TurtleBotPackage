@@ -29,6 +29,6 @@
     <node pkg="tf2_ros" type="static_transform_publisher" name="link3_broadcaster" args="-1 0 0 0 0 0 1 world blue_base_footprint" ns="blue"/>
     <node pkg="tf2_ros" type="static_transform_publisher" name="link4_broadcaster" args="0 -1 0 0 0 0 1 world black_base_footprint" ns="black"/>
 
-    <node pkg="rviz" type="rviz" name="rviz" required="true" args="-d $(find nuturtle_description)/config/basic_all.rviz"/>
+    <node pkg="rviz" type="rviz" name="rviz" required="true" args="-d $(find nuturtle_description)/config/basic_all.rviz -f world"/>
 
 </launch>
