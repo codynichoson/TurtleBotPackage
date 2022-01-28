@@ -55,16 +55,6 @@ namespace turtlelib{
         return new_twist;
     }
 
-    Vector2D normalize(Vector2D vec){
-        Vector2D normalized;
-        double magnitude = std::abs(std::sqrt(vec.x*vec.x + vec.y*vec.y));
-
-        normalized.x = vec.x/magnitude;
-        normalized.y = vec.y/magnitude;
-
-        return normalized;
-    }
-
     Vector2D Transform2D::translation() const{
         Vector2D vec;
         vec.x = x;
@@ -77,6 +67,26 @@ namespace turtlelib{
         double angle = theta;
 
         return angle;
+    }
+
+    Vector2D normalize(Vector2D vec){
+        Vector2D normalized;
+        double magnitude = std::abs(std::sqrt(vec.x*vec.x + vec.y*vec.y));
+
+        normalized.x = vec.x/magnitude;
+        normalized.y = vec.y/magnitude;
+
+        return normalized;
+    }
+
+    double normalize_angle(double rad){
+        while (rad > PI){
+            rad = rad - 2.0*PI;
+        }
+        while (rad < -PI){
+            rad = rad + 2.0*PI;
+        }
+        return rad;
     }
 
     std::ostream & operator << (std::ostream & os, const Vector2D & v){

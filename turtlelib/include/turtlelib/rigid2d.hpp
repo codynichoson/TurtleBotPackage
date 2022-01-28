@@ -206,6 +206,10 @@ namespace turtlelib
     /// \return the Vector2D, but like totally normalized
     Vector2D normalize(Vector2D vec);
 
+    /// \brief normalize an angle
+    /// \return the angle, but like totally normalized
+    double normalize_angle(double rad);
+
 }
 
 #endif

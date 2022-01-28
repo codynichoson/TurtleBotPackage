@@ -2,6 +2,9 @@
 #include <catch_ros/catch.hpp>
 #include <sstream>
 
+constexpr double PI=3.14159265358979323846;
+constexpr double eps=0.0000000001;
+
 TEST_CASE("normalize"){ // Cody, Nichoson
     turtlelib::Vector2D v_in, v_out;
     v_in.x = 1; v_in.y = 1;
@@ -31,6 +34,29 @@ TEST_CASE("rotation"){ // Cody, Nichoson
     turtlelib::Transform2D tf;
     double angle = tf.rotation();
     REQUIRE(angle == Approx(0));
+}
+
+TEST_CASE("normalize_angle"){ // Cody, Nichoson
+    double theta1 = PI;
+    double theta2 = -PI;
+    double theta3 = 0;
+    double theta4 = -PI/4.0;
+    double theta5 = (3.0*PI)/2.0;
+    double theta6 = (-5.0*PI)/2.0;
+
+    double res1 = turtlelib::normalize_angle(theta1);
+    double res2 = turtlelib::normalize_angle(theta2);
+    double res3 = turtlelib::normalize_angle(theta3);
+    double res4 = turtlelib::normalize_angle(theta4);
+    double res5 = turtlelib::normalize_angle(theta5);
+    double res6 = turtlelib::normalize_angle(theta6);
+
+    REQUIRE(res1 == Approx(PI).margin(eps));
+    REQUIRE(res2 == Approx(-PI).margin(eps));
+    REQUIRE(res3 == Approx(0).margin(eps));
+    REQUIRE(res4 == Approx(-PI/4.0).margin(eps));
+    REQUIRE(res5 == Approx(-PI/2.0).margin(eps));
+    REQUIRE(res6 == Approx(-PI/2.0).margin(eps));
 }
 
 TEST_CASE("istream Vector input","[Vector2D]"){ // James Avtges
