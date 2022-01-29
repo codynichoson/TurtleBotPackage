@@ -59,6 +59,29 @@ TEST_CASE("normalize_angle"){ // Cody, Nichoson
     REQUIRE(res6 == Approx(-PI/2.0).margin(eps));
 }
 
+TEST_CASE("adding vectors"){ // Cody, Nichoson
+    turtlelib::Vector2D vec1, vec2;
+
+    vec1.x = 2.0; vec1.y = 4.0;
+    vec2.x = 3.0; vec2.y = -2.0;
+
+    turtlelib::Vector2D res = vec1 + vec2;
+
+    REQUIRE(res.x == Approx(5.0).margin(eps));
+    REQUIRE(res.y == Approx(2.0).margin(eps));
+}
+
+TEST_CASE("angle"){ // Cody, Nichoson
+    turtlelib::Vector2D vec1, vec2;
+
+    vec1.x = 4.0; vec1.y = 2.0;
+    vec2.x = -3.0; vec2.y = 3.0;
+
+    double theta = angle(vec1, vec2);
+
+    REQUIRE(theta == Approx(1.8925).margin(0.0001));
+}
+
 TEST_CASE("istream Vector input","[Vector2D]"){ // James Avtges
     std::stringstream bracket;
     turtlelib::Vector2D bracketV;

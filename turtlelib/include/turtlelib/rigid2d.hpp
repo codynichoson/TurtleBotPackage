@@ -74,31 +74,31 @@ namespace turtlelib
         /// \brief add a Vector2D to a Vector2D
         /// \param rhs - the vector to add
         /// \return the new vector
-        Vector2D & operator+=(const Vector2D & rhs);
+        Vector2D & operator+=(const Vector2D &rhs);
 
         /// \brief subtract a Vector2D to a Vector2D
         /// \param rhs - the vector to subtract
         /// \return the new vector
-        Vector2D & operator-=(const Vector2D & rhs);
+        Vector2D & operator-=(const Vector2D &rhs);
 
-        /// \brief multiply a Vector2D to a Vector2D
-        /// \param rhs - the vector to multiply
+        /// \brief multiply a Vector2D by a scalar
+        /// \param rhs - the scalar to multiply by
         /// \return the new vector
-        Vector2D & operator*=(const Vector2D & rhs);
-
-        /// \brief dot product of two vectors
-        /// \return the product of the vectors
-        double dot(Vector2D, Vector2D);
-
-        /// \brief magnitude of a vector
-        /// \return the magnitude
-        double magnitude(Vector2D);
-
-        /// \brief angle between two vectors
-        /// \param rhs - the vector to multiply
-        /// \return the angle between the vectors
-        double angle(Vector2D, Vector2D);
+        Vector2D & operator*=(const double &rhs);
     };
+
+    /// \brief dot product of two vectors
+    /// \return the product of the vectors
+    double dot(Vector2D, Vector2D);
+
+    /// \brief magnitude of a vector
+    /// \return the magnitude
+    double magnitude(Vector2D);
+
+    /// \brief angle between two vectors
+    /// \param rhs - the vector to multiply
+    /// \return the angle between the vectors
+    double angle(Vector2D, Vector2D);
 
     /// \brief A 3-Dimension Vector
     struct Twist2D
@@ -215,21 +215,21 @@ namespace turtlelib
     /// \param rhs - the right hand operand
     /// \return the product of a vector by a scalar
     /// HINT: This function should be implemented in terms of *=
-    Vector2D operator*(Vector2D lhs, const Vector2D & rhs);
+    Vector2D operator*(Vector2D lhs, const double &rhs);
 
     /// \brief subtract one vector from another, returning the result
     /// \param lhs - the left hand operand
     /// \param rhs - the right hand operand
     /// \return the result of the subtraction
     /// HINT: This function should be implemented in terms of -=
-    Vector2D operator-(Vector2D lhs, const Vector2D & rhs);
+    Vector2D operator-(Vector2D lhs, const Vector2D &rhs);
 
     /// \brief add two vectors together, returning their sum
     /// \param lhs - the left hand operand
     /// \param rhs - the right hand operand
     /// \return the sum of the two vectors
     /// HINT: This function should be implemented in terms of +=
-    Vector2D operator+(Vector2D lhs, const Vector2D & rhs);
+    Vector2D operator+(Vector2D lhs, const Vector2D &rhs);
 
     /// \brief should print a human readable version of the transform:
     /// An example output:

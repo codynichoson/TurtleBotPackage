@@ -79,6 +79,57 @@ namespace turtlelib{
         return normalized;
     }
 
+    Vector2D & Vector2D::operator+=(const Vector2D &rhs){
+        x = x + rhs.x;
+        y = y + rhs.y;
+
+        return *this;
+    }
+
+    Vector2D & Vector2D::operator-=(const Vector2D &rhs){
+        x = x - rhs.x;
+        y = y - rhs.y;
+
+        return *this;
+    }
+
+    Vector2D & Vector2D::operator*=(const double &rhs){
+        x = x*rhs;
+        y = y*rhs;
+
+        return *this;
+    }
+
+    Vector2D operator+(Vector2D lhs, const Vector2D & rhs){
+        lhs+=rhs;
+        return lhs;
+    }
+
+    Vector2D operator-(Vector2D lhs, const Vector2D & rhs){
+        lhs-=rhs;
+        return lhs;
+    }
+
+    Vector2D operator*(Vector2D lhs, const double & rhs){
+        lhs*=rhs;
+        return lhs;
+    }
+
+    double dot(Vector2D vec1, Vector2D vec2){
+        double dotprod = vec1.x*vec2.x + vec1.y*vec2.y;
+        return dotprod;
+    }
+
+    double magnitude(Vector2D vec){
+        double mag = std::sqrt(vec.x*vec.x + vec.y*vec.y);
+        return mag;
+    }
+
+    double angle(Vector2D vec1, Vector2D vec2){
+        double theta = std::acos((turtlelib::dot(vec1, vec2))/(turtlelib::magnitude(vec1) * turtlelib::magnitude(vec2)));
+        return theta;
+    }
+
     double normalize_angle(double rad){
         while (rad > PI){
             rad = rad - 2.0*PI;
