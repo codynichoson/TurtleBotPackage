@@ -258,6 +258,10 @@ namespace turtlelib
     /// \return the angle, but like totally normalized
     double normalize_angle(double rad);
 
+    Transform2D integrate_twist(Twist2D){
+
+    }
+
     
 
 }

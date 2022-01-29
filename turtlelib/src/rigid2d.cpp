@@ -34,7 +34,6 @@ namespace turtlelib{
         inverse.x = -x*cos(theta) - y*sin(theta);
         inverse.y = -y*cos(theta) + x*sin(theta);
         inverse.theta = -theta;
-
         return inverse;
     }
 
@@ -42,7 +41,6 @@ namespace turtlelib{
         Vector2D new_vec;
         new_vec.x = cos(tf.theta)*vec.x - sin(tf.theta)*vec.y + tf.x;
         new_vec.y = sin(tf.theta)*vec.x + cos(tf.theta)*vec.y + tf.y;
-
         return new_vec;
     }
 
@@ -51,7 +49,6 @@ namespace turtlelib{
         new_twist.thetadot = twist.thetadot + 0 + 0;
         new_twist.xdot = tf.y*twist.thetadot + cos(tf.theta)*twist.xdot - sin(tf.theta)*twist.ydot;
         new_twist.ydot = -tf.x*twist.thetadot + sin(tf.theta)*twist.xdot + cos(tf.theta)*twist.ydot;
-
         return new_twist;
     }
 
@@ -59,44 +56,37 @@ namespace turtlelib{
         Vector2D vec;
         vec.x = x;
         vec.y = y;
-
         return vec;
     }
 
     double Transform2D::rotation() const{
         double angle = theta;
-
         return angle;
     }
 
     Vector2D normalize(Vector2D vec){
         Vector2D normalized;
         double magnitude = std::abs(std::sqrt(vec.x*vec.x + vec.y*vec.y));
-
         normalized.x = vec.x/magnitude;
         normalized.y = vec.y/magnitude;
-
         return normalized;
     }
 
     Vector2D & Vector2D::operator+=(const Vector2D &rhs){
         x = x + rhs.x;
         y = y + rhs.y;
-
         return *this;
     }
 
     Vector2D & Vector2D::operator-=(const Vector2D &rhs){
         x = x - rhs.x;
         y = y - rhs.y;
-
         return *this;
     }
 
     Vector2D & Vector2D::operator*=(const double &rhs){
         x = x*rhs;
         y = y*rhs;
-
         return *this;
     }
 
