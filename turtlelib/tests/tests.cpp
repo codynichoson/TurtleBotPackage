@@ -9,8 +9,8 @@ TEST_CASE("normalize"){ // Cody, Nichoson
     turtlelib::Vector2D v_in, v_out;
     v_in.x = 1; v_in.y = 1;
     v_out = normalize(v_in);
-    REQUIRE(v_out.x == Approx(0.7071067812));
-    REQUIRE(v_out.y == Approx(0.7071067812));
+    CHECK(v_out.x == Approx(0.7071067812));
+    CHECK(v_out.y == Approx(0.7071067812));
 }
 
 TEST_CASE("inverse"){ // Cody, Nichoson
@@ -18,22 +18,22 @@ TEST_CASE("inverse"){ // Cody, Nichoson
     tf2 = tf1.inv();
     double angle = tf2.rotation();
     turtlelib::Vector2D vec = tf2.translation();
-    REQUIRE(angle == Approx(0));
-    REQUIRE(vec.x == Approx(0));
-    REQUIRE(vec.y == Approx(0));
+    CHECK(angle == Approx(0));
+    CHECK(vec.x == Approx(0));
+    CHECK(vec.y == Approx(0));
 }
 
 TEST_CASE("translation"){ // Cody, Nichoson
     turtlelib::Transform2D tf;
     turtlelib::Vector2D vec = tf.translation();
-    REQUIRE(vec.x == Approx(0));
-    REQUIRE(vec.y == Approx(0));
+    CHECK(vec.x == Approx(0));
+    CHECK(vec.y == Approx(0));
 }
 
 TEST_CASE("rotation"){ // Cody, Nichoson
     turtlelib::Transform2D tf;
     double angle = tf.rotation();
-    REQUIRE(angle == Approx(0));
+    CHECK(angle == Approx(0));
 }
 
 TEST_CASE("normalize_angle"){ // Cody, Nichoson
@@ -51,12 +51,12 @@ TEST_CASE("normalize_angle"){ // Cody, Nichoson
     double res5 = turtlelib::normalize_angle(theta5);
     double res6 = turtlelib::normalize_angle(theta6);
 
-    REQUIRE(res1 == Approx(PI).margin(eps));
-    REQUIRE(res2 == Approx(-PI).margin(eps));
-    REQUIRE(res3 == Approx(0).margin(eps));
-    REQUIRE(res4 == Approx(-PI/4.0).margin(eps));
-    REQUIRE(res5 == Approx(-PI/2.0).margin(eps));
-    REQUIRE(res6 == Approx(-PI/2.0).margin(eps));
+    CHECK(res1 == Approx(PI).margin(eps));
+    CHECK(res2 == Approx(-PI).margin(eps));
+    CHECK(res3 == Approx(0).margin(eps));
+    CHECK(res4 == Approx(-PI/4.0).margin(eps));
+    CHECK(res5 == Approx(-PI/2.0).margin(eps));
+    CHECK(res6 == Approx(-PI/2.0).margin(eps));
 }
 
 TEST_CASE("adding vectors"){ // Cody, Nichoson
@@ -67,8 +67,8 @@ TEST_CASE("adding vectors"){ // Cody, Nichoson
 
     turtlelib::Vector2D res = vec1 + vec2;
 
-    REQUIRE(res.x == Approx(5.0).margin(eps));
-    REQUIRE(res.y == Approx(2.0).margin(eps));
+    CHECK(res.x == Approx(5.0).margin(eps));
+    CHECK(res.y == Approx(2.0).margin(eps));
 }
 
 TEST_CASE("angle"){ // Cody, Nichoson
@@ -79,31 +79,37 @@ TEST_CASE("angle"){ // Cody, Nichoson
 
     double theta = angle(vec1, vec2);
 
-    REQUIRE(theta == Approx(1.8925).margin(0.0001));
+    CHECK(theta == Approx(1.8925).margin(0.0001));
 }
 
 TEST_CASE("integrate_twist"){ // Cody, Nichoson
     turtlelib::Twist2D twist1, twist2, twist3;
-    twist1.xdot = 0.0; twist1.ydot = 0.0; twist1.thetadot = 1.57; // pure rotation
+    twist1.xdot = 0.0; twist1.ydot = 0.0; twist1.thetadot = PI/2; // pure rotation
     twist2.xdot = 3.0; twist2.ydot = 5.0; twist2.thetadot = 0.0;  // pure translation
-    twist3.xdot = 0.0; twist3.ydot = 0.0; twist3.thetadot = 1.57; // rotation and translation
+    twist3.xdot = 1.0; twist3.ydot = 1.0; twist3.thetadot = PI/2; // rotation and translation
 
     turtlelib::Transform2D T1 = integrate_twist(twist1);
     turtlelib::Transform2D T2 = integrate_twist(twist2);
     turtlelib::Transform2D T3 = integrate_twist(twist3);
 
+    turtlelib::Vector2D T1vec = T1.translation();
+    double T1rot = T1.rotation();
+    turtlelib::Vector2D T2vec = T2.translation();
+    double T2rot = T2.rotation();
+    turtlelib::Vector2D T3vec = T3.translation();
+    double T3rot = T3.rotation();
 
-    REQUIRE(T1.x == Approx(0.0).margin(0.0001));
-    REQUIRE(T1.y == Approx(0.0).margin(0.0001));
-    REQUIRE(T1.theta == Approx(1.57).margin(0.01));
+    CHECK(T1vec.x == Approx(0.0).margin(0.0001));
+    CHECK(T1vec.y == Approx(0.0).margin(0.0001));
+    CHECK(T1rot == Approx(PI/2).margin(0.01));
 
-    REQUIRE(T2.x == Approx(3.0).margin(0.0001));
-    REQUIRE(T2.y == Approx(5.0).margin(0.0001));
-    REQUIRE(T2.theta == Approx(0.0).margin(0.01));
+    CHECK(T2vec.x == Approx(3.0).margin(0.0001));
+    CHECK(T2vec.y == Approx(5.0).margin(0.0001));
+    CHECK(T2rot == Approx(0.0).margin(0.01));
 
-    // REQUIRE(T3.x == Approx(0).margin(0.0001));
-    // REQUIRE(T3.y == Approx(0).margin(0.0001));
-    // REQUIRE(T3.theta == Approx(1.57).margin(0.01));
+    CHECK(T3vec.x == Approx(0.0).margin(0.01));
+    CHECK(T3vec.y == Approx(4/PI).margin(0.01));
+    CHECK(T3rot == Approx(PI/2).margin(0.01));
 }
 
 TEST_CASE("istream Vector input","[Vector2D]"){ // James Avtges
@@ -115,8 +121,8 @@ TEST_CASE("istream Vector input","[Vector2D]"){ // James Avtges
     number.str("1 1");
     bracket >> bracketV;
     number >> numberV;
-    REQUIRE(bracketV.x == 1);
-    REQUIRE(numberV.x == 1);
+    CHECK(bracketV.x == 1);
+    CHECK(numberV.x == 1);
 }
 
 TEST_CASE("ostream Vector output","[Vector2D]"){ // James Avtges
@@ -127,7 +133,7 @@ TEST_CASE("ostream Vector output","[Vector2D]"){ // James Avtges
 
     vectorOut << vector;
 
-    REQUIRE(vectorOut.str() == "[9 1]\n");
+    CHECK(vectorOut.str() == "[9 1]\n");
 }
 
 TEST_CASE("istream Twist input","[Twist2D]"){ // James Avtges
@@ -139,8 +145,8 @@ TEST_CASE("istream Twist input","[Twist2D]"){ // James Avtges
     number.str("1 2 3");
     bracket >> bracketT;
     number >> numberT;
-    REQUIRE(bracketT.xdot == 2);
-    REQUIRE(numberT.xdot == 2);
+    CHECK(bracketT.xdot == 2);
+    CHECK(numberT.xdot == 2);
 }
 
 TEST_CASE("ostream Twist output","[Twist2D]"){ // James Avtges
@@ -152,7 +158,7 @@ TEST_CASE("ostream Twist output","[Twist2D]"){ // James Avtges
 
     twistOut << twist;
 
-    REQUIRE(twistOut.str() == "[10 5 4]\n");
+    CHECK(twistOut.str() == "[10 5 4]\n");
 }
 
 TEST_CASE("istream Transform input","[Transform2D]"){ // James Avtges
@@ -163,9 +169,9 @@ TEST_CASE("istream Transform input","[Transform2D]"){ // James Avtges
 
     turtlelib::Vector2D translation = T.translation();
     double rotation = turtlelib::rad2deg(T.rotation());
-    REQUIRE(translation.x == 2);
-    REQUIRE(translation.y == 4);
-    REQUIRE(rotation == 80);
+    CHECK(translation.x == 2);
+    CHECK(translation.y == 4);
+    CHECK(rotation == 80);
 }
 
 TEST_CASE("ostream Transform output","[Transform2D]"){ // James Avtges
@@ -178,7 +184,7 @@ TEST_CASE("ostream Transform output","[Transform2D]"){ // James Avtges
 
     transformOut << T;
 
-    REQUIRE(transformOut.str() == "deg: 6.1 x: 3.2 y: 4\n");
+    CHECK(transformOut.str() == "deg: 6.1 x: 3.2 y: 4\n");
 }
 
 TEST_CASE("constructor_all", "[transform]") { // Anna Garverick
@@ -195,9 +201,9 @@ TEST_CASE("constructor_all", "[transform]") { // Anna Garverick
 
     double d = turtlelib::rad2deg(r_out);
 
-    REQUIRE(t_out.x == 1);
-    REQUIRE(t_out.y == 2);
-    REQUIRE(d == 90);
+    CHECK(t_out.x == 1);
+    CHECK(t_out.y == 2);
+    CHECK(d == 90);
 } 
 
 TEST_CASE("constructor_trans", "[transform]") { // Anna Garverick
@@ -212,9 +218,9 @@ TEST_CASE("constructor_trans", "[transform]") { // Anna Garverick
 
     double d = turtlelib::rad2deg(r_out);
 
-    REQUIRE(t_out.x == 1);
-    REQUIRE(t_out.y == 2);
-    REQUIRE(d == 0);
+    CHECK(t_out.x == 1);
+    CHECK(t_out.y == 2);
+    CHECK(d == 0);
 }
 
 TEST_CASE("constructor_rot", "[transform]") { // Anna Garverick
@@ -227,7 +233,7 @@ TEST_CASE("constructor_rot", "[transform]") { // Anna Garverick
 
     double d = turtlelib::rad2deg(r_out);
 
-    REQUIRE(t_out.x == 0);
-    REQUIRE(t_out.y == 0);
-    REQUIRE(d == 90);
+    CHECK(t_out.x == 0);
+    CHECK(t_out.y == 0);
+    CHECK(d == 90);
 }

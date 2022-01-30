@@ -65,32 +65,46 @@ namespace turtlelib{
     }
 
     Transform2D integrate_twist(Twist2D twist){
-        Transform2D Tbbp();
+        
+        turtlelib::Vector2D Tbbp_vec;
+        double Tbbp_rot;
 
         if (twist.thetadot == 0.0){ // pure translation
-            Tbbp.x = twist.x;
-            Tbbp.y = twist.y;
-            Tbbp.theta = 0.0;
+            Tbbp_vec.x = twist.xdot;
+            Tbbp_vec.y = twist.ydot;
+            // Tbbp_rot = 0.0;
+
+            turtlelib::Transform2D Tbbp(Tbbp_vec);
+
+            return Tbbp;
         }
-        else if (twist.x == 0.0 && twist.y == 0.0){ // pure rotation
-            Tbbp.x = 0.0;
-            Tbbp.y = 0.0;
-            Tbbp.theta = twist.thetadot;
+        else if (twist.xdot == 0.0 && twist.ydot == 0.0){ // pure rotation
+            // Tbbp_vec.x = 0.0;
+            // Tbbp_vec.y = 0.0;
+            Tbbp_rot = twist.thetadot;
+
+            turtlelib::Transform2D Tbbp(Tbbp_rot);
+
+            return Tbbp;
         }
         else { // translation and rotation
             Vector2D Tsb_vec; 
-            Tsb_vec.x = twist.y/twist.theta; 
-            Tsb_vec.y = twist.x/twist.theta;
+            Tsb_vec.x = twist.ydot/twist.thetadot; 
+            Tsb_vec.y = -twist.xdot/twist.thetadot;
 
-            Transform2D Tsb(Tsb_vec, 0.0);
-            Transform2D Tssp(twist);
+            Transform2D Tsb(Tsb_vec);
+            turtlelib::Vector2D Tssp_vec;
+            Transform2D Tssp(twist.thetadot);
             Transform2D Tbs = Tsb.inv();
             Transform2D Tspbp = Tsb;
 
+            turtlelib::Transform2D Tbbp;
             Tbbp = Tbs*Tssp*Tspbp;
+
+            return Tbbp;
         }
 
-        return Tbbp;
+        
     }
 
     Vector2D normalize(Vector2D vec){
