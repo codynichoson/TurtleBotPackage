@@ -31,15 +31,9 @@ A library for handling transformations in SE(2) and other turtlebot-related math
 
 Primarily, in a class, members are private by default. In a structure, members are public by default. Class variables can also have null values, whereas structure members cannot.
 
-<<<<<<< HEAD
-3. Why is Vector2D a struct and Transform2DClass (refer to at least 2 specific C++ core guidelines in your answer)?
-
-Transform2D contains a lot of member functions that use private variables, so it makes sense to use a class.
-=======
 3. Why is Vector2D a struct and Transform2D a class (refer to at least 2 specific C++ core guidelines in your answer)?
 
 Transform2D is a class because it contains an invariant (C++ Core Guidelines C.2). The functions for Vector2D do not need direct access to the representation of the class, so it is a struct (C++ Core Guidelines C.4).
->>>>>>> Task.B
 
 4. Why are some of the constructors in Transform2D explicit (refer to a specific C++ core guideline in your answer)?
 
