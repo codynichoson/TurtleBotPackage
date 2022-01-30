@@ -64,6 +64,35 @@ namespace turtlelib{
         return angle;
     }
 
+    Transform2D integrate_twist(Twist2D twist){
+        Transform2D Tbbp();
+
+        if (twist.thetadot == 0.0){ // pure translation
+            Tbbp.x = twist.x;
+            Tbbp.y = twist.y;
+            Tbbp.theta = 0.0;
+        }
+        else if (twist.x == 0.0 && twist.y == 0.0){ // pure rotation
+            Tbbp.x = 0.0;
+            Tbbp.y = 0.0;
+            Tbbp.theta = twist.thetadot;
+        }
+        else { // translation and rotation
+            Vector2D Tsb_vec; 
+            Tsb_vec.x = twist.y/twist.theta; 
+            Tsb_vec.y = twist.x/twist.theta;
+
+            Transform2D Tsb(Tsb_vec, 0.0);
+            Transform2D Tssp(twist);
+            Transform2D Tbs = Tsb.inv();
+            Transform2D Tspbp = Tsb;
+
+            Tbbp = Tbs*Tssp*Tspbp;
+        }
+
+        return Tbbp;
+    }
+
     Vector2D normalize(Vector2D vec){
         Vector2D normalized;
         double magnitude = std::abs(std::sqrt(vec.x*vec.x + vec.y*vec.y));
@@ -243,5 +272,7 @@ namespace turtlelib{
         lhs*=rhs;
         return lhs;
     }
+
+    
 }
 

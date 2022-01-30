@@ -82,6 +82,30 @@ TEST_CASE("angle"){ // Cody, Nichoson
     REQUIRE(theta == Approx(1.8925).margin(0.0001));
 }
 
+TEST_CASE("integrate_twist"){ // Cody, Nichoson
+    turtlelib::Twist2D twist1, twist2, twist3;
+    twist1.xdot = 0.0; twist1.ydot = 0.0; twist1.thetadot = 1.57; // pure rotation
+    twist2.xdot = 3.0; twist2.ydot = 5.0; twist2.thetadot = 0.0;  // pure translation
+    twist3.xdot = 0.0; twist3.ydot = 0.0; twist3.thetadot = 1.57; // rotation and translation
+
+    turtlelib::Transform2D T1 = integrate_twist(twist1);
+    turtlelib::Transform2D T2 = integrate_twist(twist2);
+    turtlelib::Transform2D T3 = integrate_twist(twist3);
+
+
+    REQUIRE(T1.x == Approx(0.0).margin(0.0001));
+    REQUIRE(T1.y == Approx(0.0).margin(0.0001));
+    REQUIRE(T1.theta == Approx(1.57).margin(0.01));
+
+    REQUIRE(T2.x == Approx(3.0).margin(0.0001));
+    REQUIRE(T2.y == Approx(5.0).margin(0.0001));
+    REQUIRE(T2.theta == Approx(0.0).margin(0.01));
+
+    // REQUIRE(T3.x == Approx(0).margin(0.0001));
+    // REQUIRE(T3.y == Approx(0).margin(0.0001));
+    // REQUIRE(T3.theta == Approx(1.57).margin(0.01));
+}
+
 TEST_CASE("istream Vector input","[Vector2D]"){ // James Avtges
     std::stringstream bracket;
     turtlelib::Vector2D bracketV;
