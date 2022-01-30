@@ -34,7 +34,6 @@ namespace turtlelib{
         inverse.x = -x*cos(theta) - y*sin(theta);
         inverse.y = -y*cos(theta) + x*sin(theta);
         inverse.theta = -theta;
-
         return inverse;
     }
 
@@ -42,7 +41,6 @@ namespace turtlelib{
         Vector2D new_vec;
         new_vec.x = cos(tf.theta)*vec.x - sin(tf.theta)*vec.y + tf.x;
         new_vec.y = sin(tf.theta)*vec.x + cos(tf.theta)*vec.y + tf.y;
-
         return new_vec;
     }
 
@@ -51,32 +49,128 @@ namespace turtlelib{
         new_twist.thetadot = twist.thetadot + 0 + 0;
         new_twist.xdot = tf.y*twist.thetadot + cos(tf.theta)*twist.xdot - sin(tf.theta)*twist.ydot;
         new_twist.ydot = -tf.x*twist.thetadot + sin(tf.theta)*twist.xdot + cos(tf.theta)*twist.ydot;
-
         return new_twist;
-    }
-
-    Vector2D normalize(Vector2D vec){
-        Vector2D normalized;
-        double magnitude = std::abs(std::sqrt(vec.x*vec.x + vec.y*vec.y));
-
-        normalized.x = vec.x/magnitude;
-        normalized.y = vec.y/magnitude;
-
-        return normalized;
     }
 
     Vector2D Transform2D::translation() const{
         Vector2D vec;
         vec.x = x;
         vec.y = y;
-
         return vec;
     }
 
     double Transform2D::rotation() const{
         double angle = theta;
-
         return angle;
+    }
+
+    Transform2D integrate_twist(Twist2D twist){
+        
+        turtlelib::Vector2D Tbbp_vec;
+        double Tbbp_rot;
+
+        if (twist.thetadot == 0.0){ // pure translation
+            Tbbp_vec.x = twist.xdot;
+            Tbbp_vec.y = twist.ydot;
+            // Tbbp_rot = 0.0;
+
+            turtlelib::Transform2D Tbbp(Tbbp_vec);
+
+            return Tbbp;
+        }
+        else if (twist.xdot == 0.0 && twist.ydot == 0.0){ // pure rotation
+            // Tbbp_vec.x = 0.0;
+            // Tbbp_vec.y = 0.0;
+            Tbbp_rot = twist.thetadot;
+
+            turtlelib::Transform2D Tbbp(Tbbp_rot);
+
+            return Tbbp;
+        }
+        else { // translation and rotation
+            Vector2D Tsb_vec; 
+            Tsb_vec.x = twist.ydot/twist.thetadot; 
+            Tsb_vec.y = -twist.xdot/twist.thetadot;
+
+            Transform2D Tsb(Tsb_vec);
+            turtlelib::Vector2D Tssp_vec;
+            Transform2D Tssp(twist.thetadot);
+            Transform2D Tbs = Tsb.inv();
+            Transform2D Tspbp = Tsb;
+
+            turtlelib::Transform2D Tbbp;
+            Tbbp = Tbs*Tssp*Tspbp;
+
+            return Tbbp;
+        }
+
+        
+    }
+
+    Vector2D normalize(Vector2D vec){
+        Vector2D normalized;
+        double magnitude = std::abs(std::sqrt(vec.x*vec.x + vec.y*vec.y));
+        normalized.x = vec.x/magnitude;
+        normalized.y = vec.y/magnitude;
+        return normalized;
+    }
+
+    Vector2D & Vector2D::operator+=(const Vector2D &rhs){
+        x = x + rhs.x;
+        y = y + rhs.y;
+        return *this;
+    }
+
+    Vector2D & Vector2D::operator-=(const Vector2D &rhs){
+        x = x - rhs.x;
+        y = y - rhs.y;
+        return *this;
+    }
+
+    Vector2D & Vector2D::operator*=(const double &rhs){
+        x = x*rhs;
+        y = y*rhs;
+        return *this;
+    }
+
+    Vector2D operator+(Vector2D lhs, const Vector2D & rhs){
+        lhs+=rhs;
+        return lhs;
+    }
+
+    Vector2D operator-(Vector2D lhs, const Vector2D & rhs){
+        lhs-=rhs;
+        return lhs;
+    }
+
+    Vector2D operator*(Vector2D lhs, const double & rhs){
+        lhs*=rhs;
+        return lhs;
+    }
+
+    double dot(Vector2D vec1, Vector2D vec2){
+        double dotprod = vec1.x*vec2.x + vec1.y*vec2.y;
+        return dotprod;
+    }
+
+    double magnitude(Vector2D vec){
+        double mag = std::sqrt(vec.x*vec.x + vec.y*vec.y);
+        return mag;
+    }
+
+    double angle(Vector2D vec1, Vector2D vec2){
+        double theta = std::acos((turtlelib::dot(vec1, vec2))/(turtlelib::magnitude(vec1) * turtlelib::magnitude(vec2)));
+        return theta;
+    }
+
+    double normalize_angle(double rad){
+        while (rad > PI){
+            rad = rad - 2.0*PI;
+        }
+        while (rad < -PI){
+            rad = rad + 2.0*PI;
+        }
+        return rad;
     }
 
     std::ostream & operator << (std::ostream & os, const Vector2D & v){
@@ -192,5 +286,7 @@ namespace turtlelib{
         lhs*=rhs;
         return lhs;
     }
+
+    
 }
 
