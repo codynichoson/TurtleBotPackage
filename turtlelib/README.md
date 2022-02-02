@@ -3,6 +3,7 @@ A library for handling transformations in SE(2) and other turtlebot-related math
 
 # Components
 - rigid2d - Handles 2D rigid body transformations
+- diff_drive - Handles differential drive kinematics calculations
 - frame_main - Perform some rigid body computations based on user input
 
 # Conceptual Questions

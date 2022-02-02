@@ -103,8 +103,6 @@ namespace turtlelib{
 
             return Tbbp;
         }
-
-        
     }
 
     Vector2D normalize(Vector2D vec){

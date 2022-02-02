@@ -13,20 +13,20 @@ namespace turtlelib
     struct WheelPos
     {
         /// \brief right wheel angle
-        double phi_r = 0.0;
+        double pos_r = 0.0;
 
         /// \brief left wheel angle
-        double phi_l = 0.0;
+        double pos_l = 0.0;
     };
 
     /// \brief Wheel velocities
     struct WheelVel
     {
         /// \brief right wheel velocity
-        double v_r= 0.0;
+        double vel_r= 0.0;
 
         /// \brief left wheel velocity
-        double v_l = 0.0;
+        double vel_l = 0.0;
     };
 
     /// \brief 2D robot configuration
@@ -48,20 +48,17 @@ namespace turtlelib
     {
     public:
         /// \brief update robot configuration using forward kinematics
-        /// \param wheel_pos - wheel angles
+        /// \param new_wheel_pos - wheel angles
         /// \return updated configuration
-        Config fKin(WheelPos new_wheel_pos, Config old_config);
+        Config fKin(WheelPos new_wheel_pos);
 
-        /// \brief update robot configuration using forward kinematics
-        /// \param wheel_pos - wheel angles
-        /// \return updated configuration
+        /// \brief update robot wheel velocities using inverse kinematics
+        /// \param twist - inputted twist
+        /// \return updated wheel velocities
         WheelVel invKin(Twist2D twist);
-
-
 
     private:
         Config config;
         WheelPos old_angles;
     };
-
 }

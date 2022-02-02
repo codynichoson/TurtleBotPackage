@@ -82,6 +82,13 @@ TEST_CASE("angle"){ // Cody, Nichoson
     CHECK(theta == Approx(1.8925).margin(0.0001));
 }
 
+// TEST_CASE("inverse_kinematics"){ // Cody, Nichoson
+//     turtlelib::Twist2D twist1(2.0, 2.0, 0.0);
+
+    
+//     CHECK(theta == Approx(1.8925).margin(0.0001));
+// }
+
 TEST_CASE("integrate_twist"){ // Cody, Nichoson
     turtlelib::Twist2D twist1, twist2, twist3;
     twist1.xdot = 0.0; twist1.ydot = 0.0; twist1.thetadot = PI/2; // pure rotation
