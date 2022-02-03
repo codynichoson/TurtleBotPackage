@@ -2,15 +2,18 @@
 #include "ros/ros.h"
 #include "std_msgs/UInt64.h"
 #include "sensor_msgs/JointState.h"
+#include <geometry_msgs/TransformStamped.h>
+#include <nuturtlebot_msgs/WheelCommands.h>
+#include <nuturtlebot_msgs/SensorData.h>
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2_ros/transform_broadcaster.h>
-#include <geometry_msgs/TransformStamped.h>
 #include <sstream>
 #include <iostream>
 #include <std_srvs/Trigger.h>
 #include "nusim/teleport.h"
 #include <visualization_msgs/Marker.h>
 #include <visualization_msgs/MarkerArray.h>
+#include "turtlelib/diff_drive.hpp"
 
 static int rate;
 static std_msgs::UInt64 timestep;
@@ -18,6 +21,7 @@ static double x=-0.6, y=0.8, theta=1.57;
 static std::vector<double> obs_x, obs_y;
 static double radius, height, robot_start_x, robot_start_y, robot_start_theta, x_length, y_length, wall_height, thickness;
 static int num_walls = 4;
+static left_vel, right_vel;
 
 // std::vector<double> radius, x, y ...
 
@@ -38,8 +42,10 @@ bool teleport_callback(nusim::teleport::Request &req, nusim::teleport::Response 
     return true;
 }
 
-visualization_msgs::MarkerArray make_walls(){
-
+void wheel_cmd_callback(const nuturtlebot_msgs::WheelCommands& msg)
+{
+    double left_vel = msg.left_velocity * motor_cmd_to_radsec;
+    double right_vel = msg.right_velocity * motor_cmd_to_radsec;
 }
 
 int main(int argc, char * argv[])
@@ -59,6 +65,7 @@ int main(int argc, char * argv[])
     nhp.getParam("y_length", y_length);
     nhp.getParam("wall_height", wall_height);
     nhp.getParam("thickness", thickness);
+    nhp.getParam("motor_cmd_to_radsec", motor_cmd_to_radsec);
     nhp.getParam("rate", rate);
     ros::Rate r(rate);
 
@@ -68,9 +75,14 @@ int main(int argc, char * argv[])
 
     // create publishers
     ros::Publisher joint_pub = nh.advertise<sensor_msgs::JointState>("red/joint_states", rate);
+    ros::Publisher wheel_pub = nh.advertise<nuturtlebot_msgs::SensorData>("red/sensor_data", rate);
     ros::Publisher timestep_pub = nhp.advertise<std_msgs::UInt64>("timestep", rate);
+
     ros::Publisher obstacles_pub = nhp.advertise<visualization_msgs::MarkerArray>("obstacles", 1, true);
     ros::Publisher walls_pub = nhp.advertise<visualization_msgs::MarkerArray>("walls", 1, true);
+
+    // create subscribers
+    ros::Subscriber sub = nhp.subscribe("red/wheel_cmd", 1000, wheel_cmd_callback);
     
     // create services
     ros::ServiceServer reset = nhp.advertiseService("reset", reset_callback);
@@ -89,10 +101,10 @@ int main(int argc, char * argv[])
         timestep_pub.publish(timestep);
 
         // populate joint states and publish
-        sensor_msgs::JointState joint_states;
-        joint_states.name = {"red_wheel_left_joint", "red_wheel_right_joint"};
-        joint_states.position = {0.0, 0.0};
-        joint_pub.publish(joint_states);
+        // sensor_msgs::JointState joint_states;
+        // joint_states.name = {"red_wheel_left_joint", "red_wheel_right_joint"};
+        // joint_states.position = {0.0, 0.0};
+        // joint_pub.publish(joint_states);
 
         for(int i = 0; i < obs_x.size(); i++){
             obs_arr.markers[i].header.frame_id = "world";
@@ -174,6 +186,11 @@ int main(int argc, char * argv[])
         transformStamped.transform.rotation.z = q.z();
         transformStamped.transform.rotation.w = q.w();
         br.sendTransform(transformStamped);
+
+        // update wheel positions and publish to red/sensor_data
+        // nuturtlebot_msgs::SensorData sensor_data;
+        // sensor_data.left_encoder = 
+        // sensor_data.right_encoder = 
         
         ros::spinOnce();
         r.sleep();

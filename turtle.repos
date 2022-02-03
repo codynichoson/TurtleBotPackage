@@ -1,0 +1,9 @@
+repositories:
+  nuturtlebot_msgs:
+    type: git
+    url: https://github.com/ME495-Navigation/nuturtlebot_msgs.git
+    version: main
+  slam-project-codynichoson:
+    type: git
+    url: git@github.com:ME495-Navigation/slam-project-codynichoson.git
+    version: Task.C
