@@ -82,7 +82,7 @@ int main(int argc, char * argv[])
     ros::Publisher walls_pub = nhp.advertise<visualization_msgs::MarkerArray>("walls", 1, true);
 
     // create subscribers
-    ros::Subscriber sub = nhp.subscribe("red/wheel_cmd", 1000, wheel_cmd_callback);
+    ros::Subscriber sub = nh.subscribe("red/wheel_cmd", 1000, wheel_cmd_callback);
     
     // create services
     ros::ServiceServer reset = nhp.advertiseService("reset", reset_callback);

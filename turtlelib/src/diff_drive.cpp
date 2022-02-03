@@ -2,6 +2,7 @@
 #include <cmath>
 #include "turtlelib/diff_drive.hpp"
 #include "turtlelib/rigid2d.hpp"
+using std::logic_error;
 
 /// \brief PI.  Not in C++ standard until C++20.
 constexpr double PI=3.14159265358979323846;
@@ -37,6 +38,10 @@ namespace turtlelib{
     WheelVel DiffDrive::invKin(Twist2D twist){
         double theta1dot = (-D/r)*twist.theta + (1/r)*twist.x;
         double theta2dot = (D/r)*twist.theta + (1/r)*twist.x;
+
+        if (twist.y != 0){
+            throw logic_error("Oh no! Robot is sliding sideways!");
+        }
         
         return {theta1dot, theta2dot};
     }
