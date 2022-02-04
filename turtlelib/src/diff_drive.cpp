@@ -14,35 +14,30 @@ constexpr double D = 0.08;
 constexpr double r = 0.033;
 
 namespace turtlelib{
-    DiffDrive::DiffDrive(){
-        config.x = 0.0;
-        config.y = 0.0;
-        config.theta = 0.0;
-        old_angles.pos_l = 0.0;
-        old_angles.po_r = 0.0;
-    }
 
-    Config DiffDrive::fKin(WheelPos new_wheel_pos){
+    Config DiffDrive::fKin(WheelAngles new_wheel_angles){
         Twist2D twist;
-        twist.xdot = (r*(new_wheel_pos.pos_l + new_wheel_pos.pos_r))/2.0;
-        twist.thetadot = (r/2.0*D)*(new_wheel_pos.pos_r - new_wheel_pos.pos_l);
+        twist.xdot = (r*(new_wheel_angles.left + new_wheel_angles.right))/2.0;
+        twist.thetadot = (r/2.0*D)*(new_wheel_angles.right - new_wheel_angles.left);
         Transform2D tf = integrate_twist(twist);
-        Config new_config;
-        new_config.x = tf.x; 
-        new_config.y = 0.0, 
-        new_config.theta = tf.theta;
+        Vector2D vec = tf.translation();
+        double theta = tf.rotation();
+        Config config;
+        config.x = vec.x; 
+        config.y = 0.0, 
+        config.theta = theta;
 
-        return config+=new_config;
-    }
+        return config;
+    };
 
     WheelVel DiffDrive::invKin(Twist2D twist){
-        double theta1dot = (-D/r)*twist.theta + (1/r)*twist.x;
-        double theta2dot = (D/r)*twist.theta + (1/r)*twist.x;
+        double theta1dot = (-D/r)*twist.thetadot + (1/r)*twist.xdot;
+        double theta2dot = (D/r)*twist.thetadot + (1/r)*twist.xdot;
 
-        if (twist.y != 0){
+        if (twist.ydot != 0){
             throw logic_error("Oh no! Robot is sliding sideways!");
         }
         
         return {theta1dot, theta2dot};
-    }
+    };
 }

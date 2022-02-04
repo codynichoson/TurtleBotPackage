@@ -63,6 +63,10 @@
   <exec_depend>message_runtime</exec_depend>
   <build_export_depend>roscpp</build_export_depend>
   <exec_depend>nuturtle_description</exec_depend>
+  <build_depend>nuturtlebot_msgs</build_depend>
+  <build_export_depend>nuturtlebot_msgs</build_export_depend>
+  <build_depend>turtlelib</build_depend>
+  <build_export_depend>turtlelib</build_export_depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>

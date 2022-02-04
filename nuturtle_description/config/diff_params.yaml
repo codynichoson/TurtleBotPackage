@@ -2,5 +2,5 @@ wheel_radius: 0.033
 track_width: 0.16
 collision_radius: 0.11
 motor_cmd_to_radsec: 0.024
-~motor_cmd_max: 265
-encoder_tickets_to_rad: 651.897
+~motor_cmd_max: [-265, 265]
+encoder_ticks_to_rad: 0.0015

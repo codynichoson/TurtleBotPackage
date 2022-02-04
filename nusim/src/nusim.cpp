@@ -13,17 +13,32 @@
 #include "nusim/teleport.h"
 #include <visualization_msgs/Marker.h>
 #include <visualization_msgs/MarkerArray.h>
-#include "turtlelib/diff_drive.hpp"
+#include <turtlelib/diff_drive.hpp>
 
 static int rate;
 static std_msgs::UInt64 timestep;
 static double x=-0.6, y=0.8, theta=1.57;
 static std::vector<double> obs_x, obs_y;
-static double radius, height, robot_start_x, robot_start_y, robot_start_theta, x_length, y_length, wall_height, thickness;
+static double radius;
+static double height;
+static double robot_start_x, robot_start_y, robot_start_theta;
+static double x_length;
+static double y_length;
+static double wall_height;
+static double thickness;
+static double motor_cmd_to_radsec;
+static double encoder_ticks_to_rad;
 static int num_walls = 4;
-static left_vel, right_vel;
 
-// std::vector<double> radius, x, y ...
+static turtlelib::WheelAngles new_wheelangles = {.left = 0.0, .right = 0.0};
+static turtlelib::WheelAngles old_wheelangles = {.left = 0.0, .right = 0.0};
+
+static turtlelib::WheelVel wheelvel;
+
+static turtlelib::Config new_config = {.x = 0.0, .y = 0.0, .theta = 0.0};
+static turtlelib::Config old_config = {.x = 0.0, .y = 0.0, .theta = 0.0};
+
+nuturtlebot_msgs::SensorData sensor_data;
 
 bool reset_callback(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res)
 {
@@ -42,10 +57,18 @@ bool teleport_callback(nusim::teleport::Request &req, nusim::teleport::Response 
     return true;
 }
 
-void wheel_cmd_callback(const nuturtlebot_msgs::WheelCommands& msg)
+void wheel_cmd_callback(const nuturtlebot_msgs::WheelCommands &msg)
 {
-    double left_vel = msg.left_velocity * motor_cmd_to_radsec;
-    double right_vel = msg.right_velocity * motor_cmd_to_radsec;
+    wheelvel.left = msg.left_velocity * motor_cmd_to_radsec;
+    wheelvel.right = msg.right_velocity * motor_cmd_to_radsec;
+
+    // calculate encoder stuff to populate sensor_data
+    double encoder_left = (int)(((wheelvel.left/rate) + new_wheelangles.left) / encoder_ticks_to_rad) % 4096;
+    double encoder_right = (int)(((wheelvel.right/rate) + new_wheelangles.right) / encoder_ticks_to_rad) % 4096;
+
+    sensor_data.left_encoder = encoder_left;
+    sensor_data.right_encoder = encoder_right;
+    
 }
 
 int main(int argc, char * argv[])
@@ -66,16 +89,19 @@ int main(int argc, char * argv[])
     nhp.getParam("wall_height", wall_height);
     nhp.getParam("thickness", thickness);
     nhp.getParam("motor_cmd_to_radsec", motor_cmd_to_radsec);
+    nhp.getParam("encoder_ticks_to_rad", encoder_ticks_to_rad);
     nhp.getParam("rate", rate);
     ros::Rate r(rate);
+
+    new_config = {.x = robot_start_x, .y = robot_start_y, .theta = robot_start_theta};
+    old_config = {.x = robot_start_x, .y = robot_start_y, .theta = robot_start_theta};
 
     // create transform broadcaster and broadcast message
     static tf2_ros::TransformBroadcaster br;
     geometry_msgs::TransformStamped transformStamped;
 
     // create publishers
-    ros::Publisher joint_pub = nh.advertise<sensor_msgs::JointState>("red/joint_states", rate);
-    ros::Publisher wheel_pub = nh.advertise<nuturtlebot_msgs::SensorData>("red/sensor_data", rate);
+    ros::Publisher sensor_pub = nh.advertise<nuturtlebot_msgs::SensorData>("red/sensor_data", rate);
     ros::Publisher timestep_pub = nhp.advertise<std_msgs::UInt64>("timestep", rate);
 
     ros::Publisher obstacles_pub = nhp.advertise<visualization_msgs::MarkerArray>("obstacles", 1, true);
@@ -99,12 +125,6 @@ int main(int argc, char * argv[])
         // increment time step and publish
         timestep.data = timestep.data + 1;
         timestep_pub.publish(timestep);
-
-        // populate joint states and publish
-        // sensor_msgs::JointState joint_states;
-        // joint_states.name = {"red_wheel_left_joint", "red_wheel_right_joint"};
-        // joint_states.position = {0.0, 0.0};
-        // joint_pub.publish(joint_states);
 
         for(int i = 0; i < obs_x.size(); i++){
             obs_arr.markers[i].header.frame_id = "world";
@@ -172,25 +192,29 @@ int main(int argc, char * argv[])
         }
         walls_pub.publish(wall_arr);
 
+        // update configuration with forward kinematics
+        turtlelib::DiffDrive ddrive;
+        new_wheelangles = {.left = wheelvel.left/rate, .right = wheelvel.right/rate};
+        new_config = ddrive.fKin(new_wheelangles);
+        old_wheelangles = new_wheelangles;
+        old_config = new_config;
+
         // populate transform and publish
         transformStamped.header.stamp = ros::Time::now();
         transformStamped.header.frame_id = "world";
         transformStamped.child_frame_id = "red_base_footprint";
-        transformStamped.transform.translation.x = robot_start_x;
-        transformStamped.transform.translation.y = robot_start_y;
+        transformStamped.transform.translation.x = new_config.x;
+        transformStamped.transform.translation.y = new_config.y;
         transformStamped.transform.translation.z = 0.0;
         tf2::Quaternion q;
-        q.setRPY(0, 0, robot_start_theta);
+        q.setRPY(0, 0, new_config.theta);
         transformStamped.transform.rotation.x = q.x();
         transformStamped.transform.rotation.y = q.y();
         transformStamped.transform.rotation.z = q.z();
         transformStamped.transform.rotation.w = q.w();
         br.sendTransform(transformStamped);
 
-        // update wheel positions and publish to red/sensor_data
-        // nuturtlebot_msgs::SensorData sensor_data;
-        // sensor_data.left_encoder = 
-        // sensor_data.right_encoder = 
+        sensor_pub.publish(sensor_data);
         
         ros::spinOnce();
         r.sleep();

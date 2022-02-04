@@ -10,23 +10,23 @@
 namespace turtlelib
 {
     /// \brief Wheel positions
-    struct WheelPos
+    struct WheelAngles
     {
-        /// \brief right wheel angle
-        double pos_r = 0.0;
-
         /// \brief left wheel angle
-        double pos_l = 0.0;
+        double left = 0.0;
+
+        /// \brief right wheel angle
+        double right = 0.0;
     };
 
     /// \brief Wheel velocities
     struct WheelVel
     {
-        /// \brief right wheel velocity
-        double vel_r= 0.0;
-
         /// \brief left wheel velocity
-        double vel_l = 0.0;
+        double left = 0.0;
+
+        /// \brief right wheel velocity
+        double right = 0.0;
     };
 
     /// \brief 2D robot configuration
@@ -42,15 +42,14 @@ namespace turtlelib
         double theta = 0.0;
     };
 
-
     /// \brief a rigid body transformation in 2 dimensions
     class DiffDrive
     {
     public:
         /// \brief update robot configuration using forward kinematics
-        /// \param new_wheel_pos - wheel angles
+        /// \param new_wheel_angles - wheel angles
         /// \return updated configuration
-        Config fKin(WheelPos new_wheel_pos);
+        Config fKin(WheelAngles new_wheel_angles);
 
         /// \brief update robot wheel velocities using inverse kinematics
         /// \param twist - inputted twist
@@ -58,7 +57,9 @@ namespace turtlelib
         WheelVel invKin(Twist2D twist);
 
     private:
-        Config config;
-        WheelPos old_angles;
+        // Config config;
+        // WheelAngles old_angles;
     };
 }
+
+#endif
