@@ -113,6 +113,15 @@ namespace turtlelib{
         return normalized;
     }
 
+    double normalizeAngle(double angle){
+        double normalized = fmod(angle - PI, (2*PI));
+        if (normalized > 0.0){
+            normalized = normalized - (2*PI);
+        }
+
+        return normalized + PI;
+    }
+
     Vector2D & Vector2D::operator+=(const Vector2D &rhs){
         x = x + rhs.x;
         y = y + rhs.y;

@@ -1,4 +1,5 @@
 #include "turtlelib/rigid2d.hpp"
+#include "turtlelib/diff_drive.hpp"
 #include <catch_ros/catch.hpp>
 #include <sstream>
 
@@ -36,7 +37,7 @@ TEST_CASE("rotation"){ // Cody, Nichoson
     CHECK(angle == Approx(0));
 }
 
-TEST_CASE("normalize_angle"){ // Cody, Nichoson
+TEST_CASE("normalizeAngle"){ // Cody, Nichoson
     double theta1 = PI;
     double theta2 = -PI;
     double theta3 = 0;
@@ -44,19 +45,19 @@ TEST_CASE("normalize_angle"){ // Cody, Nichoson
     double theta5 = (3.0*PI)/2.0;
     double theta6 = (-5.0*PI)/2.0;
 
-    double res1 = turtlelib::normalize_angle(theta1);
-    double res2 = turtlelib::normalize_angle(theta2);
-    double res3 = turtlelib::normalize_angle(theta3);
-    double res4 = turtlelib::normalize_angle(theta4);
-    double res5 = turtlelib::normalize_angle(theta5);
-    double res6 = turtlelib::normalize_angle(theta6);
+    double res1 = turtlelib::normalizeAngle(theta1);
+    double res2 = turtlelib::normalizeAngle(theta2);
+    double res3 = turtlelib::normalizeAngle(theta3);
+    double res4 = turtlelib::normalizeAngle(theta4);
+    double res5 = turtlelib::normalizeAngle(theta5);
+    double res6 = turtlelib::normalizeAngle(theta6);
 
-    CHECK(res1 == Approx(PI).margin(eps));
-    CHECK(res2 == Approx(-PI).margin(eps));
-    CHECK(res3 == Approx(0).margin(eps));
-    CHECK(res4 == Approx(-PI/4.0).margin(eps));
-    CHECK(res5 == Approx(-PI/2.0).margin(eps));
-    CHECK(res6 == Approx(-PI/2.0).margin(eps));
+    CHECK(res1 == Approx(PI).margin(0.0001));
+    CHECK(res2 == Approx(PI).margin(0.0001));
+    CHECK(res3 == Approx(0).margin(0.0001));
+    CHECK(res4 == Approx(-PI/4.0).margin(0.0001));
+    CHECK(res5 == Approx(-PI/2.0).margin(0.0001));
+    CHECK(res6 == Approx(-PI/2.0).margin(0.0001));
 }
 
 TEST_CASE("adding vectors"){ // Cody, Nichoson
@@ -82,12 +83,42 @@ TEST_CASE("angle"){ // Cody, Nichoson
     CHECK(theta == Approx(1.8925).margin(0.0001));
 }
 
-// TEST_CASE("inverse_kinematics"){ // Cody, Nichoson
-//     turtlelib::Twist2D twist1(2.0, 2.0, 0.0);
+TEST_CASE("inverse_kinematics"){ // Cody, Nichoson
+    turtlelib::DiffDrive ddrive;
+    turtlelib::Twist2D twist1, twist2, twist3;
+    twist1.xdot = 0.0; twist1.thetadot = 0.2; // pure rotation
+    twist2.xdot = 0.5; twist2.thetadot = 0.0;  // pure translation
+    twist3.xdot = 0.5; twist3.thetadot = 0.2; // rotation and translation
 
+    turtlelib::WheelVel vel1 = ddrive.invKin(twist1);
+    turtlelib::WheelVel vel2 = ddrive.invKin(twist2);
+    turtlelib::WheelVel vel3 = ddrive.invKin(twist3);
     
-//     CHECK(theta == Approx(1.8925).margin(0.0001));
-// }
+    CHECK(vel1.left == Approx(-0.484848).margin(0.000001));
+    CHECK(vel1.right == Approx(0.484848).margin(0.000001));
+    CHECK(vel2.left == Approx(15.151515).margin(0.000001));
+    CHECK(vel2.right == Approx(15.151515).margin(0.000001));
+    CHECK(vel3.left == Approx(14.666666).margin(0.000001));
+    CHECK(vel3.right == Approx(15.636363).margin(0.000001));
+}
+
+TEST_CASE("forward_kinematics"){ // Cody, Nichoson
+    turtlelib::DiffDrive ddrive;
+    turtlelib::WheelAngles ang1, ang2, ang3;
+    // ang1.left = 2*PI; ang1.right = 2*PI; // pure translation
+
+    ang2.left = -PI/4; ang2.right = PI/4; // pure rotation
+
+    // turtlelib::Config q1 = ddrive.fKin(ang1);
+    turtlelib::Config q2 = ddrive.fKin(ang2);
+
+    // CHECK(q1.x == Approx(2*PI*0.033).margin(0.001));
+    // CHECK(q1.y == Approx(0.0).margin(0.000001));
+    // CHECK(q1.theta == Approx(0.0).margin(0.000001));
+    CHECK(q2.x == Approx(0.0));
+    CHECK(q2.y == Approx(0));
+    CHECK(q2.theta == Approx(-0.32397));
+}
 
 TEST_CASE("integrate_twist"){ // Cody, Nichoson
     turtlelib::Twist2D twist1, twist2, twist3;

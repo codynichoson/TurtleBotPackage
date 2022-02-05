@@ -46,6 +46,8 @@ namespace turtlelib
     class DiffDrive
     {
     public:
+        DiffDrive();
+
         /// \brief update robot configuration using forward kinematics
         /// \param new_wheel_angles - wheel angles
         /// \return updated configuration
@@ -59,11 +61,12 @@ namespace turtlelib
         /// \brief convert wheel angles to twist
         /// \param wheel_angles - left and right wheel angles
         /// \return a twisty treat!
-        Twist2D Ang2Twist(WheelAngles wheel_angles);
+        Twist2D Vel2Twist(WheelVel wheelvels);
 
     private:
-        // Config config;
-        // WheelAngles old_angles;
+        Config config;
+        WheelAngles wheelangles;
+        WheelVel wheelvels;
     };
 }
 

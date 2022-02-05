@@ -14,36 +14,59 @@ constexpr double D = 0.08;
 constexpr double r = 0.033;
 
 namespace turtlelib{
+    DiffDrive::DiffDrive()
+    {
+        config.x = 0.0; config.y = 0.0; config.theta = 0.0;
+        wheelangles.left = 0.0; wheelangles.right = 0.0;
+        wheelvels.left = 0.0; wheelvels.right = 0.0;
+    }
 
     Config DiffDrive::fKin(WheelAngles new_wheel_angles){
-        Twist2D twist = Ang2Twist(new_wheel_angles);
-        Transform2D tf = integrate_twist(twist);
-        Vector2D vec = tf.translation();
-        double theta = tf.rotation();
-        Config config;
-        config.x = vec.x; 
-        config.y = vec.y; 
-        config.theta = theta;
+        wheelvels.left = new_wheel_angles.left - wheelangles.left;
+        wheelvels.right = new_wheel_angles.right - wheelangles.right;
 
-        return config;
+        wheelangles.left = new_wheel_angles.left;
+        wheelangles.right = new_wheel_angles.right;
+
+        Twist2D twist;
+        twist.xdot = (r/2)*(wheelvels.left + wheelvels.right);
+        twist.ydot = 0.0;
+        twist.thetadot = (r/(2*D))*(wheelvels.right - wheelvels.left);
+        
+        // Twist2D twist = Vel2Twist(wheelvels);
+        Vector2D trans; trans.x = config.x; trans.y = config.y;
+        double rot; rot = config.theta;
+        
+        Transform2D Twb(trans, rot);
+        Transform2D Tbbp = integrate_twist(twist);
+        Transform2D Twbp = Twb*Tbbp;
+
+        Vector2D new_trans = Twbp.translation();
+        double new_theta = normalizeAngle(Twbp.rotation());
+        config.x = new_trans.x; 
+        config.y = new_trans.y; 
+        config.theta = new_theta;
+        Config test = config;
+
+        return test;
     };
 
     WheelVel DiffDrive::invKin(Twist2D twist){
-        double theta1dot = (-D/r)*twist.thetadot + (1/r)*twist.xdot;
-        double theta2dot = (D/r)*twist.thetadot + (1/r)*twist.xdot;
+        double left_wheel_vel = (-D/r)*twist.thetadot + (1/r)*twist.xdot;
+        double right_wheel_vel = (D/r)*twist.thetadot + (1/r)*twist.xdot;
 
         if (twist.ydot != 0){
             throw logic_error("Oh no! Robot is sliding sideways!");
         }
         
-        return {theta1dot, theta2dot};
+        return {left_wheel_vel, right_wheel_vel};
     };
 
-    Twist2D DiffDrive::Ang2Twist(WheelAngles wheel_angles){
+    Twist2D DiffDrive::Vel2Twist(WheelVel wheelvels){
         Twist2D twist;
-        twist.xdot = (r*(wheel_angles.left + wheel_angles.right))/2.0;
+        twist.xdot = (r*(wheelvels.left + wheelvels.right))/2.0;
         twist.ydot = 0.0;
-        twist.thetadot = (r/2.0*D)*(wheel_angles.right - wheel_angles.left);
+        twist.thetadot = (r/2.0*D)*(wheelvels.right - wheelvels.left);
 
         return twist;
     };
