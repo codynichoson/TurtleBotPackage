@@ -63,12 +63,11 @@ void wheel_cmd_callback(const nuturtlebot_msgs::WheelCommands &msg)
     wheelvel.right = msg.right_velocity * motor_cmd_to_radsec;
 
     // calculate encoder stuff to populate sensor_data
-    double encoder_left = (int)(((wheelvel.left/rate) + new_wheelangles.left) / encoder_ticks_to_rad) % 4096;
-    double encoder_right = (int)(((wheelvel.right/rate) + new_wheelangles.right) / encoder_ticks_to_rad) % 4096;
+    double encoder_left = (int)(((wheelvel.left/rate) + new_wheelangles.left) / encoder_ticks_to_rad);
+    double encoder_right = (int)(((wheelvel.right/rate) + new_wheelangles.right) / encoder_ticks_to_rad);
 
     sensor_data.left_encoder = encoder_left;
     sensor_data.right_encoder = encoder_right;
-    
 }
 
 int main(int argc, char * argv[])
@@ -103,7 +102,6 @@ int main(int argc, char * argv[])
     // create publishers
     ros::Publisher sensor_pub = nh.advertise<nuturtlebot_msgs::SensorData>("red/sensor_data", rate);
     ros::Publisher timestep_pub = nhp.advertise<std_msgs::UInt64>("timestep", rate);
-
     ros::Publisher obstacles_pub = nhp.advertise<visualization_msgs::MarkerArray>("obstacles", 1, true);
     ros::Publisher walls_pub = nhp.advertise<visualization_msgs::MarkerArray>("walls", 1, true);
 
@@ -202,7 +200,7 @@ int main(int argc, char * argv[])
         // populate transform and publish
         transformStamped.header.stamp = ros::Time::now();
         transformStamped.header.frame_id = "world";
-        transformStamped.child_frame_id = "red_base_footprint";
+        transformStamped.child_frame_id = "odom";
         transformStamped.transform.translation.x = new_config.x;
         transformStamped.transform.translation.y = new_config.y;
         transformStamped.transform.translation.z = 0.0;

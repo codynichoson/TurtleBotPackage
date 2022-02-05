@@ -9,13 +9,16 @@ project(nuturtle_control)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS 
     geometry_msgs 
-    # message_generation
+    message_generation
     message_runtime
     nuturtlebot_msgs
     roscpp
     sensor_msgs 
     std_msgs
-    turtlelib
+    std_srvs
+    tf2
+    tf2_ros
+    # turtlelib
     )
 
 ## System dependencies are found with CMake's conventions
@@ -58,11 +61,11 @@ find_package(catkin REQUIRED COMPONENTS
 #   Message2.msg
 # )
 
-## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   teleport.srv
-# )
+# Generate services in the 'srv' folder
+add_service_files(
+  FILES
+  set_pose.srv
+)
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -72,13 +75,13 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 # Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   message_generation
-#   geometry_msgs
-#   std_msgs 
-#   Or other packages containing msgs
-# )
+generate_messages(
+  DEPENDENCIES
+  # message_generation
+  # geometry_msgs
+  std_msgs 
+  # Or other packages containing msgs
+)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -114,7 +117,7 @@ catkin_package(
 #  LIBRARIES nusim
  CATKIN_DEPENDS 
  geometry_msgs 
-#  message_generation 
+ message_generation 
  message_runtime 
  nuturtlebot_msgs 
  roscpp 

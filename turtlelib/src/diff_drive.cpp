@@ -16,15 +16,13 @@ constexpr double r = 0.033;
 namespace turtlelib{
 
     Config DiffDrive::fKin(WheelAngles new_wheel_angles){
-        Twist2D twist;
-        twist.xdot = (r*(new_wheel_angles.left + new_wheel_angles.right))/2.0;
-        twist.thetadot = (r/2.0*D)*(new_wheel_angles.right - new_wheel_angles.left);
+        Twist2D twist = Ang2Twist(new_wheel_angles);
         Transform2D tf = integrate_twist(twist);
         Vector2D vec = tf.translation();
         double theta = tf.rotation();
         Config config;
         config.x = vec.x; 
-        config.y = 0.0, 
+        config.y = vec.y; 
         config.theta = theta;
 
         return config;
@@ -39,5 +37,14 @@ namespace turtlelib{
         }
         
         return {theta1dot, theta2dot};
+    };
+
+    Twist2D DiffDrive::Ang2Twist(WheelAngles wheel_angles){
+        Twist2D twist;
+        twist.xdot = (r*(wheel_angles.left + wheel_angles.right))/2.0;
+        twist.ydot = 0.0;
+        twist.thetadot = (r/2.0*D)*(wheel_angles.right - wheel_angles.left);
+
+        return twist;
     };
 }

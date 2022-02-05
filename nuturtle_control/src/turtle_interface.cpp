@@ -6,6 +6,7 @@
 #include <sensor_msgs/JointState.h>
 #include <geometry_msgs/Twist.h>
 
+
 static nuturtlebot_msgs::WheelCommands wheel_cmd;
 static sensor_msgs::JointState jointstates;
 static double encoder_ticks_to_rad, motor_cmd_to_radsec;
@@ -25,7 +26,6 @@ void cmd_vel_callback(const geometry_msgs::Twist &msg) // cmd_vel callback funct
 
 void sensor_callback(const nuturtlebot_msgs::SensorData &msg) // sensor_data callback function
 {
-    
     jointstates.name = {"wheel_left_joint", "wheel_right_joint"};
     jointstates.position = {msg.left_encoder*encoder_ticks_to_rad, msg.right_encoder*encoder_ticks_to_rad};
     jointstates.velocity = {msg.left_encoder*motor_cmd_to_radsec, msg.right_encoder*motor_cmd_to_radsec}; // this might be wrong

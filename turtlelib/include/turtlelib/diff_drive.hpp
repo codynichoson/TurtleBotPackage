@@ -56,6 +56,11 @@ namespace turtlelib
         /// \return updated wheel velocities
         WheelVel invKin(Twist2D twist);
 
+        /// \brief convert wheel angles to twist
+        /// \param wheel_angles - left and right wheel angles
+        /// \return a twisty treat!
+        Twist2D Ang2Twist(WheelAngles wheel_angles);
+
     private:
         // Config config;
         // WheelAngles old_angles;

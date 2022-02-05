@@ -15,6 +15,7 @@ find_package(catkin REQUIRED COMPONENTS
     roscpp
     sensor_msgs 
     std_msgs
+    std_srvs
     tf2
     tf2_ros)
 
@@ -74,8 +75,8 @@ add_service_files(
 # Generate added messages and services with any dependencies listed here
 generate_messages(
   DEPENDENCIES
-  geometry_msgs
   std_msgs 
+  std_srvs
   # Or other packages containing msgs
 )
 
@@ -112,11 +113,12 @@ catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES nusim
  CATKIN_DEPENDS 
- geometry_msgs 
+#  geometry_msgs 
  message_runtime 
- nuturtlebot_msgs 
+#  nuturtlebot_msgs 
  roscpp 
  std_msgs
+ std_srvs
 #  DEPENDS system_lib
 )
 
