@@ -1,6 +1,39 @@
 #include "ros/ros.h"
+#include "nuturtle_control/control.h"
 #include <turtlelib/diff_drive.hpp>
 #include <geometry_msgs/Twist.h>
+#include <std_srvs/Empty.h>
+
+static int publishing = 1;
+static geometry_msgs::Twist twist;
+
+
+bool control_callback(nuturtle_control::control::Request &req, nuturtle_control::control::Response &res)
+{
+    publishing = 1;
+    twist.linear.x = req.radius * req.velocity;
+    twist.angular.z = req.velocity;
+
+    return true;
+}
+
+bool reverse_callback(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res)
+{
+    publishing = 1;
+    twist.linear.x = -twist.linear.x;
+    twist.angular.z = -twist.angular.z;
+
+    return true;
+}
+
+bool stop_callback(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res)
+{
+    publishing = 0;
+    twist.linear.x = 0.0;
+    twist.angular.z = 0.0;
+
+    return true;
+}
 
 int main(int argc, char * argv[])
 {
@@ -9,8 +42,28 @@ int main(int argc, char * argv[])
     ros::NodeHandle nhp("~");
     ros::NodeHandle nh;
 
-    nhp.getParam("rate", rate);
+    ros::Publisher cmd_vel_pub = nh.advertise<geometry_msgs::Twist>("cmd_vel", 100);
 
-    ros::Publisher cmd_vel_pub = nh.advertise<geometry_msgs::Twist>("cmd_vel", rate);
+    ros::ServiceServer control = nhp.advertiseService("control", control_callback);
+    ros::ServiceServer reverse = nhp.advertiseService("reverse", reverse_callback);
+    ros::ServiceServer stop = nhp.advertiseService("stop", stop_callback);
+
+    twist.linear.x = 1.0;
+    twist.angular.z = 0.5;
+
+    while(ros::ok())
+    {
+        if (publishing == 1)
+        {
+            cmd_vel_pub.publish(twist);
+        }
+        else if (publishing == 0)
+        {
+            twist.linear.x = 0.0;
+            twist.angular.z = 0.0;
+            cmd_vel_pub.publish(twist);
+            publishing = 2;
+        }
+    }
 
 }
