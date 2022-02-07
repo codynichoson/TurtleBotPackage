@@ -113,10 +113,10 @@ catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES nusim
  CATKIN_DEPENDS 
-#  geometry_msgs 
+ geometry_msgs 
  message_runtime 
-#  nuturtlebot_msgs 
  roscpp 
+ sensor_msgs
  std_msgs
  std_srvs
 #  DEPENDS system_lib
