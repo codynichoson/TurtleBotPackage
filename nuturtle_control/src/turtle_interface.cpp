@@ -1,4 +1,5 @@
 #include "ros/ros.h"
+#include "ros/console.h"
 #include <turtlelib/diff_drive.hpp>
 #include <turtlelib/rigid2d.hpp>
 #include <nuturtlebot_msgs/WheelCommands.h>
@@ -6,9 +7,9 @@
 #include <sensor_msgs/JointState.h>
 #include <geometry_msgs/Twist.h>
 
-
 static nuturtlebot_msgs::WheelCommands wheel_cmd;
 static sensor_msgs::JointState jointstates;
+// ROS_INFO(jointstates);
 static double encoder_ticks_to_rad, motor_cmd_to_radsec;
 static int rate;
 
@@ -20,13 +21,35 @@ void cmd_vel_callback(const geometry_msgs::Twist &msg) // cmd_vel callback funct
     twist.ydot = msg.linear.y;
     twist.thetadot = msg.angular.z;
     turtlelib::WheelVel wheel_vel = ddrive.invKin(twist);
-    wheel_cmd.left_velocity = wheel_vel.left; 
-    wheel_cmd.right_velocity = wheel_vel.right;
+
+    if (wheel_vel.left > 256){
+        wheel_cmd.left_velocity = 256; 
+    }
+    else if (wheel_vel.left < -256){
+        wheel_cmd.left_velocity = -256;
+    }
+    else{
+        wheel_cmd.left_velocity = wheel_vel.left; 
+    }
+
+    if (wheel_vel.right > 256){
+        wheel_cmd.right_velocity = 256; 
+    }
+    else if (wheel_vel.right < -256){
+        wheel_cmd.right_velocity = -256;
+    }
+    else{
+        wheel_cmd.right_velocity = wheel_vel.right;
+    }
+
+    
+    
 }
 
 void sensor_callback(const nuturtlebot_msgs::SensorData &msg) // sensor_data callback function
 {
-    jointstates.name = {"wheel_left_joint", "wheel_right_joint"};
+    jointstates.header.stamp = ros::Time::now();
+    jointstates.name = {"red_wheel_left_joint", "red_wheel_right_joint"};
     jointstates.position = {msg.left_encoder*encoder_ticks_to_rad, msg.right_encoder*encoder_ticks_to_rad};
     jointstates.velocity = {msg.left_encoder*motor_cmd_to_radsec, msg.right_encoder*motor_cmd_to_radsec}; // this might be wrong
 }
@@ -35,14 +58,17 @@ int main(int argc, char * argv[])
 {
     // initialize node
     ros::init(argc, argv, "turtle_interface");
-    ros::NodeHandle nhp("~");
+    // ros::NodeHandle nh("~");
     ros::NodeHandle nh;
 
     // load params from server
-    nhp.getParam("motor_cmd_to_radsec", motor_cmd_to_radsec);
-    nhp.getParam("encoder_ticks_to_rad", encoder_ticks_to_rad);
-    nhp.getParam("rate", rate);
+    nh.getParam("nusim/motor_cmd_to_radsec", motor_cmd_to_radsec);
+    nh.getParam("/nusim/encoder_ticks_to_rad", encoder_ticks_to_rad);
+    nh.getParam("/nusim/rate", rate);
     ros::Rate r(rate);
+
+    // initialize jointstates to avoid empty message
+    jointstates.position = {0.0, 0.0};
 
     // create publishers
     ros::Publisher wheel_pub = nh.advertise<nuturtlebot_msgs::WheelCommands>("wheel_cmd", rate);
@@ -52,6 +78,13 @@ int main(int argc, char * argv[])
     ros::Subscriber vel_sub = nh.subscribe("cmd_vel", 1000, cmd_vel_callback);
     ros::Subscriber sensor_sub = nh.subscribe("sensor_data", 1000, sensor_callback);
 
-    wheel_pub.publish(wheel_cmd);
-    joint_pub.publish(jointstates);
+    while(ros::ok())
+    {
+        wheel_pub.publish(wheel_cmd);
+        joint_pub.publish(jointstates);
+        r.sleep();
+        ros::spinOnce();
+    }
+
+    return 0;
 }

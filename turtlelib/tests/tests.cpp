@@ -15,13 +15,23 @@ TEST_CASE("normalize"){ // Cody, Nichoson
 }
 
 TEST_CASE("inverse"){ // Cody, Nichoson
-    turtlelib::Transform2D tf1, tf2;
-    tf2 = tf1.inv();
-    double angle = tf2.rotation();
-    turtlelib::Vector2D vec = tf2.translation();
-    CHECK(angle == Approx(0));
-    CHECK(vec.x == Approx(0));
-    CHECK(vec.y == Approx(0));
+    turtlelib::Transform2D tf1, tf1inv;
+    tf1inv = tf1.inv();
+    double angle1 = tf1inv.rotation();
+    turtlelib::Vector2D vec1 = tf1inv.translation();
+    CHECK(angle1 == Approx(0));
+    CHECK(vec1.x == Approx(0));
+    CHECK(vec1.y == Approx(0));
+
+    turtlelib::Vector2D vec; vec.x = 2; vec.y = 4;
+    double angle = PI/2;
+    turtlelib::Transform2D tf2(vec, angle), tf2inv;
+    tf2inv = tf2.inv();
+    double angle2 = tf2inv.rotation();
+    turtlelib::Vector2D vec2 = tf2inv.translation();
+    CHECK(angle2 == Approx(-PI/2));
+    CHECK(vec2.x == Approx(-4));
+    CHECK(vec2.y == Approx(2));
 }
 
 TEST_CASE("translation"){ // Cody, Nichoson
@@ -108,16 +118,23 @@ TEST_CASE("forward_kinematics"){ // Cody, Nichoson
     // ang1.left = 2*PI; ang1.right = 2*PI; // pure translation
 
     ang2.left = -PI/4; ang2.right = PI/4; // pure rotation
+    ang3.left = 19.992; ang3.right = 27.6079; // from Marco
 
     // turtlelib::Config q1 = ddrive.fKin(ang1);
     turtlelib::Config q2 = ddrive.fKin(ang2);
+    // turtlelib::Config q3 = ddrive.fKin(ang3);
 
     // CHECK(q1.x == Approx(2*PI*0.033).margin(0.001));
     // CHECK(q1.y == Approx(0.0).margin(0.000001));
     // CHECK(q1.theta == Approx(0.0).margin(0.000001));
+
     CHECK(q2.x == Approx(0.0));
     CHECK(q2.y == Approx(0));
     CHECK(q2.theta == Approx(-0.32397));
+
+    // CHECK(q3.x == Approx(0.5));
+    // CHECK(q3.y == Approx(0.5));
+    // CHECK(q3.theta == Approx(PI/2));
 }
 
 TEST_CASE("integrate_twist"){ // Cody, Nichoson
@@ -274,4 +291,40 @@ TEST_CASE("constructor_rot", "[transform]") { // Anna Garverick
     CHECK(t_out.x == 0);
     CHECK(t_out.y == 0);
     CHECK(d == 90);
+}
+
+TEST_CASE("Multiplying transforms", "[transform]") { // Cody Nichoson
+    turtlelib::Vector2D vec1, vec2;                  
+    vec1.x = 2; vec1.y = 6;
+    vec2.x = -5; vec2.y = -2;
+    double theta1 = PI/8;
+    double theta2 = -PI;
+
+    turtlelib::Transform2D tfab(vec1, theta1);
+    turtlelib::Transform2D tfbc(vec2, theta2);
+
+    turtlelib::Transform2D tfac = tfab*tfbc;
+    turtlelib::Vector2D vec_ac = tfac.translation();
+    double theta_ac = tfac.rotation();
+
+    CHECK(vec_ac.x == Approx(-1.85).margin(0.01));
+    CHECK(vec_ac.y == Approx(2.24).margin(0.01));
+    CHECK(theta_ac == Approx(2.75).margin(0.01));
+
+    turtlelib::Vector2D vec3, vec4;                  
+    vec3.x = -4; vec3.y = 2;
+    vec4.x = 3; vec4.y = 1;
+    double theta3 = -PI;
+    double theta4 = -PI/2;
+
+    turtlelib::Transform2D tfcd(vec3, theta3);
+    turtlelib::Transform2D tfde(vec4, theta4);
+
+    turtlelib::Transform2D tfce = tfcd*tfde;
+    turtlelib::Vector2D vec_ce = tfce.translation();
+    double theta_ce = tfce.rotation();
+
+    CHECK(vec_ce.x == Approx(-7.0));
+    CHECK(vec_ce.y == Approx(1.0));
+    CHECK(theta_ce == Approx(PI/2).margin(0.01));
 }

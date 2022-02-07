@@ -15,9 +15,8 @@
 #include <visualization_msgs/MarkerArray.h>
 #include <turtlelib/diff_drive.hpp>
 
-static int rate;
+static double rate;
 static std_msgs::UInt64 timestep;
-static double x=-0.6, y=0.8, theta=1.57;
 static std::vector<double> obs_x, obs_y;
 static double radius;
 static double height;
@@ -35,36 +34,39 @@ static turtlelib::WheelAngles old_wheelangles = {.left = 0.0, .right = 0.0};
 
 static turtlelib::WheelVel wheelvel;
 
-static turtlelib::Config new_config = {.x = 0.0, .y = 0.0, .theta = 0.0};
+static turtlelib::Config new_config = {.x = -0.6, .y = 0.8, .theta = 1.57};
 static turtlelib::Config old_config = {.x = 0.0, .y = 0.0, .theta = 0.0};
 
-nuturtlebot_msgs::SensorData sensor_data;
+static nuturtlebot_msgs::SensorData sensor_data;
 
 bool reset_callback(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res)
 {
     timestep.data = 0;
-    x = 0.0;
-    y = 0.0;
-    theta = 0.0;
+    new_config.x = 0.0;
+    new_config.y = 0.0;
+    new_config.theta = 0.0;
     return true;
 }
 
 bool teleport_callback(nusim::teleport::Request &req, nusim::teleport::Response &res)
 {
-    x = req.x;
-    y = req.y;
-    theta = req.theta;
+    new_config.x = req.x;
+    new_config.y = req.y;
+    new_config.theta = req.theta;
     return true;
 }
 
 void wheel_cmd_callback(const nuturtlebot_msgs::WheelCommands &msg)
 {
+    // ROS_WARN("left: %d,right: %d",msg.left_velocity,msg.right_velocity);
     wheelvel.left = msg.left_velocity * motor_cmd_to_radsec;
     wheelvel.right = msg.right_velocity * motor_cmd_to_radsec;
-
+    // ROS_WARN("motor_cmd_to_radsec: %f", motor_cmd_to_radsec);
+    // ROS_WARN("left: %f,right: %f",wheelvel.left,wheelvel.right);
+    
     // calculate encoder stuff to populate sensor_data
-    double encoder_left = (int)(((wheelvel.left/rate) + new_wheelangles.left) / encoder_ticks_to_rad);
-    double encoder_right = (int)(((wheelvel.right/rate) + new_wheelangles.right) / encoder_ticks_to_rad);
+    int encoder_left = (int)(((wheelvel.left/rate) + new_wheelangles.left)/encoder_ticks_to_rad);
+    int encoder_right = (int)(((wheelvel.right/rate) + new_wheelangles.right)/encoder_ticks_to_rad);
 
     sensor_data.left_encoder = encoder_left;
     sensor_data.right_encoder = encoder_right;
@@ -87,8 +89,8 @@ int main(int argc, char * argv[])
     nhp.getParam("y_length", y_length);
     nhp.getParam("wall_height", wall_height);
     nhp.getParam("thickness", thickness);
-    nhp.getParam("motor_cmd_to_radsec", motor_cmd_to_radsec);
-    nhp.getParam("encoder_ticks_to_rad", encoder_ticks_to_rad);
+    nh.getParam("/nusim/motor_cmd_to_radsec", motor_cmd_to_radsec);
+    nhp.getParam("/nusim/encoder_ticks_to_rad", encoder_ticks_to_rad);
     nhp.getParam("rate", rate);
     ros::Rate r(rate);
 
@@ -106,7 +108,7 @@ int main(int argc, char * argv[])
     ros::Publisher walls_pub = nhp.advertise<visualization_msgs::MarkerArray>("walls", 1, true);
 
     // create subscribers
-    ros::Subscriber sub = nh.subscribe("red/wheel_cmd", 1000, wheel_cmd_callback);
+    ros::Subscriber sub = nh.subscribe("wheel_cmd", 1000, wheel_cmd_callback);
     
     // create services
     ros::ServiceServer reset = nhp.advertiseService("reset", reset_callback);
@@ -192,7 +194,7 @@ int main(int argc, char * argv[])
 
         // update configuration with forward kinematics
         turtlelib::DiffDrive ddrive;
-        new_wheelangles = {.left = wheelvel.left/rate, .right = wheelvel.right/rate};
+        new_wheelangles = {.left = ((wheelvel.left/rate)+old_wheelangles.left), .right = ((wheelvel.right/rate)+old_wheelangles.right)};
         new_config = ddrive.fKin(new_wheelangles);
         old_wheelangles = new_wheelangles;
         old_config = new_config;
@@ -200,7 +202,7 @@ int main(int argc, char * argv[])
         // populate transform and publish
         transformStamped.header.stamp = ros::Time::now();
         transformStamped.header.frame_id = "world";
-        transformStamped.child_frame_id = "odom";
+        transformStamped.child_frame_id = "red_base_footprint";
         transformStamped.transform.translation.x = new_config.x;
         transformStamped.transform.translation.y = new_config.y;
         transformStamped.transform.translation.z = 0.0;

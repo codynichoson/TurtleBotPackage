@@ -64,7 +64,7 @@ namespace turtlelib{
         return angle;
     }
 
-    Transform2D integrate_twist(Twist2D twist){
+    Transform2D integrate_twist(const Twist2D &twist){
         
         turtlelib::Vector2D Tbbp_vec;
         double Tbbp_rot;
@@ -78,15 +78,15 @@ namespace turtlelib{
 
             return Tbbp;
         }
-        else if (twist.xdot == 0.0 && twist.ydot == 0.0){ // pure rotation
-            // Tbbp_vec.x = 0.0;
-            // Tbbp_vec.y = 0.0;
-            Tbbp_rot = twist.thetadot;
+        // else if (twist.xdot == 0.0 && twist.ydot == 0.0){ // pure rotation
+        //     // Tbbp_vec.x = 0.0;
+        //     // Tbbp_vec.y = 0.0;
+        //     Tbbp_rot = twist.thetadot;
 
-            turtlelib::Transform2D Tbbp(Tbbp_rot);
+        //     turtlelib::Transform2D Tbbp(Tbbp_rot);
 
-            return Tbbp;
-        }
+        //     return Tbbp;
+        // }
         else { // translation and rotation
             Vector2D Tsb_vec; 
             Tsb_vec.x = twist.ydot/twist.thetadot; 
@@ -284,7 +284,9 @@ namespace turtlelib{
     Transform2D & Transform2D::operator*=(const Transform2D & rhs){
         x = cos(theta)*rhs.x - sin(theta)*rhs.y + x*1;
         y = sin(theta)*rhs.x + cos(theta)*rhs.y +y*1; 
-        theta = acos(cos(theta)*cos(rhs.theta) - sin(theta)*sin(rhs.theta) + x*0);
+        theta = acos(cos(theta)*cos(rhs.theta) - sin(theta)*sin(rhs.theta));
+
+        // theta = -theta - rhs.theta;
 
         return *this;
     }

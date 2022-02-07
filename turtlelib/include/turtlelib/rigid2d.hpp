@@ -257,7 +257,7 @@ namespace turtlelib
     /// \return the angle, but like totally normalized
     double normalizeAngle(double angle);
 
-    Transform2D integrate_twist(Twist2D twist);
+Transform2D integrate_twist(const Twist2D &twist);
 
     
 

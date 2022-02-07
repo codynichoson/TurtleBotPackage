@@ -65,6 +65,7 @@ find_package(catkin REQUIRED COMPONENTS
 add_service_files(
   FILES
   set_pose.srv
+  control.srv
 )
 
 ## Generate actions in the 'action' folder
@@ -117,12 +118,13 @@ catkin_package(
 #  LIBRARIES nusim
  CATKIN_DEPENDS 
  geometry_msgs 
+ sensor_msgs
  message_generation 
  message_runtime 
- nuturtlebot_msgs 
+#  nuturtlebot_msgs 
  roscpp 
  std_msgs 
- turtlelib
+#  turtlelib
 #  DEPENDS system_lib
 )
 
@@ -150,14 +152,20 @@ ${catkin_INCLUDE_DIRS}
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(odometry_node src/odometry.cpp)
-target_link_libraries(odometry_node
+add_executable(odometry src/odometry.cpp)
+target_link_libraries(odometry
   ${catkin_LIBRARIES}
   turtlelib
 )
 
-add_executable(turtle_interface_node src/turtle_interface.cpp)
-target_link_libraries(turtle_interface_node
+add_executable(turtle_interface src/turtle_interface.cpp)
+target_link_libraries(turtle_interface
+  ${catkin_LIBRARIES}
+  turtlelib
+)
+
+add_executable(circle src/circle.cpp)
+target_link_libraries(circle
   ${catkin_LIBRARIES}
   turtlelib
 )
@@ -165,13 +173,13 @@ target_link_libraries(turtle_interface_node
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
-## e.g. "rosrun someones_pkg node" instead of "rosrun someones_pkg someones_pkg_node"
-# set_target_properties(${PROJECT_NAME}_node PROPERTIES OUTPUT_NAME node PREFIX "")
+## e.g. "rosrun someones_pkg node" instead of "rosrun someones_pkg someones_pkg"
+# set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME node PREFIX "")
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
-# add_dependencies(odometry_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-add_dependencies(odometry_node turtle_interface_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+# add_dependencies(odometry ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(odometry turtle_interface circle ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 
@@ -193,14 +201,14 @@ add_dependencies(odometry_node turtle_interface_node ${${PROJECT_NAME}_EXPORTED_
 
 ## Mark executables for installation
 ## See http://docs.roddrives.org/melodic/api/catkin/html/howto/format1/building_executables.html
-install(TARGETS odometry_node turtle_interface_node
+install(TARGETS odometry turtle_interface circle
 
 RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
 ## Mark libraries for installation
 ## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_libraries.html
-install(TARGETS odometry_node turtle_interface_node
+install(TARGETS odometry turtle_interface circle
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}

@@ -1,5 +1,5 @@
 nusim:
-  rate: 500
+  rate: 100
   radius: 0.038
   height: 0.25
   obs_x: [-0.6, 0.6, 0.6]

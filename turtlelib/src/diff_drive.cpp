@@ -1,3 +1,4 @@
+#include "ros/ros.h"
 #include <iostream>
 #include <cmath>
 #include "turtlelib/diff_drive.hpp"
@@ -29,13 +30,15 @@ namespace turtlelib{
         wheelangles.right = new_wheel_angles.right;
 
         Twist2D twist;
-        twist.xdot = (r/2)*(wheelvels.left + wheelvels.right);
+        twist.xdot = (r/2)*(wheelvels.right + wheelvels.left);
         twist.ydot = 0.0;
         twist.thetadot = (r/(2*D))*(wheelvels.right - wheelvels.left);
         
         // Twist2D twist = Vel2Twist(wheelvels);
-        Vector2D trans; trans.x = config.x; trans.y = config.y;
-        double rot; rot = config.theta;
+        Vector2D trans; 
+        trans.x = config.x; 
+        trans.y = config.y;
+        double rot = config.theta;
         
         Transform2D Twb(trans, rot);
         Transform2D Tbbp = integrate_twist(twist);
@@ -43,12 +46,13 @@ namespace turtlelib{
 
         Vector2D new_trans = Twbp.translation();
         double new_theta = normalizeAngle(Twbp.rotation());
+        // double new_theta = Twbp.rotation();
+
         config.x = new_trans.x; 
         config.y = new_trans.y; 
         config.theta = new_theta;
-        Config test = config;
 
-        return test;
+        return config;
     };
 
     WheelVel DiffDrive::invKin(Twist2D twist){
@@ -62,11 +66,23 @@ namespace turtlelib{
         return {left_wheel_vel, right_wheel_vel};
     };
 
-    Twist2D DiffDrive::Vel2Twist(WheelVel wheelvels){
+    Twist2D DiffDrive::Ang2Twist(WheelAngles new_wheel_angles){
+        wheelvels.left = new_wheel_angles.left - wheelangles.left;
+        wheelvels.right = new_wheel_angles.right - wheelangles.right;
+
         Twist2D twist;
-        twist.xdot = (r*(wheelvels.left + wheelvels.right))/2.0;
+        twist.xdot = (r/2)*(wheelvels.left + wheelvels.right);
         twist.ydot = 0.0;
-        twist.thetadot = (r/2.0*D)*(wheelvels.right - wheelvels.left);
+        twist.thetadot = (r/(2*D))*(wheelvels.right - wheelvels.left);
+
+        return twist;
+    }
+
+    Twist2D DiffDrive::Vel2Twist(WheelVel wheel_vels){
+        Twist2D twist;
+        twist.xdot = (r*(wheel_vels.left + wheel_vels.right))/2.0;
+        twist.ydot = 0.0;
+        twist.thetadot = (r/2.0*D)*(wheel_vels.right - wheel_vels.left);
 
         return twist;
     };

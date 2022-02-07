@@ -6,9 +6,6 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
-        - /TF1/Frames1
-        - /MarkerArray1
-        - /MarkerArray2
       Splitter Ratio: 0.5
     Tree Height: 752
   - Class: rviz/Selection
@@ -99,16 +96,97 @@ Visualization Manager:
           Show Trail: false
           Value: true
       Name: RobotModel
-      Robot Description: robot_description
+      Robot Description: red/robot_description
       TF Prefix: ""
       Update Interval: 0
       Value: true
       Visual Enabled: true
+    - Alpha: 1
+      Class: rviz/RobotModel
+      Collision Enabled: false
+      Enabled: true
+      Links:
+        All Links Enabled: true
+        Expand Joint Details: false
+        Expand Link Details: false
+        Expand Tree: false
+        Link Tree Style: Links in Alphabetic Order
+        blue_base_footprint:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        blue_base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        blue_base_scan:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        blue_caster_back_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        blue_imu_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        blue_wheel_left_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        blue_wheel_right_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+      Name: RobotModel
+      Robot Description: blue/robot_description
+      TF Prefix: ""
+      Update Interval: 0
+      Value: true
+      Visual Enabled: true
+    - Class: rviz/MarkerArray
+      Enabled: true
+      Marker Topic: /nusim/obstacles
+      Name: MarkerArray
+      Namespaces:
+        "": true
+      Queue Size: 100
+      Value: true
+    - Class: rviz/MarkerArray
+      Enabled: true
+      Marker Topic: /nusim/walls
+      Name: MarkerArray
+      Namespaces:
+        "": true
+      Queue Size: 100
+      Value: true
     - Class: rviz/TF
       Enabled: true
       Frame Timeout: 15
       Frames:
         All Enabled: false
+        blue_base_footprint:
+          Value: false
+        blue_base_link:
+          Value: false
+        blue_base_scan:
+          Value: false
+        blue_caster_back_link:
+          Value: false
+        blue_imu_link:
+          Value: false
+        blue_wheel_left_link:
+          Value: false
+        blue_wheel_right_link:
+          Value: false
+        odom:
+          Value: false
         red_base_footprint:
           Value: false
         red_base_link:
@@ -133,6 +211,19 @@ Visualization Manager:
       Show Names: true
       Tree:
         world:
+          odom:
+            blue_base_footprint:
+              blue_base_link:
+                blue_base_scan:
+                  {}
+                blue_caster_back_link:
+                  {}
+                blue_imu_link:
+                  {}
+                blue_wheel_left_link:
+                  {}
+                blue_wheel_right_link:
+                  {}
           red_base_footprint:
             red_base_link:
               red_base_scan:
@@ -146,22 +237,6 @@ Visualization Manager:
               red_wheel_right_link:
                 {}
       Update Interval: 0
-      Value: true
-    - Class: rviz/MarkerArray
-      Enabled: true
-      Marker Topic: /nusim/obstacles
-      Name: MarkerArray
-      Namespaces:
-        "": true
-      Queue Size: 100
-      Value: true
-    - Class: rviz/MarkerArray
-      Enabled: true
-      Marker Topic: /nusim/walls
-      Name: MarkerArray
-      Namespaces:
-        "": true
-      Queue Size: 100
       Value: true
   Enabled: true
   Global Options:
@@ -191,7 +266,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 8.66851806640625
+      Distance: 4.155851364135742
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -207,9 +282,9 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.495398610830307
+      Pitch: 0.550398588180542
       Target Frame: <Fixed Frame>
-      Yaw: 1.0054054260253906
+      Yaw: 1.0654053688049316
     Saved: ~
 Window Geometry:
   Displays:

@@ -61,7 +61,12 @@ namespace turtlelib
         /// \brief convert wheel angles to twist
         /// \param wheel_angles - left and right wheel angles
         /// \return a twisty treat!
-        Twist2D Vel2Twist(WheelVel wheelvels);
+        Twist2D Ang2Twist(WheelAngles wheel_angles);
+
+        /// \brief convert wheel velocities to twist
+        /// \param wheel_angles - left and right wheel velocities
+        /// \return a twisty treat!
+        Twist2D Vel2Twist(WheelVel wheel_vels);
 
     private:
         Config config;

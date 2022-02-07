@@ -121,8 +121,8 @@ include_directories(
 
 ## Declare a C++ library
 add_library( ${PROJECT_NAME}
-  src/rigid2d.cpp
   src/diff_drive.cpp
+  src/rigid2d.cpp
 )
 
 ## Add cmake target dependencies of the library
@@ -219,6 +219,7 @@ install(TARGETS frame_main ${PROJECT_NAME}
 catch_add_test(${PROJECT_NAME}_test 
     tests/tests.cpp
     src/rigid2d.cpp
+    src/diff_drive.cpp
 )
 
 ## Add folders to be run by python nosetests
