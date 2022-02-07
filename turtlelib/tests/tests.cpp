@@ -130,7 +130,7 @@ TEST_CASE("forward_kinematics"){ // Cody, Nichoson
 
     CHECK(q2.x == Approx(0.0));
     CHECK(q2.y == Approx(0));
-    CHECK(q2.theta == Approx(-0.32397));
+    CHECK(q2.theta == Approx(0.32397).margin(0.00001));
 
     // CHECK(q3.x == Approx(0.5));
     // CHECK(q3.y == Approx(0.5));
@@ -294,7 +294,7 @@ TEST_CASE("constructor_rot", "[transform]") { // Anna Garverick
 }
 
 TEST_CASE("Multiplying transforms", "[transform]") { // Cody Nichoson
-    turtlelib::Vector2D vec1, vec2;                  
+    turtlelib::Vector2D vec1, vec2;
     vec1.x = 2; vec1.y = 6;
     vec2.x = -5; vec2.y = -2;
     double theta1 = PI/8;
@@ -311,7 +311,7 @@ TEST_CASE("Multiplying transforms", "[transform]") { // Cody Nichoson
     CHECK(vec_ac.y == Approx(2.24).margin(0.01));
     CHECK(theta_ac == Approx(2.75).margin(0.01));
 
-    turtlelib::Vector2D vec3, vec4;                  
+    turtlelib::Vector2D vec3, vec4;
     vec3.x = -4; vec3.y = 2;
     vec4.x = 3; vec4.y = 1;
     double theta3 = -PI;

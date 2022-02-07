@@ -38,7 +38,6 @@ int main(int argc, char * argv[])
 {
     // initialize node
     ros::init(argc, argv, "circle");
-    ros::NodeHandle nhp("~");
     ros::NodeHandle nh;
 
     int rate;
@@ -47,9 +46,9 @@ int main(int argc, char * argv[])
 
     ros::Publisher cmd_vel_pub = nh.advertise<geometry_msgs::Twist>("cmd_vel", 100);
 
-    ros::ServiceServer control = nhp.advertiseService("control", control_callback);
-    ros::ServiceServer reverse = nhp.advertiseService("reverse", reverse_callback);
-    ros::ServiceServer stop = nhp.advertiseService("stop", stop_callback);
+    ros::ServiceServer control = nh.advertiseService("control", control_callback);
+    ros::ServiceServer reverse = nh.advertiseService("reverse", reverse_callback);
+    ros::ServiceServer stop = nh.advertiseService("stop", stop_callback);
 
     while(ros::ok())
     {

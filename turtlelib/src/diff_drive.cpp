@@ -1,4 +1,5 @@
 #include "ros/ros.h"
+// #include <ros/console.h>
 #include <iostream>
 #include <cmath>
 #include "turtlelib/diff_drive.hpp"
@@ -31,22 +32,30 @@ namespace turtlelib{
 
         Twist2D twist;
         twist.xdot = (r/2)*(wheelvels.right + wheelvels.left);
+        std::cout << "twist.xdot: " << twist.xdot;
         twist.ydot = 0.0;
         twist.thetadot = (r/(2*D))*(wheelvels.right - wheelvels.left);
+        std::cout << "twist.thetadot: " << twist.thetadot;
+        // ROS_WARN("twist.thetadot: %f", twist.thetadot);
+        // ROS_DEBUG("Hello %s", "World");
         
-        // Twist2D twist = Vel2Twist(wheelvels);
         Vector2D trans; 
         trans.x = config.x; 
         trans.y = config.y;
         double rot = config.theta;
+        std::cout << "rot: " << rot;
+        // ROS_WARN("rot: %f", rot);
         
         Transform2D Twb(trans, rot);
         Transform2D Tbbp = integrate_twist(twist);
+        std::cout << "Tbbp: " << Tbbp;
         Transform2D Twbp = Twb*Tbbp;
+        std::cout << "Twbp: " << Twbp;
 
         Vector2D new_trans = Twbp.translation();
         double new_theta = normalizeAngle(Twbp.rotation());
         // double new_theta = Twbp.rotation();
+        // ROS_WARN("new_theta: %f", new_theta);
 
         config.x = new_trans.x; 
         config.y = new_trans.y; 

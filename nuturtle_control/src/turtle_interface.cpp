@@ -12,6 +12,7 @@ static sensor_msgs::JointState jointstates;
 // ROS_INFO(jointstates);
 static double encoder_ticks_to_rad, motor_cmd_to_radsec;
 static int rate;
+static turtlelib::WheelVel wheel_vel;
 
 void cmd_vel_callback(const geometry_msgs::Twist &msg) // cmd_vel callback function
 {
@@ -20,30 +21,30 @@ void cmd_vel_callback(const geometry_msgs::Twist &msg) // cmd_vel callback funct
     twist.xdot = msg.linear.x;
     twist.ydot = msg.linear.y;
     twist.thetadot = msg.angular.z;
-    turtlelib::WheelVel wheel_vel = ddrive.invKin(twist);
+    wheel_vel = ddrive.invKin(twist);
 
-    if (wheel_vel.left > 256){
+    wheel_cmd.left_velocity = wheel_vel.left/motor_cmd_to_radsec;
+    wheel_cmd.right_velocity = wheel_vel.right/motor_cmd_to_radsec;
+
+    if (wheel_cmd.left_velocity > 256){
         wheel_cmd.left_velocity = 256; 
     }
-    else if (wheel_vel.left < -256){
+    else if (wheel_cmd.left_velocity < -256){
         wheel_cmd.left_velocity = -256;
     }
     else{
-        wheel_cmd.left_velocity = wheel_vel.left; 
+        wheel_cmd.left_velocity = wheel_cmd.left_velocity; 
     }
 
-    if (wheel_vel.right > 256){
+    if (wheel_cmd.right_velocity > 256){
         wheel_cmd.right_velocity = 256; 
     }
-    else if (wheel_vel.right < -256){
+    else if (wheel_cmd.right_velocity < -256){
         wheel_cmd.right_velocity = -256;
     }
     else{
-        wheel_cmd.right_velocity = wheel_vel.right;
+        wheel_cmd.right_velocity = wheel_cmd.right_velocity;
     }
-
-    
-    
 }
 
 void sensor_callback(const nuturtlebot_msgs::SensorData &msg) // sensor_data callback function
@@ -51,7 +52,7 @@ void sensor_callback(const nuturtlebot_msgs::SensorData &msg) // sensor_data cal
     jointstates.header.stamp = ros::Time::now();
     jointstates.name = {"red_wheel_left_joint", "red_wheel_right_joint"};
     jointstates.position = {msg.left_encoder*encoder_ticks_to_rad, msg.right_encoder*encoder_ticks_to_rad};
-    jointstates.velocity = {msg.left_encoder*motor_cmd_to_radsec, msg.right_encoder*motor_cmd_to_radsec}; // this might be wrong
+    jointstates.velocity = {wheel_vel.left, wheel_vel.right};
 }
 
 int main(int argc, char * argv[])
