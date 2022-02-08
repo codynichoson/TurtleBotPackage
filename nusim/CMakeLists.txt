@@ -115,7 +115,10 @@ catkin_package(
  CATKIN_DEPENDS 
  geometry_msgs 
  message_runtime 
+<<<<<<< HEAD
  nuturtlebot_msgs
+=======
+>>>>>>> ed661e4880e5ba809412087651503a0df1d8bb88
  roscpp 
  sensor_msgs
  std_msgs

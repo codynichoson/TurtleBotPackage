@@ -52,7 +52,11 @@
   <buildtool_depend>catkin</buildtool_depend>
 
   <exec_depend>rviz</exec_depend>
+<<<<<<< HEAD
   <!-- <exec_depend>nuturtlebot_msgs</exec_depend> -->
+=======
+  <exec_depend>nuturtlebot_msgs</exec_depend>
+>>>>>>> ed661e4880e5ba809412087651503a0df1d8bb88
   <exec_depend>nuturtle_description</exec_depend>
   <exec_depend>xacro</exec_depend>
   <exec_depend>robot_state_publisher</exec_depend>
@@ -63,7 +67,11 @@
   <build_depend>std_srvs</build_depend>
   <build_depend>tf2_ros</build_depend>
   <build_depend>tf2</build_depend>
+<<<<<<< HEAD
   <!-- <build_depend>nuturtlebot_msgs</build_depend> -->
+=======
+  <build_depend>nuturtlebot_msgs</build_depend>
+>>>>>>> ed661e4880e5ba809412087651503a0df1d8bb88
 
   <depend>message_generation</depend>
   <depend>roscpp</depend>
@@ -71,7 +79,10 @@
   <depend>sensor_msgs</depend>
   <depend>std_msgs</depend>
   <depend>geometry_msgs</depend>
+<<<<<<< HEAD
   <depend>nuturtlebot_msgs</depend>
+=======
+>>>>>>> ed661e4880e5ba809412087651503a0df1d8bb88
 
   <build_export_depend>std_srvs</build_export_depend>
 
