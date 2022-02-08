@@ -18,7 +18,7 @@ turtlelib::WheelAngles wheel_angles{.left = 0.0, .right = 0.0};
 
 void joints_callback(const sensor_msgs::JointState &msg) // odometry callback function
 {   
-    ROS_WARN("msg.position[0]: %f, msg.position[1]: %f", msg.position[0], msg.position[1]);
+    // ROS_WARN("msg.position[0]: %f, msg.position[1]: %f", msg.position[0], msg.position[1]);
     wheel_angles.left = msg.position[0];
     wheel_angles.right = msg.position[1];
 
