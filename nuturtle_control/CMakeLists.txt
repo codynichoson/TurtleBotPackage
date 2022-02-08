@@ -11,7 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
     geometry_msgs 
     message_generation
     message_runtime
-    nuturtlebot_msgs
+    # nuturtlebot_msgs
     roscpp
     sensor_msgs 
     std_msgs
@@ -64,8 +64,8 @@ find_package(catkin REQUIRED COMPONENTS
 # Generate services in the 'srv' folder
 add_service_files(
   FILES
-  set_pose.srv
   control.srv
+  set_pose.srv
 )
 
 ## Generate actions in the 'action' folder
@@ -117,14 +117,12 @@ catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES nusim
  CATKIN_DEPENDS 
- geometry_msgs 
- sensor_msgs
+ geometry_msgs
  message_generation 
- message_runtime 
-#  nuturtlebot_msgs 
- roscpp 
+ message_runtime
+ roscpp  
+ sensor_msgs
  std_msgs 
-#  turtlelib
 #  DEPENDS system_lib
 )
 
@@ -201,14 +199,14 @@ add_dependencies(odometry turtle_interface circle ${${PROJECT_NAME}_EXPORTED_TAR
 
 ## Mark executables for installation
 ## See http://docs.roddrives.org/melodic/api/catkin/html/howto/format1/building_executables.html
-install(TARGETS odometry turtle_interface circle
+install(TARGETS circle odometry turtle_interface 
 
 RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
 ## Mark libraries for installation
 ## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_libraries.html
-install(TARGETS odometry turtle_interface circle
+install(TARGETS circle odometry turtle_interface 
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}

@@ -38,8 +38,8 @@ int main(int argc, char * argv[])
 {
     // initialize node
     ros::init(argc, argv, "circle");
-    ros::NodeHandle nhp("~");
     ros::NodeHandle nh;
+    ros::NodeHandle nhp("~");
 
     int rate;
     nh.getParam("/nusim/rate", rate);

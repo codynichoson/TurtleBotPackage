@@ -1,4 +1,3 @@
-// Static variables used by callbacks here
 #include "ros/ros.h"
 #include "std_msgs/UInt64.h"
 #include "sensor_msgs/JointState.h"

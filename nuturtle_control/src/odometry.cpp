@@ -18,6 +18,7 @@ turtlelib::WheelAngles wheel_angles{.left = 0.0, .right = 0.0};
 
 void joints_callback(const sensor_msgs::JointState &msg) // odometry callback function
 {   
+    ROS_WARN("msg.position[0]: %f, msg.position[1]: %f", msg.position[0], msg.position[1]);
     wheel_angles.left = msg.position[0];
     wheel_angles.right = msg.position[1];
 
@@ -25,7 +26,6 @@ void joints_callback(const sensor_msgs::JointState &msg) // odometry callback fu
     
     config = ddrive.fKin(wheel_angles);
     // ROS_WARN("theta: %f", config.theta);
-
 
     odom.header.frame_id = "odom";
     odom.pose.pose.position.x = config.x;
@@ -46,7 +46,7 @@ void joints_callback(const sensor_msgs::JointState &msg) // odometry callback fu
 bool set_pose_callback(nuturtle_control::set_pose::Request &req, nuturtle_control::set_pose::Response &res)
 {
     ROS_WARN("set_pose_callback");
-    odom.header.frame_id = odom_id;
+    odom.header.frame_id = "odom";
     odom.pose.pose.position.x = req.x;
     odom.pose.pose.position.y = req.y;
     tf2::Quaternion q;
@@ -61,10 +61,12 @@ bool set_pose_callback(nuturtle_control::set_pose::Request &req, nuturtle_contro
 
 int main(int argc, char * argv[])
 {
-    js.name = {"red_wheel_left_joint", "red_wheel_right_joint"};
-    js.position = {0.0, 0.0};
+    // js.name = {"red_wheel_left_joint", "red_wheel_right_joint"};
+    // js.position = {0.0, 0.0};
+    // js.velocity = {0.0, 0.0};
 
-    ROS_WARN("start of main");
+
+    // ROS_WARN("start of main");
     ros::init(argc, argv, "turtle_interface");
     // ros::NodeHandle nh("~");
     ros::NodeHandle nh;
@@ -78,7 +80,7 @@ int main(int argc, char * argv[])
     nh.getParam("/nusim/rate", rate);
     ros::Rate r(rate);
 
-    ros::Subscriber joint_sub = nh.subscribe("joint_states", 10, joints_callback);
+    ros::Subscriber joint_sub = nh.subscribe("joint_states", 100, joints_callback);
 
     ros::Publisher odom_pub = nh.advertise<nav_msgs::Odometry>("odom", rate);
 
