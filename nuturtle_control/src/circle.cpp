@@ -59,10 +59,10 @@ int main(int argc, char * argv[])
         }
         else if (publishing == 0)
         {
-            // twist.linear.x = 0.0;
-            // twist.angular.z = 0.0;
-            // cmd_vel_pub.publish(twist);
-            // publishing = 2;
+            twist.linear.x = 0.0;
+            twist.angular.z = 0.0;
+            cmd_vel_pub.publish(twist);
+            publishing = 2;
         }
 
         ros::spinOnce();
