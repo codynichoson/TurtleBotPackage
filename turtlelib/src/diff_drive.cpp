@@ -26,8 +26,8 @@ namespace turtlelib{
     DiffDrive::DiffDrive(double x, double y, double theta)
     {
         config.x = x; config.y = y; config.theta = theta;
-        wheelangles.left = 0.0; wheelangles.right = 0.0;
-        wheelvels.left = 0.0; wheelvels.right = 0.0;
+        // wheelangles.left = 0.0; wheelangles.right = 0.0;
+        // wheelvels.left = 0.0; wheelvels.right = 0.0;
     }
 
     Config DiffDrive::fKin(WheelAngles new_wheel_angles){

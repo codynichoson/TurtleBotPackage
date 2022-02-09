@@ -44,12 +44,16 @@ int isTeleporting = 0;
 
 static nuturtlebot_msgs::SensorData sensor_data;
 
+static turtlelib::DiffDrive ddrive;
+
 bool reset_callback(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res)
 {
     timestep.data = 0;
     new_config.x = 0.0;
     new_config.y = 0.0;
     new_config.theta = 0.0;
+
+    ddrive = turtlelib::DiffDrive(new_config.x, new_config.y, new_config.theta);
 
     isResetting = 1;
     ROS_WARN("isResetting: %d", isResetting);
@@ -62,6 +66,8 @@ bool teleport_callback(nusim::teleport::Request &req, nusim::teleport::Response 
     new_config.x = req.x;
     new_config.y = req.y;
     new_config.theta = req.theta;
+
+    ddrive = turtlelib::DiffDrive(new_config.x, new_config.y, new_config.theta);
 
     isTeleporting = 1;
     ROS_WARN("isTeleporting: %d", isTeleporting);
@@ -203,15 +209,12 @@ int main(int argc, char * argv[])
         walls_pub.publish(wall_arr);
 
         // // update configuration with forward kinematics
-        if (isTeleporting == 0 && isResetting == 0){
-            turtlelib::DiffDrive ddrive;
-            new_wheelangles = {.left = ((wheelvel.left/rate)+old_wheelangles.left), .right = ((wheelvel.right/rate)+old_wheelangles.right)};
-            new_config = ddrive.fKin(new_wheelangles);
-            old_wheelangles = new_wheelangles;
+        // if (isTeleporting == 0 && isResetting == 0){
             
-        }
-
-        old_config = new_config;
+        new_wheelangles = {.left = ((wheelvel.left/rate)+old_wheelangles.left), .right = ((wheelvel.right/rate)+old_wheelangles.right)};
+        new_config = ddrive.fKin(new_wheelangles);
+        old_wheelangles = new_wheelangles;
+        // }
 
         // ROS_WARN("new_config.x: %f", new_config.x);
         // ROS_WARN("new_config.y: %f", new_config.y);
@@ -230,6 +233,8 @@ int main(int argc, char * argv[])
         transformStamped.transform.rotation.z = q.z();
         transformStamped.transform.rotation.w = q.w();
         br.sendTransform(transformStamped);
+
+        old_config = new_config;
 
         sensor_pub.publish(sensor_data);
 
