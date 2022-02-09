@@ -31,9 +31,20 @@ namespace turtlelib{
 
     Transform2D Transform2D::inv() const{
         Transform2D inverse;
-        inverse.x = -x*cos(theta) - y*sin(theta);
-        inverse.y = -y*cos(theta) + x*sin(theta);
+        inverse.x = -x*std::cos(theta) - y*std::sin(theta);
+        inverse.y = -y*std::cos(theta) + x*std::sin(theta);
         inverse.theta = -theta;
+
+        if (almost_equal(inverse.x, 0.0)){
+            inverse.x = 0.0;
+        }
+        if (almost_equal(inverse.y, 0.0)){
+            inverse.y = 0.0;
+        }
+        if (almost_equal(inverse.theta, 0.0)){
+            inverse.theta = 0.0;
+        }
+
         return inverse;
     }
 
@@ -65,41 +76,52 @@ namespace turtlelib{
     }
 
     Transform2D integrate_twist(const Twist2D &twist){
+        std::cout << "integrate_twist twist: " << twist << std::endl;
         
+        turtlelib::Transform2D Tbbp, Tsb, Tbs, Tssp, Tspbp;
         turtlelib::Vector2D Tbbp_vec;
         double Tbbp_rot;
 
-        if (twist.thetadot == 0.0){ // pure translation
+        if (almost_equal(twist.thetadot, 0.0)){ // pure translation
             Tbbp_vec.x = twist.xdot;
             Tbbp_vec.y = twist.ydot;
-            // Tbbp_rot = 0.0;
 
-            turtlelib::Transform2D Tbbp(Tbbp_vec);
+            Tbbp = Transform2D(Tbbp_vec);
 
             return Tbbp;
         }
-        // else if (twist.xdot == 0.0 && twist.ydot == 0.0){ // pure rotation
-        //     // Tbbp_vec.x = 0.0;
-        //     // Tbbp_vec.y = 0.0;
-        //     Tbbp_rot = twist.thetadot;
-
-        //     turtlelib::Transform2D Tbbp(Tbbp_rot);
-
-        //     return Tbbp;
-        // }
         else { // translation and rotation
             Vector2D Tsb_vec; 
-            Tsb_vec.x = twist.ydot/twist.thetadot; 
-            Tsb_vec.y = -twist.xdot/twist.thetadot;
+            double x = twist.ydot/twist.thetadot;
+            double y = -twist.xdot/twist.thetadot;
+            
+            Tsb_vec.x = (twist.ydot/twist.thetadot); 
+            Tsb_vec.y = (-twist.xdot/twist.thetadot);
 
-            Transform2D Tsb(Tsb_vec);
-            turtlelib::Vector2D Tssp_vec;
-            Transform2D Tssp(twist.thetadot);
-            Transform2D Tbs = Tsb.inv();
-            Transform2D Tspbp = Tsb;
+            if ((almost_equal(Tsb_vec.x, 0.0))){
+                Tsb_vec.x = 0.0;
+            }
+            if ((almost_equal(Tsb_vec.y, 0.0))){
+                Tsb_vec.y = 0.0;
+            }
+            std::cout << "integrate_twist GOODX: " << x << std::endl;
+            std::cout << "integrate_twist BADX: " << Tsb_vec.x << std::endl;
+            std::cout << "integrate_twist GOODY: " << y << std::endl;
+            std::cout << "integrate_twist BADY: " << Tsb_vec.y << std::endl;
+            Tsb = Transform2D(Tsb_vec);
+            // turtlelib::Vector2D Tssp_vec;
+            double theta = twist.thetadot;
+            std::cout << "integrate_twist theta: " << theta << std::endl;
+            Tssp = Transform2D(theta);
+            std::cout << "integrate_twist Tssp: " << Tssp << std::endl;
+            Tbs = Tsb.inv();
+            std::cout << "integrate_twist Tbs: " << Tbs << std::endl;
+            Tspbp = Tsb;
+            std::cout << "integrate_twist Tsb: " << Tsb << std::endl;
 
-            turtlelib::Transform2D Tbbp;
+            // turtlelib::Transform2D Tbbp;
             Tbbp = Tbs*Tssp*Tspbp;
+            std::cout << "integrate_twist Tbbp: " << Tbbp << std::endl;
 
             return Tbbp;
         }
@@ -282,9 +304,10 @@ namespace turtlelib{
     }
 
     Transform2D & Transform2D::operator*=(const Transform2D & rhs){
-        x = cos(theta)*rhs.x - sin(theta)*rhs.y + x*1;
-        y = sin(theta)*rhs.x + cos(theta)*rhs.y +y*1; 
-        theta = acos(cos(theta)*cos(rhs.theta) - sin(theta)*sin(rhs.theta));
+        x = std::cos(theta)*rhs.x - std::sin(theta)*rhs.y + x;
+        y = std::sin(theta)*rhs.x + std::cos(theta)*rhs.y + y; 
+        // theta = acos(cos(theta)*cos(rhs.theta) - sin(theta)*sin(rhs.theta));
+        theta = theta + rhs.theta;
 
         // theta = -theta - rhs.theta;
 

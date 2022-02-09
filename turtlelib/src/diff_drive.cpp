@@ -26,25 +26,31 @@ namespace turtlelib{
     Config DiffDrive::fKin(WheelAngles new_wheel_angles){
         wheelvels.left = (new_wheel_angles.left - wheelangles.left);
         wheelvels.right = (new_wheel_angles.right - wheelangles.right);
+        // std::cout << "wheelvels.left: " << wheelvels.left << std::endl << "wheelvels.right: " << wheelvels.right;
 
         wheelangles.left = new_wheel_angles.left;
         wheelangles.right = new_wheel_angles.right;
 
         Twist2D twist;
         twist.thetadot = (r/(2*D))*(-wheelvels.left+wheelvels.right);
+        // std::cout << "twist.thetadot: " << twist.thetadot;
         twist.xdot = (r/2)*(wheelvels.left+wheelvels.right);
+        // std::cout << "twist.xdot: " << twist.xdot;
         twist.ydot = 0.0;
         
         Vector2D trans; 
         trans.x = config.x; 
         trans.y = config.y;
         double rot = config.theta;
-        std::cout << "rot: " << rot;
+        
         
         Transform2D Twb, Tbbp, Twbp;
         Twb = Transform2D(trans, rot);
+        std::cout << "Twb: " << Twb << std::endl;
         Tbbp = integrate_twist(twist);
+        std::cout << "Tbbp: " << Tbbp << std::endl;
         Twbp = Twb*Tbbp;
+        std::cout << "Twbp: " << Twbp << std::endl;
 
         Vector2D new_trans = Twbp.translation();
         double new_theta = normalizeAngle(Twbp.rotation());

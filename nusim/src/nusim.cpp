@@ -194,7 +194,9 @@ int main(int argc, char * argv[])
         // update configuration with forward kinematics
         turtlelib::DiffDrive ddrive;
         new_wheelangles = {.left = ((wheelvel.left/rate)+old_wheelangles.left), .right = ((wheelvel.right/rate)+old_wheelangles.right)};
+        ROS_WARN("wheelvel.left: %f, wheelvel.right: %f, new_angle.left: %f, new_angle.right: %f", wheelvel.left, wheelvel.right, new_wheelangles.left, new_wheelangles.right);
         new_config = ddrive.fKin(new_wheelangles);
+        // ROS_WARN("new_config.x: %f, new_config.y: %f, new_config.theta: %f", new_config.x, new_config.y, new_config.theta);
         old_wheelangles = new_wheelangles;
         old_config = new_config;
 

@@ -50,7 +50,7 @@ TEST_CASE("rotation"){ // Cody, Nichoson
 TEST_CASE("normalizeAngle"){ // Cody, Nichoson
     double theta1 = PI;
     double theta2 = -PI;
-    double theta3 = 0;
+    double theta3 = -2*PI;
     double theta4 = -PI/4.0;
     double theta5 = (3.0*PI)/2.0;
     double theta6 = (-5.0*PI)/2.0;
@@ -117,7 +117,7 @@ TEST_CASE("forward_kinematics"){ // Cody, Nichoson
     turtlelib::WheelAngles ang1, ang2, ang3;
     // ang1.left = 2*PI; ang1.right = 2*PI; // pure translation
 
-    ang2.left = -PI/4; ang2.right = PI/4; // pure rotation
+    ang2.left = PI/4; ang2.right = -PI/4; // pure rotation
     ang3.left = 19.992; ang3.right = 27.6079; // from Marco
 
     // turtlelib::Config q1 = ddrive.fKin(ang1);
@@ -130,7 +130,7 @@ TEST_CASE("forward_kinematics"){ // Cody, Nichoson
 
     CHECK(q2.x == Approx(0.0));
     CHECK(q2.y == Approx(0));
-    CHECK(q2.theta == Approx(0.32397).margin(0.00001));
+    CHECK(q2.theta == Approx(-0.32397).margin(0.00001));
 
     // CHECK(q3.x == Approx(0.5));
     // CHECK(q3.y == Approx(0.5));
@@ -138,14 +138,22 @@ TEST_CASE("forward_kinematics"){ // Cody, Nichoson
 }
 
 TEST_CASE("integrate_twist"){ // Cody, Nichoson
-    turtlelib::Twist2D twist1, twist2, twist3;
+    turtlelib::Twist2D twist1, twist2, twist3, twist4, twist5, twist6;
     twist1.xdot = 0.0; twist1.ydot = 0.0; twist1.thetadot = PI/2; // pure rotation
     twist2.xdot = 3.0; twist2.ydot = 5.0; twist2.thetadot = 0.0;  // pure translation
     twist3.xdot = 1.0; twist3.ydot = 1.0; twist3.thetadot = PI/2; // rotation and translation
 
+    twist4.xdot = 0.0; twist4.ydot = 0.0; twist4.thetadot = PI/4; // pure rotation
+    twist5.xdot = 5.0; twist5.ydot = 2.0; twist5.thetadot = 0.0;  // pure translation
+    twist6.xdot = 5.0; twist6.ydot = 2.0; twist6.thetadot = PI/4; // rotation and translation
+
     turtlelib::Transform2D T1 = integrate_twist(twist1);
     turtlelib::Transform2D T2 = integrate_twist(twist2);
     turtlelib::Transform2D T3 = integrate_twist(twist3);
+
+    turtlelib::Transform2D T4 = integrate_twist(twist4);
+    turtlelib::Transform2D T5 = integrate_twist(twist5);
+    turtlelib::Transform2D T6 = integrate_twist(twist6);
 
     turtlelib::Vector2D T1vec = T1.translation();
     double T1rot = T1.rotation();
@@ -153,6 +161,13 @@ TEST_CASE("integrate_twist"){ // Cody, Nichoson
     double T2rot = T2.rotation();
     turtlelib::Vector2D T3vec = T3.translation();
     double T3rot = T3.rotation();
+
+    turtlelib::Vector2D T4vec = T4.translation();
+    double T4rot = T4.rotation();
+    turtlelib::Vector2D T5vec = T5.translation();
+    double T5rot = T5.rotation();
+    turtlelib::Vector2D T6vec = T6.translation();
+    double T6rot = T6.rotation();
 
     CHECK(T1vec.x == Approx(0.0).margin(0.0001));
     CHECK(T1vec.y == Approx(0.0).margin(0.0001));
@@ -165,6 +180,18 @@ TEST_CASE("integrate_twist"){ // Cody, Nichoson
     CHECK(T3vec.x == Approx(0.0).margin(0.01));
     CHECK(T3vec.y == Approx(4/PI).margin(0.01));
     CHECK(T3rot == Approx(PI/2).margin(0.01));
+
+    CHECK(T4vec.x == Approx(0.0).margin(0.0001));
+    CHECK(T4vec.y == Approx(0.0).margin(0.0001));
+    CHECK(T4rot == Approx(PI/4).margin(0.01));
+
+    CHECK(T5vec.x == Approx(5.0).margin(0.0001));
+    CHECK(T5vec.y == Approx(2.0).margin(0.0001));
+    CHECK(T5rot == Approx(0.0).margin(0.01));
+
+    CHECK(T6vec.x == Approx(3.75574).margin(0.0001));
+    CHECK(T6vec.y == Approx(3.66525).margin(0.0001));
+    CHECK(T6rot == Approx(PI/4).margin(0.01));
 }
 
 TEST_CASE("istream Vector input","[Vector2D]"){ // James Avtges

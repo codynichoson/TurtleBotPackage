@@ -14,7 +14,7 @@
     <rosparam file="$(find nuturtle_description)/config/diff_params.yaml" ns="nusim" />
     <rosparam file="$(find nusim)/config/basic_world.yaml" />
 
-    <node name="nusim" pkg="nusim" type="nusim_node"/>
+    <node name="nusim" pkg="nusim" type="nusim_node" output="screen"/>
     
     <param name="/red/robot_description" command="$(find xacro)/xacro '$(find nuturtle_description)/urdf/turtlebot3_burger.urdf.xacro' color:=red"/>
     <param name="/blue/robot_description" command="$(find xacro)/xacro '$(find nuturtle_description)/urdf/turtlebot3_burger.urdf.xacro' color:=blue"/>
