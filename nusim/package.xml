@@ -73,6 +73,7 @@
   <depend>geometry_msgs</depend>
 
   <build_export_depend>std_srvs</build_export_depend>
+  <build_export_depend>nuturtlebot_msgs</build_export_depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
