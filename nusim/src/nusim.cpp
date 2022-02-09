@@ -33,8 +33,14 @@ static turtlelib::WheelAngles old_wheelangles = {.left = 0.0, .right = 0.0};
 
 static turtlelib::WheelVel wheelvel;
 
-static turtlelib::Config new_config = {.x = -0.6, .y = 0.8, .theta = 1.57};
-static turtlelib::Config old_config = {.x = 0.0, .y = 0.0, .theta = 0.0};
+turtlelib::Config new_config = {.x = -0.6, .y = 0.8, .theta = 1.57};
+turtlelib::Config old_config = {.x = 0.0, .y = 0.0, .theta = 0.0};
+
+int isResetting = 0;
+int isTeleporting = 0;
+
+// turtlelib::Config new_config;
+// turtlelib::Config old_config;
 
 static nuturtlebot_msgs::SensorData sensor_data;
 
@@ -44,6 +50,10 @@ bool reset_callback(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response
     new_config.x = 0.0;
     new_config.y = 0.0;
     new_config.theta = 0.0;
+
+    isResetting = 1;
+    ROS_WARN("isResetting: %d", isResetting);
+
     return true;
 }
 
@@ -52,16 +62,17 @@ bool teleport_callback(nusim::teleport::Request &req, nusim::teleport::Response 
     new_config.x = req.x;
     new_config.y = req.y;
     new_config.theta = req.theta;
+
+    isTeleporting = 1;
+    ROS_WARN("isTeleporting: %d", isTeleporting);
+
     return true;
 }
 
 void wheel_cmd_callback(const nuturtlebot_msgs::WheelCommands &msg)
 {
-    // ROS_WARN("left: %d,right: %d",msg.left_velocity,msg.right_velocity);
     wheelvel.left = msg.left_velocity * motor_cmd_to_radsec;
     wheelvel.right = msg.right_velocity * motor_cmd_to_radsec;
-    // ROS_WARN("motor_cmd_to_radsec: %f", motor_cmd_to_radsec);
-    // ROS_WARN("left: %f,right: %f",wheelvel.left,wheelvel.right);
     
     // calculate encoder stuff to populate sensor_data
     int encoder_left = (int)(((wheelvel.left/rate) + new_wheelangles.left)/encoder_ticks_to_rad);
@@ -93,8 +104,8 @@ int main(int argc, char * argv[])
     nhp.getParam("rate", rate);
     ros::Rate r(rate);
 
-    new_config = {.x = robot_start_x, .y = robot_start_y, .theta = robot_start_theta};
-    old_config = {.x = robot_start_x, .y = robot_start_y, .theta = robot_start_theta};
+    // turtlelib::Config new_config = {.x = robot_start_x, .y = robot_start_y, .theta = robot_start_theta};
+    // turtlelib::Config old_config = {.x = robot_start_x, .y = robot_start_y, .theta = robot_start_theta};
 
     // create transform broadcaster and broadcast message
     static tf2_ros::TransformBroadcaster br;
@@ -110,8 +121,8 @@ int main(int argc, char * argv[])
     ros::Subscriber sub = nh.subscribe("wheel_cmd", 1000, wheel_cmd_callback);
     
     // create services
-    ros::ServiceServer reset = nhp.advertiseService("reset", reset_callback);
-    ros::ServiceServer teleport = nhp.advertiseService("teleport", teleport_callback);
+    ros::ServiceServer reset = nh.advertiseService("reset", reset_callback);
+    ros::ServiceServer teleport = nh.advertiseService("teleport", teleport_callback);
 
     visualization_msgs::MarkerArray obs_arr;
     obs_arr.markers.resize(obs_x.size());
@@ -191,14 +202,19 @@ int main(int argc, char * argv[])
         }
         walls_pub.publish(wall_arr);
 
-        // update configuration with forward kinematics
-        turtlelib::DiffDrive ddrive;
-        new_wheelangles = {.left = ((wheelvel.left/rate)+old_wheelangles.left), .right = ((wheelvel.right/rate)+old_wheelangles.right)};
-        ROS_WARN("wheelvel.left: %f, wheelvel.right: %f, new_angle.left: %f, new_angle.right: %f", wheelvel.left, wheelvel.right, new_wheelangles.left, new_wheelangles.right);
-        new_config = ddrive.fKin(new_wheelangles);
-        // ROS_WARN("new_config.x: %f, new_config.y: %f, new_config.theta: %f", new_config.x, new_config.y, new_config.theta);
-        old_wheelangles = new_wheelangles;
+        // // update configuration with forward kinematics
+        if (isTeleporting == 0 && isResetting == 0){
+            turtlelib::DiffDrive ddrive;
+            new_wheelangles = {.left = ((wheelvel.left/rate)+old_wheelangles.left), .right = ((wheelvel.right/rate)+old_wheelangles.right)};
+            new_config = ddrive.fKin(new_wheelangles);
+            old_wheelangles = new_wheelangles;
+            
+        }
+
         old_config = new_config;
+
+        // ROS_WARN("new_config.x: %f", new_config.x);
+        // ROS_WARN("new_config.y: %f", new_config.y);
 
         // populate transform and publish
         transformStamped.header.stamp = ros::Time::now();
@@ -216,9 +232,12 @@ int main(int argc, char * argv[])
         br.sendTransform(transformStamped);
 
         sensor_pub.publish(sensor_data);
+
+        isTeleporting = 0;
+        isResetting = 0;
         
-        ros::spinOnce();
         r.sleep();
+        ros::spinOnce();
     }
     return 0;   
 }

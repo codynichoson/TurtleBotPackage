@@ -75,9 +75,7 @@ namespace turtlelib{
         return angle;
     }
 
-    Transform2D integrate_twist(const Twist2D &twist){
-        // std::cout << "integrate_twist twist: " << twist << std::endl;
-        
+    Transform2D integrate_twist(const Twist2D &twist){ // The Debacle
         turtlelib::Transform2D Tbbp, Tsb, Tbs, Tssp, Tspbp;
         turtlelib::Vector2D Tbbp_vec;
         double Tbbp_rot;
@@ -104,24 +102,14 @@ namespace turtlelib{
             if ((almost_equal(Tsb_vec.y, 0.0))){
                 Tsb_vec.y = 0.0;
             }
-            // std::cout << "integrate_twist GOODX: " << x << std::endl;
-            // std::cout << "integrate_twist BADX: " << Tsb_vec.x << std::endl;
-            // std::cout << "integrate_twist GOODY: " << y << std::endl;
-            // std::cout << "integrate_twist BADY: " << Tsb_vec.y << std::endl;
-            Tsb = Transform2D(Tsb_vec);
-            // turtlelib::Vector2D Tssp_vec;
-            double theta = twist.thetadot;
-            // std::cout << "integrate_twist theta: " << theta << std::endl;
-            Tssp = Transform2D(theta);
-            // std::cout << "integrate_twist Tssp: " << Tssp << std::endl;
-            Tbs = Tsb.inv();
-            // std::cout << "integrate_twist Tbs: " << Tbs << std::endl;
-            Tspbp = Tsb;
-            // std::cout << "integrate_twist Tsb: " << Tsb << std::endl;
 
-            // turtlelib::Transform2D Tbbp;
+            Tsb = Transform2D(Tsb_vec);
+            double theta = twist.thetadot;
+            Tssp = Transform2D(theta);
+            Tbs = Tsb.inv();
+            Tspbp = Tsb;
+
             Tbbp = Tbs*Tssp*Tspbp;
-            // std::cout << "integrate_twist Tbbp: " << Tbbp << std::endl;
 
             return Tbbp;
         }

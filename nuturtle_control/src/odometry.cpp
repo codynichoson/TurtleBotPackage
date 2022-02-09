@@ -109,10 +109,9 @@ int main(int argc, char * argv[])
         br.sendTransform(transformStamped);
         
         odom_pub.publish(odom);
-        // ROS_WARN("just published");
 
-        ros::spinOnce();
         r.sleep();
+        ros::spinOnce();
     }
 
 

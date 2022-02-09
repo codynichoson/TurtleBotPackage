@@ -85,6 +85,7 @@ int main(int argc, char * argv[])
     {
         wheel_pub.publish(wheel_cmd);
         joint_pub.publish(jointstates);
+        
         r.sleep();
         ros::spinOnce();
     }

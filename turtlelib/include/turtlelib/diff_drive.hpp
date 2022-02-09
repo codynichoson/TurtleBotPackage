@@ -48,6 +48,8 @@ namespace turtlelib
     public:
         DiffDrive();
 
+        DiffDrive(double x, double y, double theta);
+
         /// \brief update robot configuration using forward kinematics
         /// \param new_wheel_angles - wheel angles
         /// \return updated configuration

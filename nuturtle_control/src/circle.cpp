@@ -65,8 +65,8 @@ int main(int argc, char * argv[])
             publishing = 2;
         }
 
-        ros::spinOnce();
         r.sleep();
+        ros::spinOnce();
     }
 
 }
