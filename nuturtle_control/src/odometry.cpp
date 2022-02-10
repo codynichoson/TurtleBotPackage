@@ -47,17 +47,7 @@ void joints_callback(const sensor_msgs::JointState &msg) // odometry callback fu
 bool set_pose_callback(nuturtle_control::set_pose::Request &req, nuturtle_control::set_pose::Response &res)
 {
     ROS_WARN("set_pose_callback");
-    // odom.header.frame_id = "odom";
-    // odom.pose.pose.position.x = req.x;
-    // odom.pose.pose.position.y = req.y;
-    // tf2::Quaternion q;
-    // q.setRPY(0.0, 0.0, req.theta);
-    // odom.pose.pose.orientation.x = q.x();
-    // odom.pose.pose.orientation.y = q.y();
-    // odom.pose.pose.orientation.z = q.z();
-    // odom.pose.pose.orientation.w = q.w();
     config = {req.x, req.y, req.theta};
-    // turtlelib::DiffDrive ddrive(config);
 
     return true;
 }

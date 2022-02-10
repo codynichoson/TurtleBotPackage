@@ -10,7 +10,7 @@ static geometry_msgs::Twist twist;
 bool control_callback(nuturtle_control::control::Request &req, nuturtle_control::control::Response &res)
 {
     publishing = 1;
-    twist.linear.x = req.radius * req.velocity;
+    twist.linear.x = req.radius * std::abs(req.velocity);
     twist.angular.z = req.velocity;
 
     return true;
