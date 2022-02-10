@@ -11,8 +11,8 @@
     <param name="odom_id" type="string" value="odom"/>
     <param name="body_id" type="string" value="blue_base_footprint"/>
 
-    <rosparam file="$(find nuturtle_description)/config/diff_params.yaml" ns="nusim" />
-    <rosparam file="$(find nusim)/config/basic_world.yaml" />
+    <rosparam file="$(find nuturtle_description)/config/diff_params.yaml" ns="nusim" if="$(eval arg('robot')=='nusim')"/>
+    <rosparam file="$(find nusim)/config/basic_world.yaml" if="$(eval arg('robot')=='nusim')"/>
 
     <param name="/red/robot_description" command="$(find xacro)/xacro '$(find nuturtle_description)/urdf/turtlebot3_burger.urdf.xacro' color:=red"/>
     <param name="/blue/robot_description" command="$(find xacro)/xacro '$(find nuturtle_description)/urdf/turtlebot3_burger.urdf.xacro' color:=blue"/>
@@ -20,15 +20,16 @@
     <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher" ns="red"/>
     <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher" ns="blue"/>
     <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" ns="blue"/>
-    <node pkg="rviz" type="rviz" name="rviz" required="true" args="-f world -d $(find nusim)/config/nusim.rviz"/>
+    <node pkg="rviz" type="rviz" name="rviz" required="true" args="-f world -d $(find nusim)/config/nusim.rviz" if="$(eval arg('robot')=='nusim')"/>
     <node pkg="tf2_ros" type="static_transform_publisher" name="world_to_odom" args="0 0 0 0 0 0 1 world odom" />
-    
-    <node name="nusim" pkg="nusim" type="nusim_node" output="screen"/>
+
+    <node name="nusim" pkg="nusim" type="nusim_node" output="screen" if="$(eval arg('robot')=='nusim')"/>
     <node name="odometry" pkg="nuturtle_control" type="odometry"/>
     <node name="turtle_interface" pkg="nuturtle_control" type="turtle_interface"/>
     <node name="circle" pkg="nuturtle_control" type="circle" if="$(eval arg('cmd_src')=='circle')"/>
 
     <include file="$(find turtlebot3_teleop)/launch/turtlebot3_teleop_key.launch" if="$(eval arg('cmd_src')=='teleop')"/>
 
+    <include file="$(find nuturtle_control)/launch/basic_remote.launch" if="$(eval arg('robot') != 'nusim')" pass_all_args="true"/>
 
 </launch>

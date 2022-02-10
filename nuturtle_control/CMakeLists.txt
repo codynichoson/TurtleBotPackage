@@ -181,8 +181,6 @@ add_dependencies(odometry turtle_interface circle ${${PROJECT_NAME}_EXPORTED_TAR
 
 ## Specify libraries to link a library or executable target against
 
-
-
 #############
 ## Install ##
 #############
@@ -213,18 +211,22 @@ install(TARGETS circle odometry turtle_interface
 )
 
 ## Mark cpp header files for installation
-# install(DIRECTORY include/${PROJECT_NAME}/
-#   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-#   FILES_MATCHING PATTERN "*.h"
-#   PATTERN ".svn" EXCLUDE
+install(DIRECTORY launch
+  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}/launch
+)
+
+# install(DIRECTORY config/
+#   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}/config
 # )
 
 ## Mark other files for installation (e.g. launch and bag files, etc.)
-# install(FILES
-#   # myfile1
-#   # myfile2
-#   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-# )
+install(FILES loader.sh
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)
+
+install(PROGRAMS loader.sh
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)
 
 #############
 ## Testing ##
