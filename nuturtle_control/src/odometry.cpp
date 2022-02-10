@@ -16,15 +16,16 @@ static sensor_msgs::JointState js;
 
 turtlelib::WheelAngles wheel_angles{.left = 0.0, .right = 0.0};
 
+turtlelib::DiffDrive ddrive;
+
+
 void joints_callback(const sensor_msgs::JointState &msg) // odometry callback function
 {   
     // ROS_WARN("msg.position[0]: %f, msg.position[1]: %f", msg.position[0], msg.position[1]);
     wheel_angles.left = msg.position[0];
     wheel_angles.right = msg.position[1];
 
-    turtlelib::DiffDrive ddrive;
-    
-    config = ddrive.fKin(wheel_angles);
+    config = ddrive.fKin(wheel_angles, config);
     // ROS_WARN("theta: %f", config.theta);
 
     odom.header.frame_id = "odom";
@@ -46,15 +47,17 @@ void joints_callback(const sensor_msgs::JointState &msg) // odometry callback fu
 bool set_pose_callback(nuturtle_control::set_pose::Request &req, nuturtle_control::set_pose::Response &res)
 {
     ROS_WARN("set_pose_callback");
-    odom.header.frame_id = "odom";
-    odom.pose.pose.position.x = req.x;
-    odom.pose.pose.position.y = req.y;
-    tf2::Quaternion q;
-    q.setRPY(0.0, 0.0, req.theta);
-    odom.pose.pose.orientation.x = q.x();
-    odom.pose.pose.orientation.y = q.y();
-    odom.pose.pose.orientation.z = q.z();
-    odom.pose.pose.orientation.w = q.w();
+    // odom.header.frame_id = "odom";
+    // odom.pose.pose.position.x = req.x;
+    // odom.pose.pose.position.y = req.y;
+    // tf2::Quaternion q;
+    // q.setRPY(0.0, 0.0, req.theta);
+    // odom.pose.pose.orientation.x = q.x();
+    // odom.pose.pose.orientation.y = q.y();
+    // odom.pose.pose.orientation.z = q.z();
+    // odom.pose.pose.orientation.w = q.w();
+    config = {req.x, req.y, req.theta};
+    // turtlelib::DiffDrive ddrive(config);
 
     return true;
 }

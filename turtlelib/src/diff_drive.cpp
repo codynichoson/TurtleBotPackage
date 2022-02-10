@@ -18,14 +18,18 @@ constexpr double r = 0.033;
 namespace turtlelib{
     DiffDrive::DiffDrive()
     {
-        config.x = 0.0; config.y = 0.0; config.theta = 0.0;
-        wheelangles.left = 0.0; wheelangles.right = 0.0;
-        wheelvels.left = 0.0; wheelvels.right = 0.0;
+        // config.x = 0.0; config.y = 0.0; config.theta = 0.0;
+        // wheelangles.left = 0.0; wheelangles.right = 0.0;
+        // wheelvels.left = 0.0; wheelvels.right = 0.0;
+        config = {0.0, 0.0, 0.0};
+        wheelangles = {0.0, 0.0};
+        wheelvels = {0.0, 0.0};
     }
 
-    DiffDrive::DiffDrive(double x, double y, double theta)
+    DiffDrive::DiffDrive(Config new_config)
     {
-        config.x = x; config.y = y; config.theta = theta;
+        config = new_config;
+        // config.x = x; config.y = y; config.theta = theta;
         // wheelangles.left = 0.0; wheelangles.right = 0.0;
         // wheelvels.left = 0.0; wheelvels.right = 0.0;
     }
@@ -61,6 +65,41 @@ namespace turtlelib{
 
         Config config_return;
         config_return = config;
+
+        return config_return;
+    };
+
+    Config DiffDrive::fKin(WheelAngles new_wheel_angles, Config odom_config){
+        wheelvels.left = (new_wheel_angles.left - wheelangles.left);
+        wheelvels.right = (new_wheel_angles.right - wheelangles.right);
+
+        wheelangles.left = new_wheel_angles.left;
+        wheelangles.right = new_wheel_angles.right;
+
+        Twist2D twist;
+        twist.thetadot = (r/(2*D))*(-wheelvels.left+wheelvels.right);
+        twist.xdot = (r/2)*(wheelvels.left+wheelvels.right);
+        twist.ydot = 0.0;
+        
+        Vector2D trans; 
+        trans.x = odom_config.x; 
+        trans.y = odom_config.y;
+        double rot = odom_config.theta;
+        
+        Transform2D Twb, Tbbp, Twbp;
+        Twb = Transform2D(trans, rot);
+        Tbbp = integrate_twist(twist);
+        Twbp = Twb*Tbbp;
+
+        Vector2D new_trans = Twbp.translation();
+        double new_theta = normalizeAngle(Twbp.rotation());
+
+        odom_config.x = new_trans.x; 
+        odom_config.y = new_trans.y; 
+        odom_config.theta = new_theta;
+
+        Config config_return;
+        config_return = odom_config;
 
         return config_return;
     };

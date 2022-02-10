@@ -33,14 +33,12 @@ static turtlelib::WheelAngles old_wheelangles = {.left = 0.0, .right = 0.0};
 
 static turtlelib::WheelVel wheelvel;
 
-turtlelib::Config new_config = {.x = -0.6, .y = 0.8, .theta = 1.57};
-turtlelib::Config old_config = {.x = 0.0, .y = 0.0, .theta = 0.0};
+// turtlelib::Config new_config = {.x = -0.6, .y = 0.8, .theta = 1.57};
+turtlelib::Config new_config = {.x = 0.0, .y = 0.0, .theta = 0.0};
+// turtlelib::Config old_config = {.x = 0.0, .y = 0.0, .theta = 0.0};
 
 int isResetting = 0;
 int isTeleporting = 0;
-
-// turtlelib::Config new_config;
-// turtlelib::Config old_config;
 
 static nuturtlebot_msgs::SensorData sensor_data;
 
@@ -53,7 +51,7 @@ bool reset_callback(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response
     new_config.y = 0.0;
     new_config.theta = 0.0;
 
-    ddrive = turtlelib::DiffDrive(new_config.x, new_config.y, new_config.theta);
+    // ddrive = turtlelib::DiffDrive(new_config);
 
     isResetting = 1;
     ROS_WARN("isResetting: %d", isResetting);
@@ -67,7 +65,7 @@ bool teleport_callback(nusim::teleport::Request &req, nusim::teleport::Response 
     new_config.y = req.y;
     new_config.theta = req.theta;
 
-    ddrive = turtlelib::DiffDrive(new_config.x, new_config.y, new_config.theta);
+    // ddrive = turtlelib::DiffDrive(new_config);
 
     isTeleporting = 1;
     ROS_WARN("isTeleporting: %d", isTeleporting);
@@ -109,9 +107,6 @@ int main(int argc, char * argv[])
     nhp.getParam("/nusim/encoder_ticks_to_rad", encoder_ticks_to_rad);
     nhp.getParam("rate", rate);
     ros::Rate r(rate);
-
-    // turtlelib::Config new_config = {.x = robot_start_x, .y = robot_start_y, .theta = robot_start_theta};
-    // turtlelib::Config old_config = {.x = robot_start_x, .y = robot_start_y, .theta = robot_start_theta};
 
     // create transform broadcaster and broadcast message
     static tf2_ros::TransformBroadcaster br;
@@ -211,8 +206,8 @@ int main(int argc, char * argv[])
         // // update configuration with forward kinematics
         // if (isTeleporting == 0 && isResetting == 0){
             
-        new_wheelangles = {.left = ((wheelvel.left/rate)+old_wheelangles.left), .right = ((wheelvel.right/rate)+old_wheelangles.right)};
-        new_config = ddrive.fKin(new_wheelangles);
+        new_wheelangles = {.left = ((wheelvel.left/rate)+new_wheelangles.left), .right = ((wheelvel.right/rate)+new_wheelangles.right)};
+        new_config = ddrive.fKin(new_wheelangles, new_config);
         old_wheelangles = new_wheelangles;
         // }
 
@@ -234,7 +229,7 @@ int main(int argc, char * argv[])
         transformStamped.transform.rotation.w = q.w();
         br.sendTransform(transformStamped);
 
-        old_config = new_config;
+        // old_config = new_config;
 
         sensor_pub.publish(sensor_data);
 
