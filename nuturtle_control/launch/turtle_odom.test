@@ -1,0 +1,10 @@
+<launch>
+    <param name="/blue/robot_description" command="$(find xacro)/xacro '$(find nuturtle_description)/urdf/turtlebot3_burger.urdf.xacro' color:=blue"/>
+    <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher" ns="blue"/>
+    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" ns="blue"/>
+
+    <rosparam file="$(find nuturtle_description)/config/diff_params.yaml" ns="nusim" />
+    <node name="odometry" pkg="nuturtle_control" type="odometry"/>
+    <test pkg="nuturtle_control" type="turtle_odom_test_node" test-name="turtle_odom_test_node"/>
+
+</launch>

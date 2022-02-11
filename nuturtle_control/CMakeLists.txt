@@ -254,6 +254,6 @@ if(CATKIN_ENABLE_TESTING)
 
   add_rostest(launch/turtle_interface.test DEPENDENCIES turtle_interface_test)
   add_rostest(launch/turtle_odom.test DEPENDENCIES turtle_odom_test_node)
-  # add_rostest(launch/turtle_circle.test)
+  add_rostest(launch/turtle_circle.test)
 
 endif()
