@@ -22,12 +22,8 @@ void cmd_vel_callback(const geometry_msgs::Twist &msg) // cmd_vel callback funct
     twist.thetadot = msg.angular.z;
     wheel_vel = ddrive.invKin(twist);
 
-    // ROS_WARN("twist.x: %f, twist.thetadot: %f", twist.xdot, twist.thetadot);
-
     wheel_cmd.left_velocity = (int)(wheel_vel.left/motor_cmd_to_radsec);
     wheel_cmd.right_velocity = (int)(wheel_vel.right/motor_cmd_to_radsec);
-
-    // ROS_WARN("leftvel: %d, rightvel: %d", wheel_cmd.left_velocity, wheel_cmd.right_velocity);
 
     if (wheel_cmd.left_velocity > 256){
         wheel_cmd.left_velocity = 256; 
@@ -42,7 +38,6 @@ void cmd_vel_callback(const geometry_msgs::Twist &msg) // cmd_vel callback funct
     else if (wheel_cmd.right_velocity < -256){
         wheel_cmd.right_velocity = -256;
     }
-
 }
 
 void sensor_callback(const nuturtlebot_msgs::SensorData &msg) // sensor_data callback function
@@ -55,16 +50,15 @@ void sensor_callback(const nuturtlebot_msgs::SensorData &msg) // sensor_data cal
 
 int main(int argc, char * argv[])
 {
-    // initialize node
     ros::init(argc, argv, "turtle_interface");
-    // ros::NodeHandle nh("~");
     ros::NodeHandle nh;
+
+    int rate;
 
     // load params from server
     nh.getParam("/nusim/motor_cmd_to_radsec", motor_cmd_to_radsec);
     nh.getParam("/nusim/encoder_ticks_to_rad", encoder_ticks_to_rad);
-    // nh.getParam("/nusim/rate", rate);
-    int rate = 100;
+    nh.getParam("rate", rate);
     ros::Rate r(rate);
 
     wheel_cmd.left_velocity = 0;

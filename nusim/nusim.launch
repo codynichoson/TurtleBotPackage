@@ -1,13 +1,16 @@
 <launch>
 
-    <arg name="color" value="red"/>
+    <arg name="color"      default="red"/>
+    <arg name="rate"       default="500"/>
 
-    <node name="nusim" pkg="nusim" type="nusim_node" />
+    <node name="nusim" pkg="nusim" type="nusim_node">
+        <param name="~rate" value="$(arg rate)"/>
+    </node>
 
     <rosparam file="$(find nusim)/config/basic_world.yaml" />
 
     <include file="$(find nuturtle_description)/launch/load.launch" pass_all_args="true">
-        <arg name="color"       value="red"/>
+        <arg name="color"       value="$(arg color)"/>
         <arg name="use_jsp"     value="true"/>
         <arg name="use_rviz"    value="false"/>
     </include>

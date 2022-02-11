@@ -32,10 +32,10 @@ static turtlelib::WheelAngles new_wheelangles = {.left = 0.0, .right = 0.0};
 static turtlelib::WheelAngles old_wheelangles = {.left = 0.0, .right = 0.0};
 
 static turtlelib::WheelVel wheelvel;
+static turtlelib::Config new_config;
 
 // turtlelib::Config new_config = {.x = -0.6, .y = 0.8, .theta = 1.57};
-turtlelib::Config new_config = {.x = 0.0, .y = 0.0, .theta = 0.0};
-// turtlelib::Config old_config = {.x = 0.0, .y = 0.0, .theta = 0.0};
+// turtlelib::Config new_config = {.x = 0.0, .y = 0.0, .theta = 0.0};
 
 int isResetting = 0;
 int isTeleporting = 0;
@@ -54,7 +54,7 @@ bool reset_callback(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response
     // ddrive = turtlelib::DiffDrive(new_config);
 
     isResetting = 1;
-    ROS_WARN("isResetting: %d", isResetting);
+    ROS_WARN(" Service Called.");
 
     return true;
 }
@@ -92,20 +92,22 @@ int main(int argc, char * argv[])
     ros::NodeHandle nhp("~");
     ros::NodeHandle nh;
 
-    nhp.getParam("radius", radius);
-    nhp.getParam("height", height);
-    nhp.getParam("obs_x", obs_x);
-    nhp.getParam("obs_y", obs_y);
-    nhp.getParam("robot_start_x", robot_start_x);
-    nhp.getParam("robot_start_y", robot_start_y);
-    nhp.getParam("robot_start_theta", robot_start_theta);
-    nhp.getParam("x_length", x_length);
-    nhp.getParam("y_length", y_length);
-    nhp.getParam("wall_height", wall_height);
-    nhp.getParam("thickness", thickness);
+    nh.getParam("radius", radius);
+    nh.getParam("height", height);
+    nh.getParam("obs_x", obs_x);
+    nh.getParam("obs_y", obs_y);
+    nh.getParam("robot_start_x", robot_start_x);
+    nh.getParam("robot_start_y", robot_start_y);
+    nh.getParam("robot_start_theta", robot_start_theta);
+    nh.getParam("x_length", x_length);
+    nh.getParam("y_length", y_length);
+    nh.getParam("wall_height", wall_height);
+    nh.getParam("thickness", thickness);
     nh.getParam("/nusim/motor_cmd_to_radsec", motor_cmd_to_radsec);
     nhp.getParam("/nusim/encoder_ticks_to_rad", encoder_ticks_to_rad);
-    // nhp.getParam("rate", rate);
+    nh.getParam("rate", rate);
+
+    new_config = {.x = robot_start_x, .y = robot_start_y, .theta = robot_start_theta};
     
     ros::Rate r(rate);
 
@@ -217,6 +219,7 @@ int main(int argc, char * argv[])
 
         // populate transform and publish
         transformStamped.header.stamp = ros::Time::now();
+        \
         transformStamped.header.frame_id = "world";
         transformStamped.child_frame_id = "red_base_footprint";
         transformStamped.transform.translation.x = new_config.x;
