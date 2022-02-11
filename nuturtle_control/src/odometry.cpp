@@ -13,28 +13,31 @@ nav_msgs::Odometry odom;
 static turtlelib::Config config;
 std::string odom_id, body_id, wheel_left, wheel_right;
 static sensor_msgs::JointState js;
-
 turtlelib::WheelAngles wheel_angles{.left = 0.0, .right = 0.0};
-
 turtlelib::DiffDrive ddrive;
 
-
-void joints_callback(const sensor_msgs::JointState &msg) // odometry callback function
+/// \brief Subscribes to joint_states and calculates new red robot configuration
+/// \param js - Updated joint_states message
+/// \return None
+void joints_callback(const sensor_msgs::JointState &js) // odometry callback function
 {   
-    wheel_angles.left = msg.position[0];
-    wheel_angles.right = msg.position[1];
+    wheel_angles.left = js.position[0];
+    wheel_angles.right = js.position[1];
 
     config = ddrive.fKin(wheel_angles, config);
 }
 
-bool set_pose_callback(nuturtle_control::set_pose::Request &req, nuturtle_control::set_pose::Response &res)
+/// \brief Teleports blue robot (odometry) to desired pose in world frame
+/// \param q - Desired coniguration in world frame
+/// \return True
+bool set_pose_callback(nuturtle_control::set_pose::Request &q, nuturtle_control::set_pose::Response &res)
 {
-    config = {req.x, req.y, req.theta};
-    ROS_WARN("Set Pose Service Called.");
-
+    config = {q.x, q.y, q.theta};
+    ROS_WARN("Odometry has been reset!");
     return true;
 }
 
+/// \brief odometry node main function
 int main(int argc, char * argv[])
 {
     ros::init(argc, argv, "odometry");
@@ -84,16 +87,12 @@ int main(int argc, char * argv[])
         odom.twist.twist.linear.x = twist.xdot;
         odom.twist.twist.angular.z = twist.thetadot;
 
-        // populate transform and publish
         transformStamped.header.stamp = ros::Time::now();
-        // transformStamped.header.frame_id = odom_id;
-        // transformStamped.child_frame_id = body_id;
         transformStamped.header.frame_id = odom_id;
         transformStamped.child_frame_id = body_id;
         transformStamped.transform.translation.x = config.x;
         transformStamped.transform.translation.y = config.y;
         transformStamped.transform.translation.z = 0.0;
-        // tf2::Quaternion q;
         q.setRPY(0, 0, config.theta);
         transformStamped.transform.rotation.x = q.x();
         transformStamped.transform.rotation.y = q.y();

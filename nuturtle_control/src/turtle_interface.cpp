@@ -9,17 +9,20 @@
 
 static nuturtlebot_msgs::WheelCommands wheel_cmd;
 static sensor_msgs::JointState jointstates;
-// ROS_INFO(jointstates);
 static double encoder_ticks_to_rad, motor_cmd_to_radsec;
 static turtlelib::WheelVel wheel_vel;
 
-void cmd_vel_callback(const geometry_msgs::Twist &msg) // cmd_vel callback function
+
+/// \brief Subscribes to cmd_vel and populates wheel_cmd message
+/// \param cmdvel - cmd_vel values from user input
+/// \return None
+void cmd_vel_callback(const geometry_msgs::Twist &cmdvel) // cmd_vel callback function
 {
     turtlelib::DiffDrive ddrive;
     turtlelib::Twist2D twist;
-    twist.xdot = msg.linear.x;
+    twist.xdot = cmdvel.linear.x;
     twist.ydot = 0.0;
-    twist.thetadot = msg.angular.z;
+    twist.thetadot = cmdvel.angular.z;
     wheel_vel = ddrive.invKin(twist);
 
     wheel_cmd.left_velocity = (int)(wheel_vel.left/motor_cmd_to_radsec);
@@ -40,14 +43,18 @@ void cmd_vel_callback(const geometry_msgs::Twist &msg) // cmd_vel callback funct
     }
 }
 
-void sensor_callback(const nuturtlebot_msgs::SensorData &msg) // sensor_data callback function
+/// \brief Subscribes to sensor_data and populates joint_states message
+/// \param sensordata - sensor_data message with encoder values
+/// \return None
+void sensor_callback(const nuturtlebot_msgs::SensorData &sensordata) // sensor_data callback function
 {
     jointstates.header.stamp = ros::Time::now();
     jointstates.name = {"red_wheel_left_joint", "red_wheel_right_joint"};
-    jointstates.position = {msg.left_encoder*encoder_ticks_to_rad, msg.right_encoder*encoder_ticks_to_rad};
+    jointstates.position = {sensordata.left_encoder*encoder_ticks_to_rad, sensordata.right_encoder*encoder_ticks_to_rad};
     jointstates.velocity = {wheel_vel.left, wheel_vel.right};
 }
 
+/// \brief turtle_interface node main function
 int main(int argc, char * argv[])
 {
     ros::init(argc, argv, "turtle_interface");

@@ -7,33 +7,43 @@
 static int publishing = 1;
 static geometry_msgs::Twist twist;
 
-bool control_callback(nuturtle_control::control::Request &req, nuturtle_control::control::Response &res)
+/// \brief Service that starts robot in circular motion
+/// \param circlevals - radius and angular velocity for circular motion
+/// \return True
+bool control_callback(nuturtle_control::control::Request &circlevals, nuturtle_control::control::Response &res)
 {
     publishing = 1;
-    twist.linear.x = req.radius * std::abs(req.velocity);
-    twist.angular.z = req.velocity;
-
+    twist.linear.x = circlevals.radius * std::abs(circlevals.velocity);
+    twist.angular.z = circlevals.velocity;
+    ROS_WARN("Yay! Circle time!");
     return true;
 }
 
+/// \brief Service that reverses a current circular motion
+/// \param req - Empty
+/// \return True
 bool reverse_callback(std_srvs::Empty::Request &req, std_srvs::Empty::Response &)
 {
     publishing = 1;
     twist.linear.x = -twist.linear.x;
     twist.angular.z = -twist.angular.z;
-
+    ROS_WARN("Beep! Beep! Back it up!");
     return true;
 }
 
+/// \brief Service that stops current motion of robot
+/// \param req - Empty
+/// \return True
 bool stop_callback(std_srvs::Empty::Request &req, std_srvs::Empty::Response &)
 {
     publishing = 0;
     twist.linear.x = 0.0;
     twist.angular.z = 0.0;
-
+    ROS_WARN("HALT!");
     return true;
 }
 
+/// \brief circle node main function
 int main(int argc, char * argv[])
 {
     // initialize node
@@ -68,5 +78,4 @@ int main(int argc, char * argv[])
         r.sleep();
         ros::spinOnce();
     }
-
 }
