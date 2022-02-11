@@ -56,6 +56,14 @@ namespace turtlelib
 
     static_assert(almost_equal(deg2rad(rad2deg(2.1)), 2.1), "deg2rad failed");
 
+    static_assert(almost_equal(1, 1), "is_one failed");
+
+    static_assert(almost_equal(deg2rad(90.0), PI/2), "deg2rad failed");
+
+    static_assert(almost_equal(rad2deg(PI/2), 90.0), "rad2deg) failed");
+
+    static_assert(almost_equal(deg2rad(rad2deg(PI)), PI), "deg2rad failed");
+
     /// \brief A 2-Dimensional Vector
     struct Vector2D
     {
