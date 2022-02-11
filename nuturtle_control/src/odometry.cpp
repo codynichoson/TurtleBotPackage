@@ -60,7 +60,7 @@ int main(int argc, char * argv[])
 
 
     // ROS_WARN("start of main");
-    ros::init(argc, argv, "turtle_interface");
+    ros::init(argc, argv, "odometry");
     // ros::NodeHandle nh("~");
     ros::NodeHandle nh;
 
@@ -69,8 +69,8 @@ int main(int argc, char * argv[])
     nh.getParam("wheel_left", wheel_left);
     nh.getParam("wheel_right", wheel_right);
 
-    int rate;
-    nh.getParam("/nusim/rate", rate);
+    int rate = 100;
+    // nh.getParam("/nusim/rate", rate);
     ros::Rate r(rate);
 
     ros::Subscriber joint_sub = nh.subscribe("joint_states", 100, joints_callback);

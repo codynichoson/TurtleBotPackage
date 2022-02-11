@@ -41,8 +41,8 @@ int main(int argc, char * argv[])
     ros::NodeHandle nh;
     ros::NodeHandle nhp("~");
 
-    int rate;
-    nh.getParam("/nusim/rate", rate);
+    // nh.getParam("/nusim/rate", rate);
+    int rate = 100;
     ros::Rate r(rate);
 
     ros::Publisher cmd_vel_pub = nh.advertise<geometry_msgs::Twist>("cmd_vel", 100);

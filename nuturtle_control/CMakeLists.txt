@@ -8,6 +8,7 @@ project(nuturtle_control)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS 
+    catch_ros
     geometry_msgs 
     message_generation
     message_runtime
@@ -212,7 +213,7 @@ install(TARGETS circle odometry turtle_interface
 
 ## Mark cpp header files for installation
 install(DIRECTORY launch
-  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}/launch
+  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
 )
 
 # install(DIRECTORY config/
@@ -240,3 +241,15 @@ install(PROGRAMS loader.sh
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
+
+if(CATKIN_ENABLE_TESTING)
+  find_package(rostest REQUIRED)
+
+  catch_add_rostest_node(turtle_interface_test tests/turtle_interface_test.cpp)
+
+  target_link_libraries(turtle_interface_test turtlelib ${catkin_LIBRARIES})
+
+  add_rostest(launch/turtle_interface.test DEPENDENCIES turtle_interface_test)
+  # add_rostest(launch/turtle_cirlce.test)
+
+endif()

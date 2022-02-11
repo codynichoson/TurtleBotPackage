@@ -14,7 +14,7 @@
 #include <visualization_msgs/MarkerArray.h>
 #include <turtlelib/diff_drive.hpp>
 
-static double rate;
+static int rate = 100;
 static std_msgs::UInt64 timestep;
 static std::vector<double> obs_x, obs_y;
 static double radius;
@@ -105,7 +105,8 @@ int main(int argc, char * argv[])
     nhp.getParam("thickness", thickness);
     nh.getParam("/nusim/motor_cmd_to_radsec", motor_cmd_to_radsec);
     nhp.getParam("/nusim/encoder_ticks_to_rad", encoder_ticks_to_rad);
-    nhp.getParam("rate", rate);
+    // nhp.getParam("rate", rate);
+    
     ros::Rate r(rate);
 
     // create transform broadcaster and broadcast message
