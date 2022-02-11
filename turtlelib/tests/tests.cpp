@@ -322,10 +322,10 @@ TEST_CASE("constructor_rot", "[transform]") { // Anna Garverick
 
 TEST_CASE("Multiplying transforms", "[transform]") { // Cody Nichoson
     turtlelib::Vector2D vec1, vec2;
-    vec1.x = 2; vec1.y = 6;
-    vec2.x = -5; vec2.y = -2;
-    double theta1 = PI/8;
-    double theta2 = -PI;
+    vec1.x = 3; vec1.y = -3;
+    vec2.x = 5; vec2.y = 2;
+    double theta1 = -PI/2;
+    double theta2 = PI/2;
 
     turtlelib::Transform2D tfab(vec1, theta1);
     turtlelib::Transform2D tfbc(vec2, theta2);
@@ -334,14 +334,14 @@ TEST_CASE("Multiplying transforms", "[transform]") { // Cody Nichoson
     turtlelib::Vector2D vec_ac = tfac.translation();
     double theta_ac = tfac.rotation();
 
-    CHECK(vec_ac.x == Approx(-1.85).margin(0.01));
-    CHECK(vec_ac.y == Approx(2.24).margin(0.01));
-    CHECK(theta_ac == Approx(2.75).margin(0.01));
+    CHECK(vec_ac.x == Approx(5.0).margin(0.01));
+    CHECK(vec_ac.y == Approx(-8.0).margin(0.01));
+    CHECK(theta_ac == Approx(0.0).margin(0.01));
 
     turtlelib::Vector2D vec3, vec4;
     vec3.x = -4; vec3.y = 2;
     vec4.x = 3; vec4.y = 1;
-    double theta3 = -PI;
+    double theta3 = PI;
     double theta4 = -PI/2;
 
     turtlelib::Transform2D tfcd(vec3, theta3);

@@ -297,8 +297,6 @@ namespace turtlelib{
         // theta = acos(cos(theta)*cos(rhs.theta) - sin(theta)*sin(rhs.theta));
         theta = theta + rhs.theta;
 
-        // theta = -theta - rhs.theta;
-
         return *this;
     }
 
