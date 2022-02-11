@@ -5,8 +5,6 @@ Winter 2022
 Northwestern University  
 MS in Robotics
 
-
-
 ## Packages
 This repository consists of several ROS packages:
 
@@ -22,14 +20,6 @@ A simluator and visualizer that provides a simulated robot environment for our T
 `nuturtle_control`  
 A package containing several nodes used for controlling the robot in both simulation and in the real world environment.
 
-## Nodes
-
-### nusim
-`nusim`  
-Provides a simulated robot environment and configuration updates.
-
-### nuturtle_control
- 
 
 
 
