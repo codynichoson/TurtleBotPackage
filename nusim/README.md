@@ -1,6 +1,11 @@
 # NUSIM Package
+## Creator
+Cody Nichoson  
+Winter 2022  
+Northwestern University  
+MS in Robotics
 
-### Description
+### Package Description
 This package can be used as a simulator and visualizer for a single or multiple TurtleBots. It can also
 display various obstacles around the robot(s).
 

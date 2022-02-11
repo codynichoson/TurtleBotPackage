@@ -5,30 +5,7 @@ Winter 2022
 Northwestern University  
 MS in Robotics
 
-## Demonstration Videos
-### Straight Line Test
-#### Real
-https://youtu.be/TiDCJBVdU1g
-#### Odometry
-https://youtu.be/ooLIbjrE8DY
 
-### Spin Test
-#### Real
-https://youtu.be/n_YxbGPr-Z4
-#### Odometry
-https://youtu.be/oY9r61NI1cs
-
-### Circle Test
-#### Real
-https://youtu.be/NHRz6_yNdhE
-#### Odometry
-https://youtu.be/DMlfGwZ1oho
-
-### Slip Test
-#### Real
-https://youtu.be/hayYHKsN6F8
-#### Odometry
-https://youtu.be/DMlfGwZ1oho
 
 ## Packages
 This repository consists of several ROS packages:
@@ -45,15 +22,6 @@ A simluator and visualizer that provides a simulated robot environment for our T
 `nuturtle_control`  
 A package containing several nodes used for controlling the robot in both simulation and in the real world environment.
 
-## Launchfiles
-### nusim
-`nusim.launch`  
-Launches a single TurtleBot into a simulated environment.
-
-### nuturtle_control
-`start_robot.launch`  
-Launches TurtleBot into simulated environment and allows user to call services to publish `cmd_vel` values to the TurtleBot (real or simulated, remote or local), receive odometry, and visualize everything in Rviz.
-
 ## Nodes
 
 ### nusim
@@ -61,12 +29,7 @@ Launches TurtleBot into simulated environment and allows user to call services t
 Provides a simulated robot environment and configuration updates.
 
 ### nuturtle_control
-`circle`  
-Publishes `cmd_vel` commands that cause robot to drive in a circle.  
-`turtle_interface`  
-Enables control of the TurtleBot via `cmd_vel` commands.  
-`odometry`  
-Publishes odometry messages and the odometry transform of the robot.  
+ 
 
 
 

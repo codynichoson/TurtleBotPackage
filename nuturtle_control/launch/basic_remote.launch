@@ -1,6 +1,6 @@
 <launch>
   <arg name="robot"         default="localhost"/>
-
+  
   <machine name="turtlebot" address="$(arg robot)" env-loader="/home/msr/install/share/nuturtle_control/loader.sh" user="msr"/>
 
   <node pkg="rosserial_python" type="serial_node.py" name="rosserial" machine="turtlebot">
