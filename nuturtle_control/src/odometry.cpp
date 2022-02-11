@@ -28,20 +28,21 @@ void joints_callback(const sensor_msgs::JointState &msg) // odometry callback fu
     config = ddrive.fKin(wheel_angles, config);
     // ROS_WARN("theta: %f", config.theta);
 
-    odom.header.frame_id = "odom";
-    odom.pose.pose.position.x = config.x;
-    odom.pose.pose.position.y = config.y;
-    tf2::Quaternion q;
-    q.setRPY(0.0, 0.0, config.theta);
-    odom.pose.pose.orientation.x = q.x();
-    odom.pose.pose.orientation.y = q.y();
-    odom.pose.pose.orientation.z = q.z();
-    odom.pose.pose.orientation.w = q.w();
+    // odom.header.frame_id = "odom";
+    // odom.pose.pose.position.x = config.x;
+    // odom.pose.pose.position.y = config.y;
+    // tf2::Quaternion q;
+    // q.setRPY(0.0, 0.0, config.theta);
+    // odom.pose.pose.orientation.x = q.x();
+    // odom.pose.pose.orientation.y = q.y();
+    // odom.pose.pose.orientation.z = q.z();
+    // odom.pose.pose.orientation.w = q.w();
     
-    turtlelib::Twist2D twist = ddrive.Ang2Twist(wheel_angles);
-    odom.child_frame_id = "blue_base_footprint";
-    odom.twist.twist.linear.x = twist.xdot;
-    odom.twist.twist.angular.z = twist.thetadot;
+    // turtlelib::Twist2D twist = ddrive.Ang2Twist(wheel_angles);
+    // odom.child_frame_id = "blue_base_footprint";
+    // odom.twist.twist.linear.x = twist.xdot;
+    // odom.twist.twist.angular.z = twist.thetadot;
+    
 }
 
 bool set_pose_callback(nuturtle_control::set_pose::Request &req, nuturtle_control::set_pose::Response &res)
@@ -84,6 +85,22 @@ int main(int argc, char * argv[])
 
     while(ros::ok())
     {
+        odom.header.frame_id = "odom";
+        odom.pose.pose.position.x = config.x;
+        odom.pose.pose.position.y = config.y;
+        tf2::Quaternion q;
+        q.setRPY(0.0, 0.0, config.theta);
+        odom.pose.pose.orientation.x = q.x();
+        odom.pose.pose.orientation.y = q.y();
+        odom.pose.pose.orientation.z = q.z();
+        odom.pose.pose.orientation.w = q.w();
+        
+        turtlelib::Twist2D twist = ddrive.Ang2Twist(wheel_angles);
+        odom.child_frame_id = "blue_base_footprint";
+        odom.twist.twist.linear.x = twist.xdot;
+        odom.twist.twist.angular.z = twist.thetadot;
+
+
         // populate transform and publish
         transformStamped.header.stamp = ros::Time::now();
         // transformStamped.header.frame_id = odom_id;
@@ -93,7 +110,7 @@ int main(int argc, char * argv[])
         transformStamped.transform.translation.x = config.x;
         transformStamped.transform.translation.y = config.y;
         transformStamped.transform.translation.z = 0.0;
-        tf2::Quaternion q;
+        // tf2::Quaternion q;
         q.setRPY(0, 0, config.theta);
         transformStamped.transform.rotation.x = q.x();
         transformStamped.transform.rotation.y = q.y();

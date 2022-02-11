@@ -247,10 +247,13 @@ if(CATKIN_ENABLE_TESTING)
   find_package(rostest REQUIRED)
 
   catch_add_rostest_node(turtle_interface_test tests/turtle_interface_test.cpp)
+  catch_add_rostest_node(turtle_odom_test_node tests/turtle_odom_test_node.cpp)
 
   target_link_libraries(turtle_interface_test turtlelib ${catkin_LIBRARIES})
+  target_link_libraries(turtle_odom_test_node turtlelib ${catkin_LIBRARIES})
 
   add_rostest(launch/turtle_interface.test DEPENDENCIES turtle_interface_test)
-  # add_rostest(launch/turtle_cirlce.test)
+  add_rostest(launch/turtle_odom.test DEPENDENCIES turtle_odom_test_node)
+  # add_rostest(launch/turtle_circle.test)
 
 endif()
