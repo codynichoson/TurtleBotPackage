@@ -27,13 +27,13 @@ void joint_states_callback(const sensor_msgs::JointState &msg)
 {
   js_position_left = msg.position.at(0);
   js_position_right = msg.position.at(1);
-  // js_velocity_left = msg.velocity.at(0);
-  // js_velocity_right = msg.velocity.at(1);
 }
 
 TEST_CASE("turtle_interface test") {
   
   ros::NodeHandle nh;
+
+  // nh.getParam("rate", rate);
   ros::Rate r(100);
 
   ros::Publisher cmd_vel_pub = nh.advertise<geometry_msgs::Twist>("cmd_vel", 100);

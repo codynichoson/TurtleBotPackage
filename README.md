@@ -8,19 +8,25 @@ MS in Robotics
 ## Demonstration Videos
 ### Straight Line Test
 #### Real
-https://youtu.be/wf5oIyrZR1A
+https://youtu.be/TiDCJBVdU1g
 #### Odometry
 https://youtu.be/ooLIbjrE8DY
 
 ### Spin Test
 #### Real
-https://youtu.be/wwuZlec7XPU
+https://youtu.be/n_YxbGPr-Z4
 #### Odometry
 https://youtu.be/oY9r61NI1cs
 
 ### Circle Test
 #### Real
-https://youtu.be/1D3B_T9j9QQ
+https://youtu.be/NHRz6_yNdhE
+#### Odometry
+https://youtu.be/DMlfGwZ1oho
+
+### Slip Test
+#### Real
+https://youtu.be/hayYHKsN6F8
 #### Odometry
 https://youtu.be/DMlfGwZ1oho
 
