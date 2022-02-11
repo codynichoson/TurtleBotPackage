@@ -221,10 +221,11 @@ install(DIRECTORY launch
 # )
 
 ## Mark other files for installation (e.g. launch and bag files, etc.)
+#catkin_lint: ignore_once wrong_bin_install_destination
 install(FILES loader.sh
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
-
+#catkin_lint: ignore_once wrong_bin_install_destination
 install(PROGRAMS loader.sh
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
