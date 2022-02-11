@@ -1,5 +1,5 @@
 /// \file
-/// \brief Turtlebot imulation node.
+/// \brief Turtlebot simulation node.
 
 #include "ros/ros.h"
 #include "std_msgs/UInt64.h"
