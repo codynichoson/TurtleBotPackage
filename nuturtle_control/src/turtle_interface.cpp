@@ -1,3 +1,23 @@
+/*******************************************************************************
+ * TURTLE_INTERFACE NODE
+ * 
+ * Node Description:
+ * This node takes in velocity commands and current sensor data of the robot and
+ * calculates the necessary wheel commands and updated joint states to send to the
+ * robot itself.
+ * 
+ * Publishers:
+ * wheel_cmd - Wheel commands for the robot calculated from cmd_vel values.
+ * joint_states - The positions and velocities of the robot's joints (wheels)
+ * 
+ * Subscribers:
+ * cmd_vel - A twist describing the velocity of the robot
+ * sensor_data - Encoder tick values from the robot
+ * 
+ * Services:
+ * None
+ ******************************************************************************/
+
 #include "ros/ros.h"
 #include "ros/console.h"
 #include <turtlelib/diff_drive.hpp>
@@ -11,7 +31,6 @@ static nuturtlebot_msgs::WheelCommands wheel_cmd;
 static sensor_msgs::JointState jointstates;
 static double encoder_ticks_to_rad, motor_cmd_to_radsec;
 static turtlelib::WheelVel wheel_vel;
-
 
 /// \brief Subscribes to cmd_vel and populates wheel_cmd message
 /// \param cmdvel - cmd_vel values from user input

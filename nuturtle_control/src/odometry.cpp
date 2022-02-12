@@ -1,3 +1,22 @@
+/*******************************************************************************
+ * ODOMETRY NODE
+ * 
+ * Node Description:
+ * This node publishes odometry messages and the odometry transform of the robot.
+ * It also offers a service to reset the pose of the blue robot (representing robot
+ * pose calculated via odometry) to a desired configuration. 
+ * 
+ * Publishers:
+ * odom - The pose of the robot based on odometry 
+ * 
+ * Subscribers:
+ * joint_states - The positions and velocities of the robot's joints (wheels)
+ * 
+ * Services:
+ * /set_pose - Takes in a robot configuration and moves the blue robot (representing 
+ * the robot's configuration based on odometry) to the inputted configuration.
+ ******************************************************************************/
+
 #include "ros/ros.h"
 #include "nuturtle_control/set_pose.h"
 #include <turtlelib/diff_drive.hpp>

@@ -1,3 +1,28 @@
+/*******************************************************************************
+ * CIRCLE NODE
+ * 
+ * Node Description:
+ * This node primarily publishes cmd_vel commands that cause the robot to drive 
+ * in a circle. It also contains several services that can stop and reverse the 
+ * robot.
+ * 
+ * Publishers:
+ * cmd_vel - A twist describing the velocity of the robot
+ * 
+ * Subscribers:
+ * None
+ * 
+ * Services:
+ * /control - Takes in an angular velocity and radius and moves TurtleBot in a 
+ * corresponding circular motion.
+ * 
+ * /reverse - Takes in no parameters; reverses the TurtleBot based on the initial 
+ * control service called.
+ * 
+ * /stop
+ * Takes in no parameters; publishes `cmd)vel` values of zero and stops robot.
+ ******************************************************************************/
+
 #include "ros/ros.h"
 #include "nuturtle_control/control.h"
 #include <turtlelib/diff_drive.hpp>

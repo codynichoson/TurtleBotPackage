@@ -1,5 +1,22 @@
-/// \file
-/// \brief Turtlebot simulation node.
+/*******************************************************************************
+ * NUSIM NODE
+ * 
+ * Node Description:
+ * This node serves to create a simulated environment for our robot to navigate.
+ * 
+ * Publishers:
+ * sensor_data - Encoder tick values from the robot
+ * timestep - Timestep of the simulation
+ * obstacles - The attributes of the column obstacles in the simulated environment
+ * walls - The attributes of the walls of our simulated environment
+ * 
+ * Subscribers:
+ * wheel_cmd - Wheel commands for the robot calculated from cmd_vel values.
+ * 
+ * Services:
+ * /reset - Moves red robot back to a (0,0,0) configuration
+ * /teleport - Moves red robot to inputted configuration relative to world frame
+ ******************************************************************************/
 
 #include "ros/ros.h"
 #include "std_msgs/UInt64.h"
