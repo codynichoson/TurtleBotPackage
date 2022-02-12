@@ -1,9 +1,9 @@
 <launch>
 
-    <arg name="cmd_src"        default="circle"/>
-    <arg name="robot"          default="nusim" />
-    <arg name="nusim_rate"     default="500"/>
-    <arg name="frequency"      default="100"/>
+    <arg name="cmd_src"        default="none"     doc="command source for turtlebot movement (circle or teleop)"/>
+    <arg name="robot"          default="nusim"    doc="robot name (nusim, localhost, or (robot_name))"          />
+    <arg name="nusim_rate"     default="500"      doc="rate at which nusim node publishes (default 500)"        />
+    <arg name="frequency"      default="100"      doc="frequency at which circle node publishes"                />
 
     <remap from="/red/joint_states" to="/joint_states"/>
     <remap from="/red/wheel_cmd" to="/wheel_cmd"/>

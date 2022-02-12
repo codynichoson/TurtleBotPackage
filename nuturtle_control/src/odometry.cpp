@@ -48,14 +48,45 @@ int main(int argc, char * argv[])
     double robot_start_y;
     double robot_start_theta;
     
-    nh.getParam("body_id", body_id);
-    nh.getParam("odom_id", odom_id);
-    nh.getParam("wheel_left", wheel_left);
-    nh.getParam("wheel_right", wheel_right);
-    nh.getParam("rate", rate);
-    nh.getParam("robot_start_x", robot_start_x);
-    nh.getParam("robot_start_y", robot_start_y);
-    nh.getParam("robot_start_theta", robot_start_theta);
+    if (nh.hasParam("body_id")){
+        nh.getParam("body_id", body_id);
+    }
+    else{
+        ROS_ERROR_STREAM("body_id parameter not found.");
+    }
+    if (nh.hasParam("odom_id")){
+        nh.getParam("odom_id", odom_id);
+    }
+    else{
+        ROS_ERROR_STREAM("odom_id parameter not found.");
+    }
+    if (nh.hasParam("rate")){
+        nh.getParam("rate", rate);
+    }
+    else{
+        ROS_ERROR_STREAM("rate parameter not found.");
+    }
+    if (nh.hasParam("robot_start_x")){
+        nh.getParam("robot_start_x", robot_start_x);
+    }
+    else{
+        ROS_ERROR_STREAM("robot_start_x parameter not found.");
+    }
+    if (nh.hasParam("robot_start_y")){
+        nh.getParam("robot_start_y", robot_start_y);
+    }
+    else{
+        ROS_ERROR_STREAM("robot_start_y parameter not found.");
+    }
+    if (nh.hasParam("robot_start_theta")){
+        nh.getParam("robot_start_theta", robot_start_theta);
+    }
+    else{
+        ROS_ERROR_STREAM("robot_start_theta parameter not found.");
+    }
+
+    // nh.getParam("wheel_left", wheel_left);
+    // nh.getParam("wheel_right", wheel_right);
 
     config = {.x = robot_start_x, .y = robot_start_y, .theta = robot_start_theta};
 

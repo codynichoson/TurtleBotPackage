@@ -63,9 +63,26 @@ int main(int argc, char * argv[])
     int rate;
 
     // load params from server
-    nh.getParam("/nusim/motor_cmd_to_radsec", motor_cmd_to_radsec);
-    nh.getParam("/nusim/encoder_ticks_to_rad", encoder_ticks_to_rad);
-    nh.getParam("rate", rate);
+    
+    if (nh.hasParam("/nusim/motor_cmd_to_radsec")){
+        nh.getParam("/nusim/motor_cmd_to_radsec", motor_cmd_to_radsec);
+    }
+    else{
+        ROS_ERROR_STREAM("motor_cmd_to_radsec parameter not found.");
+    }
+    if (nh.hasParam("/nusim/encoder_ticks_to_rad")){
+        nh.getParam("/nusim/encoder_ticks_to_rad", encoder_ticks_to_rad);
+    }
+    else{
+        ROS_ERROR_STREAM("encoder_ticks_to_rad parameter not found.");
+    }
+    if (nh.hasParam("rate")){
+        nh.getParam("rate", rate);
+    }
+    else{
+        ROS_ERROR_STREAM("rate parameter not found.");
+    }
+    
     ros::Rate r(rate);
 
     wheel_cmd.left_velocity = 0;
