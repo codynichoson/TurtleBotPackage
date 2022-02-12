@@ -1,7 +1,7 @@
 <launch>
 
-    <arg name="color"      default="red"/>
-    <arg name="rate"       default="500"/>
+    <arg name="color"      default="red"    doc="color of turtlebot model"/>
+    <arg name="rate"       default="500"    doc="publishing rate"         />
 
     <node name="nusim" pkg="nusim" type="nusim_node">
         <param name="~rate" value="$(arg rate)"/>
