@@ -46,24 +46,32 @@ Takes in no parameters; publishes `cmd)vel` values of zero and stops robot.
 
 ## Demonstration Videos
 ### Straight Line Test
+Starting Coordinates: (0,0,0)  
+Final Coordinates:    (-0.00387, 0.00102, -0.00016)
 #### Real
 https://youtu.be/TiDCJBVdU1g
 #### Odometry
 https://youtu.be/ooLIbjrE8DY
 
 ### Spin Test
+Starting Coordinates: (0,0,0)  
+Final Coordinates:    (-0.00040, 0.000005, -0.01946)
 #### Real
 https://youtu.be/n_YxbGPr-Z4
 #### Odometry
 https://youtu.be/oY9r61NI1cs
 
 ### Circle Test
+Starting Coordinates: (0,0,0)  
+Final Coordinates:    (-0.00122, -0.00083, -0.00316)
 #### Real
 https://youtu.be/NHRz6_yNdhE
 #### Odometry
 https://youtu.be/DMlfGwZ1oho
 
 ### Slip Test
+Starting Coordinates: (0,0,0)  
+Final Coordinates:    (0.09458, -0.00329, 0.02499)
 #### Real
 https://youtu.be/hayYHKsN6F8
 #### Odometry
