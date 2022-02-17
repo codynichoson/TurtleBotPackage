@@ -6,5 +6,4 @@
     <rosparam file="$(find nuturtle_description)/config/diff_params.yaml" ns="nusim" />
     <node name="odometry" pkg="nuturtle_control" type="odometry"/>
     <test pkg="nuturtle_control" type="turtle_odom_test_node" test-name="turtle_odom_test_node"/>
-
 </launch>
