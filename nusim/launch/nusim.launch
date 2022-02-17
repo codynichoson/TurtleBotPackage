@@ -1,7 +1,8 @@
 <launch>
 
-    <arg name="color"      default="red"    doc="color of turtlebot model"/>
-    <arg name="rate"       default="500"    doc="publishing rate"         />
+    <arg name="color"             default="red"                 doc="color of turtlebot model"         />
+    <arg name="rate"              default="500"                 doc="publishing rate"                  />
+    <arg name="config_file"       default="basic_world.yaml"    doc=".yaml file to configure simulator"/>
 
     <node name="nusim" pkg="nusim" type="nusim_node">
         <param name="~rate" value="$(arg rate)"/>
