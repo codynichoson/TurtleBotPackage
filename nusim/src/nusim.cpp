@@ -33,6 +33,7 @@
 #include <visualization_msgs/Marker.h>
 #include <visualization_msgs/MarkerArray.h>
 #include <turtlelib/diff_drive.hpp>
+#include<random>
 
 static int rate = 100;
 static std_msgs::UInt64 timestep;
@@ -48,17 +49,27 @@ static double motor_cmd_to_radsec;
 static double encoder_ticks_to_rad;
 static int num_walls = 4;
 
-static turtlelib::WheelAngles new_wheelangles = {.left = 0.0, .right = 0.0};
-
+static turtlelib::WheelAngles wheelangles = {.left = 0.0, .right = 0.0};
+static turtlelib::WheelAngles slip_wheelangles = {.left = 0.0, .right = 0.0};
 static turtlelib::WheelVel wheelvel;
 static turtlelib::Config new_config;
 
 int isResetting = 0;
 int isTeleporting = 0;
-
 static nuturtlebot_msgs::SensorData sensor_data;
-
 static turtlelib::DiffDrive ddrive;
+
+/// \brief Random number generator
+/// \return mt
+std::mt19937 & get_random()
+ {
+     // static variables inside a function are created once and persist for the remainder of the program
+     static std::random_device rd{}; 
+     static std::mt19937 mt{rd()};
+     // we return a reference to the pseudo-random number genrator object. This is always the
+     // same object every time get_random is called
+     return mt;
+ }
 
 /// \brief Resets red robot to origin of world frame
 /// \param req - Trigger
@@ -95,12 +106,16 @@ bool teleport_callback(nusim::teleport::Request &q, nusim::teleport::Response &r
 /// \return None
 void wheel_cmd_callback(const nuturtlebot_msgs::WheelCommands &wheelcmd)
 {
-    wheelvel.left = wheelcmd.left_velocity * motor_cmd_to_radsec;
-    wheelvel.right = wheelcmd.right_velocity * motor_cmd_to_radsec;
+    // Generate a gaussian variable:
+    std::normal_distribution<> wheel_cmd_noise(1, 0.2); // (mean, variance)
+
+    // adding noise
+    wheelvel.left = wheel_cmd_noise(get_random()) * wheelcmd.left_velocity * motor_cmd_to_radsec;
+    wheelvel.right = wheel_cmd_noise(get_random()) * wheelcmd.right_velocity * motor_cmd_to_radsec;
     
     // calculate encoder stuff to populate sensor_data
-    int encoder_left = (int)(((wheelvel.left/rate) + new_wheelangles.left)/encoder_ticks_to_rad);
-    int encoder_right = (int)(((wheelvel.right/rate) + new_wheelangles.right)/encoder_ticks_to_rad);
+    int encoder_left = (int)(((wheelvel.left/rate) + wheelangles.left)/encoder_ticks_to_rad);
+    int encoder_right = (int)(((wheelvel.right/rate) + wheelangles.right)/encoder_ticks_to_rad);
 
     sensor_data.left_encoder = encoder_left;
     sensor_data.right_encoder = encoder_right;
@@ -220,19 +235,26 @@ int main(int argc, char * argv[])
             wall_arr.markers[i].pose.orientation.z = 0.0;
             wall_arr.markers[i].pose.orientation.w = 1.0;
             wall_arr.markers[i].scale.z = wall_height;
-            wall_arr.markers[i].color.r = 0.3;  // Go Cats
-            wall_arr.markers[i].color.g = 0.16;
-            wall_arr.markers[i].color.b = 0.52;
+            wall_arr.markers[i].color.r = 1.0;
+            wall_arr.markers[i].color.g = 0.0;
+            wall_arr.markers[i].color.b = 0.0;
             wall_arr.markers[i].color.a = 1.0;
         }
         walls_pub.publish(wall_arr);
+
+        // Generate a gaussian variable:
+        std::uniform_real_distribution<> left_noise(0, 2); // (mean, variance)
+        std::uniform_real_distribution<> right_noise(0, 2); // (mean, variance)
+
+        double left_slip = left_noise(get_random())*wheelvel.left/rate;
+        double right_slip = right_noise(get_random())*wheelvel.right/rate;
             
-        new_wheelangles = {.left = ((wheelvel.left/rate)+new_wheelangles.left), .right = ((wheelvel.right/rate)+new_wheelangles.right)};
-        new_config = ddrive.fKin(new_wheelangles, new_config);
+        wheelangles = {.left = ((wheelvel.left/rate)+wheelangles.left), .right = ((wheelvel.right/rate)+wheelangles.right)};
+        slip_wheelangles = {.left = slip_wheelangles.left + left_slip, .right = slip_wheelangles.right + right_slip};
+        new_config = ddrive.fKin(slip_wheelangles, new_config);
 
         // populate transform and publish
         transformStamped.header.stamp = ros::Time::now();
-        \
         transformStamped.header.frame_id = "world";
         transformStamped.child_frame_id = "red_base_footprint";
         transformStamped.transform.translation.x = new_config.x;
