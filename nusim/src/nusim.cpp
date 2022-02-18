@@ -142,6 +142,8 @@ int main(int argc, char * argv[])
     nh.getParam("/nusim/motor_cmd_to_radsec", motor_cmd_to_radsec);
     nhp.getParam("/nusim/encoder_ticks_to_rad", encoder_ticks_to_rad);
     nh.getParam("rate", rate);
+    double basic_sensor_variance = 0.05; // add param
+    double max_range = 2; // add param
 
     new_config = {.x = robot_start_x, .y = robot_start_y, .theta = robot_start_theta};
     
@@ -156,6 +158,7 @@ int main(int argc, char * argv[])
     ros::Publisher timestep_pub = nhp.advertise<std_msgs::UInt64>("timestep", rate);
     ros::Publisher obstacles_pub = nhp.advertise<visualization_msgs::MarkerArray>("obstacles", 1, true);
     ros::Publisher walls_pub = nhp.advertise<visualization_msgs::MarkerArray>("walls", 1, true);
+    ros::Publisher fake_sensor_pub = nhp.advertise<visualization_msgs::MarkerArray>("fake_sensor", 1, true);
 
     // create subscribers
     ros::Subscriber sub = nh.subscribe("wheel_cmd", 1000, wheel_cmd_callback);
@@ -166,6 +169,9 @@ int main(int argc, char * argv[])
 
     visualization_msgs::MarkerArray obs_arr;
     obs_arr.markers.resize(obs_x.size());
+
+    visualization_msgs::MarkerArray fake_sensor_arr;
+    fake_sensor_arr.markers.resize(obs_x.size());
 
     visualization_msgs::MarkerArray wall_arr;
     wall_arr.markers.resize(num_walls);
@@ -198,6 +204,8 @@ int main(int argc, char * argv[])
             obs_arr.markers[i].color.a = 1.0;
         }
         obstacles_pub.publish(obs_arr);
+
+        
 
         for(int i = 0; i < num_walls; i++){
             wall_arr.markers[i].header.frame_id = "world";
@@ -243,8 +251,8 @@ int main(int argc, char * argv[])
         walls_pub.publish(wall_arr);
 
         // Generate a gaussian variable:
-        std::uniform_real_distribution<> left_noise(1, 2); // (mean, variance)
-        std::uniform_real_distribution<> right_noise(1, 2); // (mean, variance)
+        std::uniform_real_distribution<> left_noise(1, 1.5); // (mean, variance)
+        std::uniform_real_distribution<> right_noise(1, 1.5); // (mean, variance)
 
         double left_slip = left_noise(get_random())*wheelvel.left/rate;
         double right_slip = right_noise(get_random())*wheelvel.right/rate;
@@ -252,6 +260,38 @@ int main(int argc, char * argv[])
         wheelangles = {.left = ((wheelvel.left/rate)+wheelangles.left), .right = ((wheelvel.right/rate)+wheelangles.right)};
         new_config = ddrive.fKin(wheelangles, new_config);
         slip_wheelangles = {.left = slip_wheelangles.left + left_slip, .right = slip_wheelangles.right + right_slip};
+
+        // publish fake sensor markers
+        for(int i = 0; i < obs_x.size(); i++){
+            turtlelib::Vector2D new_config_vec = {new_config.x, new_config.y};
+            turtlelib::Vector2D obs_vec = {obs_x[i], obs_y[i]};
+            turtlelib::Transform2D Twr(new_config_vec, new_config.theta);
+            turtlelib::Transform2D Trw = Twr.inv();
+            turtlelib::Transform2D Twm(obs_vec);
+            turtlelib::Transform2D Trm = Trw*Twm;
+            turtlelib::Vector2D Trm_vec = Trm.translation();
+
+            fake_sensor_arr.markers[i].header.frame_id = "red_base_footprint";
+            fake_sensor_arr.markers[i].header.stamp = ros::Time::now();
+            fake_sensor_arr.markers[i].id = i;
+            fake_sensor_arr.markers[i].type = visualization_msgs::Marker::CYLINDER;
+            fake_sensor_arr.markers[i].action = visualization_msgs::Marker::ADD;
+            fake_sensor_arr.markers[i].pose.position.x = Trm_vec.x;
+            fake_sensor_arr.markers[i].pose.position.y = Trm_vec.y;
+            fake_sensor_arr.markers[i].pose.position.z = height/2;
+            fake_sensor_arr.markers[i].pose.orientation.x = 0.0;
+            fake_sensor_arr.markers[i].pose.orientation.y = 0.0;
+            fake_sensor_arr.markers[i].pose.orientation.z = 0.0;
+            fake_sensor_arr.markers[i].pose.orientation.w = 1.0;
+            fake_sensor_arr.markers[i].scale.x = 2*radius;
+            fake_sensor_arr.markers[i].scale.y = 2*radius;
+            fake_sensor_arr.markers[i].scale.z = height;
+            fake_sensor_arr.markers[i].color.r = 1.0;
+            fake_sensor_arr.markers[i].color.g = 1.0;
+            fake_sensor_arr.markers[i].color.b = 0.0;
+            fake_sensor_arr.markers[i].color.a = 1.0;
+        }
+        fake_sensor_pub.publish(fake_sensor_arr); // change this frequency to 5 Hz
 
         // populate transform and publish
         transformStamped.header.stamp = ros::Time::now();
