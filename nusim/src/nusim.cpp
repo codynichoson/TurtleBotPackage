@@ -219,13 +219,17 @@ int main(int argc, char * argv[])
             turtlelib::Transform2D Trm = Trw*Twm;
             turtlelib::Vector2D Trm_vec = Trm.translation();
 
+            // Generate a gaussian variable:
+            double basic_sensor_variance = 0.001; // make a param
+            std::normal_distribution<> fake_sensor_noise(0, basic_sensor_variance); // (mean, variance)
+
             fake_sensor_arr.markers[i].header.frame_id = "red_base_footprint";
             fake_sensor_arr.markers[i].header.stamp = ros::Time::now();
             fake_sensor_arr.markers[i].id = i;
             fake_sensor_arr.markers[i].type = visualization_msgs::Marker::CYLINDER;
             fake_sensor_arr.markers[i].action = visualization_msgs::Marker::ADD;
-            fake_sensor_arr.markers[i].pose.position.x = Trm_vec.x;
-            fake_sensor_arr.markers[i].pose.position.y = Trm_vec.y;
+            fake_sensor_arr.markers[i].pose.position.x = Trm_vec.x + fake_sensor_noise(get_random());
+            fake_sensor_arr.markers[i].pose.position.y = Trm_vec.y + fake_sensor_noise(get_random());;
             fake_sensor_arr.markers[i].pose.position.z = height/2;
             fake_sensor_arr.markers[i].pose.orientation.x = 0.0;
             fake_sensor_arr.markers[i].pose.orientation.y = 0.0;
