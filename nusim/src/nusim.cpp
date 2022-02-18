@@ -52,7 +52,7 @@ static int num_walls = 4;
 static turtlelib::WheelAngles wheelangles = {.left = 0.0, .right = 0.0};
 static turtlelib::WheelAngles slip_wheelangles = {.left = 0.0, .right = 0.0};
 static turtlelib::WheelVel wheelvel;
-static turtlelib::Config new_config;
+static turtlelib::Config new_config, hold_config;
 
 int isResetting = 0;
 int isTeleporting = 0;
@@ -128,6 +128,8 @@ int main(int argc, char * argv[])
     ros::NodeHandle nhp("~");
     ros::NodeHandle nh;
 
+    int collision_flag = 0;
+
     nh.getParam("radius", radius);
     nh.getParam("height", height);
     nh.getParam("obs_x", obs_x);
@@ -144,8 +146,10 @@ int main(int argc, char * argv[])
     nh.getParam("rate", rate);
     double basic_sensor_variance = 0.05; // add param
     double max_range = 2; // add param
+    double collision_radius = 0.11; // add param
 
     new_config = {.x = robot_start_x, .y = robot_start_y, .theta = robot_start_theta};
+    hold_config = {.x = robot_start_x, .y = robot_start_y, .theta = robot_start_theta};
     
     ros::Rate r(rate);
 
@@ -205,7 +209,37 @@ int main(int argc, char * argv[])
         }
         obstacles_pub.publish(obs_arr);
 
-        
+        // publish fake sensor markers
+        for(int i = 0; i < obs_x.size(); i++){
+            turtlelib::Vector2D new_config_vec = {new_config.x, new_config.y};
+            turtlelib::Vector2D obs_vec = {obs_x[i], obs_y[i]};
+            turtlelib::Transform2D Twr(new_config_vec, new_config.theta);
+            turtlelib::Transform2D Trw = Twr.inv();
+            turtlelib::Transform2D Twm(obs_vec);
+            turtlelib::Transform2D Trm = Trw*Twm;
+            turtlelib::Vector2D Trm_vec = Trm.translation();
+
+            fake_sensor_arr.markers[i].header.frame_id = "red_base_footprint";
+            fake_sensor_arr.markers[i].header.stamp = ros::Time::now();
+            fake_sensor_arr.markers[i].id = i;
+            fake_sensor_arr.markers[i].type = visualization_msgs::Marker::CYLINDER;
+            fake_sensor_arr.markers[i].action = visualization_msgs::Marker::ADD;
+            fake_sensor_arr.markers[i].pose.position.x = Trm_vec.x;
+            fake_sensor_arr.markers[i].pose.position.y = Trm_vec.y;
+            fake_sensor_arr.markers[i].pose.position.z = height/2;
+            fake_sensor_arr.markers[i].pose.orientation.x = 0.0;
+            fake_sensor_arr.markers[i].pose.orientation.y = 0.0;
+            fake_sensor_arr.markers[i].pose.orientation.z = 0.0;
+            fake_sensor_arr.markers[i].pose.orientation.w = 1.0;
+            fake_sensor_arr.markers[i].scale.x = 2*radius;
+            fake_sensor_arr.markers[i].scale.y = 2*radius;
+            fake_sensor_arr.markers[i].scale.z = height;
+            fake_sensor_arr.markers[i].color.r = 1.0;
+            fake_sensor_arr.markers[i].color.g = 1.0;
+            fake_sensor_arr.markers[i].color.b = 0.0;
+            fake_sensor_arr.markers[i].color.a = 1.0;
+        }
+        fake_sensor_pub.publish(fake_sensor_arr); // change this frequency to 5 Hz
 
         for(int i = 0; i < num_walls; i++){
             wall_arr.markers[i].header.frame_id = "world";
@@ -251,47 +285,36 @@ int main(int argc, char * argv[])
         walls_pub.publish(wall_arr);
 
         // Generate a gaussian variable:
-        std::uniform_real_distribution<> left_noise(1, 1.5); // (mean, variance)
-        std::uniform_real_distribution<> right_noise(1, 1.5); // (mean, variance)
+        std::uniform_real_distribution<> left_noise(1, 1.05); // (mean, variance)
+        std::uniform_real_distribution<> right_noise(1, 1.05); // (mean, variance)
 
         double left_slip = left_noise(get_random())*wheelvel.left/rate;
         double right_slip = right_noise(get_random())*wheelvel.right/rate;
             
         wheelangles = {.left = ((wheelvel.left/rate)+wheelangles.left), .right = ((wheelvel.right/rate)+wheelangles.right)};
-        new_config = ddrive.fKin(wheelangles, new_config);
         slip_wheelangles = {.left = slip_wheelangles.left + left_slip, .right = slip_wheelangles.right + right_slip};
+        
+        // get new config
+        new_config = ddrive.fKin(wheelangles, new_config);
 
-        // publish fake sensor markers
-        for(int i = 0; i < obs_x.size(); i++){
-            turtlelib::Vector2D new_config_vec = {new_config.x, new_config.y};
-            turtlelib::Vector2D obs_vec = {obs_x[i], obs_y[i]};
-            turtlelib::Transform2D Twr(new_config_vec, new_config.theta);
-            turtlelib::Transform2D Trw = Twr.inv();
-            turtlelib::Transform2D Twm(obs_vec);
-            turtlelib::Transform2D Trm = Trw*Twm;
-            turtlelib::Vector2D Trm_vec = Trm.translation();
-
-            fake_sensor_arr.markers[i].header.frame_id = "red_base_footprint";
-            fake_sensor_arr.markers[i].header.stamp = ros::Time::now();
-            fake_sensor_arr.markers[i].id = i;
-            fake_sensor_arr.markers[i].type = visualization_msgs::Marker::CYLINDER;
-            fake_sensor_arr.markers[i].action = visualization_msgs::Marker::ADD;
-            fake_sensor_arr.markers[i].pose.position.x = Trm_vec.x;
-            fake_sensor_arr.markers[i].pose.position.y = Trm_vec.y;
-            fake_sensor_arr.markers[i].pose.position.z = height/2;
-            fake_sensor_arr.markers[i].pose.orientation.x = 0.0;
-            fake_sensor_arr.markers[i].pose.orientation.y = 0.0;
-            fake_sensor_arr.markers[i].pose.orientation.z = 0.0;
-            fake_sensor_arr.markers[i].pose.orientation.w = 1.0;
-            fake_sensor_arr.markers[i].scale.x = 2*radius;
-            fake_sensor_arr.markers[i].scale.y = 2*radius;
-            fake_sensor_arr.markers[i].scale.z = height;
-            fake_sensor_arr.markers[i].color.r = 1.0;
-            fake_sensor_arr.markers[i].color.g = 1.0;
-            fake_sensor_arr.markers[i].color.b = 0.0;
-            fake_sensor_arr.markers[i].color.a = 1.0;
+        // check if new config is in a collision state
+        for(int i = 0; i < 3; i++){
+            double distance = std::sqrt(std::pow(obs_x[i] - new_config.x, 2) + std::pow(obs_y[i] - new_config.y, 2));
+            if (distance < (collision_radius + radius)){
+                collision_flag+=1;
+            }
         }
-        fake_sensor_pub.publish(fake_sensor_arr); // change this frequency to 5 Hz
+
+        // if not, hold_config gets updated
+        // if so, new_config becomes hold_config
+        if (collision_flag == 0){
+            hold_config = new_config;
+        }
+        else{
+            new_config = hold_config;
+        }
+
+        collision_flag = 0;
 
         // populate transform and publish
         transformStamped.header.stamp = ros::Time::now();
