@@ -12,7 +12,7 @@
  * 
  * Subscribers:
  * wheel_cmd - Wheel commands for the robot calculated from cmd_vel values.
- * 
+ * may know?
  * Services:
  * /reset - Moves red robot back to a (0,0,0) configuration
  * /teleport - Moves red robot to inputted configuration relative to world frame
@@ -22,8 +22,10 @@
 #include "std_msgs/UInt64.h"
 #include "sensor_msgs/JointState.h"
 #include <geometry_msgs/TransformStamped.h>
+#include <geometry_msgs/PoseStamped.h>
 #include <nuturtlebot_msgs/WheelCommands.h>
 #include <nuturtlebot_msgs/SensorData.h>
+#include <nav_msgs/Path.h>
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2_ros/transform_broadcaster.h>
 #include <sstream>
@@ -163,6 +165,7 @@ int main(int argc, char * argv[])
     ros::Publisher obstacles_pub = nhp.advertise<visualization_msgs::MarkerArray>("obstacles", 1, true);
     ros::Publisher walls_pub = nhp.advertise<visualization_msgs::MarkerArray>("walls", 1, true);
     ros::Publisher fake_sensor_pub = nhp.advertise<visualization_msgs::MarkerArray>("fake_sensor", 1, true);
+    ros::Publisher path_pub = nhp.advertise<nav_msgs::Path>("path", 1, true);
 
     // create subscribers
     ros::Subscriber sub = nh.subscribe("wheel_cmd", 1000, wheel_cmd_callback);
@@ -179,6 +182,9 @@ int main(int argc, char * argv[])
 
     visualization_msgs::MarkerArray wall_arr;
     wall_arr.markers.resize(num_walls);
+
+    nav_msgs::Path path;
+    geometry_msgs::PoseStamped pose;
     
     while(ros::ok())
     {
@@ -288,6 +294,8 @@ int main(int argc, char * argv[])
         }
         walls_pub.publish(wall_arr);
 
+        
+
         // Generate a gaussian variable:
         std::uniform_real_distribution<> left_noise(1, 1.05); // (mean, variance)
         std::uniform_real_distribution<> right_noise(1, 1.05); // (mean, variance)
@@ -334,6 +342,16 @@ int main(int argc, char * argv[])
         transformStamped.transform.rotation.z = q.z();
         transformStamped.transform.rotation.w = q.w();
         br.sendTransform(transformStamped);
+
+        // create path and publish
+        pose.header.stamp = ros::Time::now();
+        pose.header.frame_id = "world";
+        pose.pose.position.x = new_config.x;
+        pose.pose.position.y = new_config.y;
+        path.header.stamp = ros::Time::now();
+        path.header.frame_id = "world";
+        path.poses.push_back(pose);
+        path_pub.publish(path);
 
         sensor_pub.publish(sensor_data);
 
