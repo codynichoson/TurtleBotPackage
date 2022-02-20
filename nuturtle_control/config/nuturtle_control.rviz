@@ -27,7 +27,7 @@ Panels:
     Experimental: false
     Name: Time
     SyncMode: 0
-    SyncSource: ""
+    SyncSource: LaserScan
 Preferences:
   PromptSaveOnExit: true
 Toolbars:
@@ -153,7 +153,7 @@ Visualization Manager:
       Visual Enabled: true
     - Class: rviz/MarkerArray
       Enabled: true
-      Marker Topic: /nusim/obstacles
+      Marker Topic: /obstacles
       Name: MarkerArray
       Namespaces:
         "": true
@@ -161,7 +161,7 @@ Visualization Manager:
       Value: true
     - Class: rviz/MarkerArray
       Enabled: true
-      Marker Topic: /nusim/walls
+      Marker Topic: /walls
       Name: MarkerArray
       Namespaces:
         "": true
@@ -169,7 +169,7 @@ Visualization Manager:
       Value: true
     - Class: rviz/MarkerArray
       Enabled: true
-      Marker Topic: /nusim/fake_sensor
+      Marker Topic: /fake_sensor
       Name: MarkerArray
       Namespaces:
         "": true
@@ -247,6 +247,61 @@ Visualization Manager:
                 {}
       Update Interval: 0
       Value: true
+<<<<<<< Updated upstream
+=======
+    - Alpha: 1
+      Buffer Length: 1
+      Class: rviz/Path
+      Color: 255; 0; 0
+      Enabled: true
+      Head Diameter: 0.30000001192092896
+      Head Length: 0.20000000298023224
+      Length: 0.30000001192092896
+      Line Style: Lines
+      Line Width: 0.029999999329447746
+      Name: Path
+      Offset:
+        X: 0
+        Y: 0
+        Z: 0
+      Pose Color: 255; 85; 255
+      Pose Style: None
+      Queue Size: 10
+      Radius: 0.029999999329447746
+      Shaft Diameter: 0.10000000149011612
+      Shaft Length: 0.10000000149011612
+      Topic: /path
+      Unreliable: false
+      Value: true
+    - Alpha: 1
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: 10
+        Min Value: -10
+        Value: true
+      Axis: Z
+      Channel Name: intensity
+      Class: rviz/LaserScan
+      Color: 255; 255; 255
+      Color Transformer: Intensity
+      Decay Time: 0
+      Enabled: true
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Min Color: 0; 0; 0
+      Name: LaserScan
+      Position Transformer: XYZ
+      Queue Size: 10
+      Selectable: true
+      Size (Pixels): 3
+      Size (m): 0.009999999776482582
+      Style: Flat Squares
+      Topic: /laser_scan
+      Unreliable: false
+      Use Fixed Frame: true
+      Use rainbow: true
+      Value: true
+>>>>>>> Stashed changes
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -275,7 +330,11 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
+<<<<<<< Updated upstream
       Distance: 4.413051128387451
+=======
+      Distance: 4.855795860290527
+>>>>>>> Stashed changes
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -291,9 +350,15 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
+<<<<<<< Updated upstream
       Pitch: 0.5253984332084656
       Target Frame: <Fixed Frame>
       Yaw: 1.080405831336975
+=======
+      Pitch: 0.5853983759880066
+      Target Frame: <Fixed Frame>
+      Yaw: 2.0854053497314453
+>>>>>>> Stashed changes
     Saved: ~
 Window Geometry:
   Displays:

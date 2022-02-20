@@ -24,6 +24,11 @@
 #include <geometry_msgs/TransformStamped.h>
 #include <nuturtlebot_msgs/WheelCommands.h>
 #include <nuturtlebot_msgs/SensorData.h>
+<<<<<<< Updated upstream
+=======
+#include <nav_msgs/Path.h>
+#include <sensor_msgs/LaserScan.h>
+>>>>>>> Stashed changes
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2_ros/transform_broadcaster.h>
 #include <sstream>
@@ -33,7 +38,9 @@
 #include <visualization_msgs/Marker.h>
 #include <visualization_msgs/MarkerArray.h>
 #include <turtlelib/diff_drive.hpp>
-#include<random>
+#include <random>
+
+#define PI 3.14159265358979323846
 
 static int rate = 100;
 static std_msgs::UInt64 timestep;
@@ -121,6 +128,10 @@ void wheel_cmd_callback(const nuturtlebot_msgs::WheelCommands &wheelcmd)
     sensor_data.right_encoder = encoder_right;
 }
 
+void timerCallback(const ros::TimerEvent &){
+
+}
+
 /// \brief nusim node main function
 int main(int argc, char * argv[])
 {
@@ -159,10 +170,20 @@ int main(int argc, char * argv[])
 
     // create publishers
     ros::Publisher sensor_pub = nh.advertise<nuturtlebot_msgs::SensorData>("red/sensor_data", rate);
+<<<<<<< Updated upstream
     ros::Publisher timestep_pub = nhp.advertise<std_msgs::UInt64>("timestep", rate);
     ros::Publisher obstacles_pub = nhp.advertise<visualization_msgs::MarkerArray>("obstacles", 1, true);
     ros::Publisher walls_pub = nhp.advertise<visualization_msgs::MarkerArray>("walls", 1, true);
     ros::Publisher fake_sensor_pub = nhp.advertise<visualization_msgs::MarkerArray>("fake_sensor", 1, true);
+=======
+    ros::Publisher timestep_pub = nh.advertise<std_msgs::UInt64>("timestep", rate);
+    ros::Publisher obstacles_pub = nh.advertise<visualization_msgs::MarkerArray>("obstacles", 1, true);
+    ros::Publisher walls_pub = nh.advertise<visualization_msgs::MarkerArray>("walls", 1, true);
+    ros::Publisher fake_sensor_pub = nh.advertise<visualization_msgs::MarkerArray>("fake_sensor", 1, true);
+    ros::Publisher path_pub = nh.advertise<nav_msgs::Path>("path", 1, true);
+    ros::Publisher laser_pub = nh.advertise<sensor_msgs::LaserScan>("laser_scan", 50);
+    ros::Timer timer = nh.createTimer(ros::Duration(1/5), timerCallback);
+>>>>>>> Stashed changes
 
     // create subscribers
     ros::Subscriber sub = nh.subscribe("wheel_cmd", 1000, wheel_cmd_callback);
@@ -179,6 +200,14 @@ int main(int argc, char * argv[])
 
     visualization_msgs::MarkerArray wall_arr;
     wall_arr.markers.resize(num_walls);
+<<<<<<< Updated upstream
+=======
+
+    nav_msgs::Path path;
+    geometry_msgs::PoseStamped pose;
+
+    int count = 0;
+>>>>>>> Stashed changes
     
     while(ros::ok())
     {
@@ -243,7 +272,6 @@ int main(int argc, char * argv[])
             fake_sensor_arr.markers[i].color.b = 0.0;
             fake_sensor_arr.markers[i].color.a = 1.0;
         }
-        fake_sensor_pub.publish(fake_sensor_arr); // change this frequency to 5 Hz
 
         for(int i = 0; i < num_walls; i++){
             wall_arr.markers[i].header.frame_id = "world";
@@ -335,10 +363,51 @@ int main(int argc, char * argv[])
         transformStamped.transform.rotation.w = q.w();
         br.sendTransform(transformStamped);
 
+<<<<<<< Updated upstream
+=======
+        // create path and publish
+        pose.header.stamp = ros::Time::now();
+        pose.header.frame_id = "world";
+        pose.pose.position.x = new_config.x;
+        pose.pose.position.y = new_config.y;
+        path.header.stamp = ros::Time::now();
+        path.header.frame_id = "world";
+        path.poses.push_back(pose);
+        path_pub.publish(path);
+
+        int num_readings = 360;
+        double laser_frequency = 5;
+        double ranges[num_readings];
+        double scan_time = 1/5;
+
+        //populate the LaserScan message
+        sensor_msgs::LaserScan scan;
+        scan.header.stamp = ros::Time::now();
+        scan.header.frame_id = "red_base_scan";
+        scan.angle_min = 0.0;
+        scan.angle_max = 2*PI;
+        scan.angle_increment = 2*PI / 360;
+        scan.time_increment = 1/1800;
+        scan.range_min = 0.120;
+        scan.range_max = 3.5;
+        scan.ranges.resize(num_readings);
+
+        for (int i = 0; i < num_readings; i++){
+            scan.ranges[i] = 2;
+        }
+    
+        if (std::fmod(count, rate/5) == 0){
+            fake_sensor_pub.publish(fake_sensor_arr);
+            laser_pub.publish(scan);
+        }
+
+>>>>>>> Stashed changes
         sensor_pub.publish(sensor_data);
 
         isTeleporting = 0;
         isResetting = 0;
+
+        count+=1;
         
         r.sleep();
         ros::spinOnce();
