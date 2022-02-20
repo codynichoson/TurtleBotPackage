@@ -26,6 +26,7 @@
 #include <nuturtlebot_msgs/WheelCommands.h>
 #include <nuturtlebot_msgs/SensorData.h>
 #include <nav_msgs/Path.h>
+#include <sensor_msgs/LaserScan.h>
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2_ros/transform_broadcaster.h>
 #include <sstream>
@@ -166,6 +167,7 @@ int main(int argc, char * argv[])
     ros::Publisher walls_pub = nhp.advertise<visualization_msgs::MarkerArray>("walls", 1, true);
     ros::Publisher fake_sensor_pub = nhp.advertise<visualization_msgs::MarkerArray>("fake_sensor", 1, true);
     ros::Publisher path_pub = nhp.advertise<nav_msgs::Path>("path", 1, true);
+    ros::Publisher laser_pub = nhp.advertise<sensor_msgs::LaserScan>("laser_scan", 50, true);
 
     // create subscribers
     ros::Subscriber sub = nh.subscribe("wheel_cmd", 1000, wheel_cmd_callback);
@@ -185,6 +187,8 @@ int main(int argc, char * argv[])
 
     nav_msgs::Path path;
     geometry_msgs::PoseStamped pose;
+
+    int count = 0;
     
     while(ros::ok())
     {
@@ -352,6 +356,34 @@ int main(int argc, char * argv[])
         path.header.frame_id = "world";
         path.poses.push_back(pose);
         path_pub.publish(path);
+
+        int num_readings = 360;
+        double laser_frequency = 5;
+        double ranges[num_readings];
+        double scan_time = 1/5;
+
+        //populate the LaserScan message
+        sensor_msgs::LaserScan scan;
+        scan.header.stamp = ros::Time::now();
+        scan.header.frame_id = "red_base_scan";
+        scan.angle_min = 0.0;
+        scan.angle_max = 2*turtlelib::PI;
+        scan.angle_increment = 2*turtlelib::PI / 360;
+        scan.time_increment = 1/1800;
+        scan.range_min = 0.120;
+        scan.range_max = 3.5;
+        scan.ranges.resize(num_readings);
+
+        for (int i = 0; i < num_readings; i++){
+            scan.ranges[i] = 2;
+        }
+    
+        if (std::fmod(count, 20) == 0){
+            fake_sensor_pub.publish(fake_sensor_arr);
+            laser_pub.publish(scan);
+        }
+
+        count+=1;
 
         sensor_pub.publish(sensor_data);
 
