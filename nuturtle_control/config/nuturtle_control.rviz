@@ -153,7 +153,7 @@ Visualization Manager:
       Visual Enabled: true
     - Class: rviz/MarkerArray
       Enabled: true
-      Marker Topic: /obstacles
+      Marker Topic: /nusim/obstacles
       Name: MarkerArray
       Namespaces:
         "": true
@@ -161,7 +161,7 @@ Visualization Manager:
       Value: true
     - Class: rviz/MarkerArray
       Enabled: true
-      Marker Topic: /walls
+      Marker Topic: /nusim/walls
       Name: MarkerArray
       Namespaces:
         "": true
@@ -169,7 +169,7 @@ Visualization Manager:
       Value: true
     - Class: rviz/MarkerArray
       Enabled: true
-      Marker Topic: /fake_sensor
+      Marker Topic: /nusim/fake_sensor
       Name: MarkerArray
       Namespaces:
         "": true
@@ -247,8 +247,6 @@ Visualization Manager:
                 {}
       Update Interval: 0
       Value: true
-<<<<<<< Updated upstream
-=======
     - Alpha: 1
       Buffer Length: 1
       Class: rviz/Path
@@ -270,7 +268,7 @@ Visualization Manager:
       Radius: 0.029999999329447746
       Shaft Diameter: 0.10000000149011612
       Shaft Length: 0.10000000149011612
-      Topic: /path
+      Topic: /nusim/path
       Unreliable: false
       Value: true
     - Alpha: 1
@@ -296,12 +294,11 @@ Visualization Manager:
       Size (Pixels): 3
       Size (m): 0.009999999776482582
       Style: Flat Squares
-      Topic: /laser_scan
+      Topic: /nusim/laser_scan
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
       Value: true
->>>>>>> Stashed changes
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -330,11 +327,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-<<<<<<< Updated upstream
-      Distance: 4.413051128387451
-=======
-      Distance: 4.855795860290527
->>>>>>> Stashed changes
+      Distance: 5.009305477142334
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -350,15 +343,9 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-<<<<<<< Updated upstream
-      Pitch: 0.5253984332084656
+      Pitch: 0.7203982472419739
       Target Frame: <Fixed Frame>
-      Yaw: 1.080405831336975
-=======
-      Pitch: 0.5853983759880066
-      Target Frame: <Fixed Frame>
-      Yaw: 2.0854053497314453
->>>>>>> Stashed changes
+      Yaw: 2.0154051780700684
     Saved: ~
 Window Geometry:
   Displays:

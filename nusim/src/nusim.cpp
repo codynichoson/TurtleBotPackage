@@ -12,7 +12,7 @@
  * 
  * Subscribers:
  * wheel_cmd - Wheel commands for the robot calculated from cmd_vel values.
- * 
+ * may know?
  * Services:
  * /reset - Moves red robot back to a (0,0,0) configuration
  * /teleport - Moves red robot to inputted configuration relative to world frame
@@ -22,13 +22,13 @@
 #include "std_msgs/UInt64.h"
 #include "sensor_msgs/JointState.h"
 #include <geometry_msgs/TransformStamped.h>
+#include <geometry_msgs/PoseStamped.h>
 #include <nuturtlebot_msgs/WheelCommands.h>
 #include <nuturtlebot_msgs/SensorData.h>
-<<<<<<< Updated upstream
-=======
 #include <nav_msgs/Path.h>
 #include <sensor_msgs/LaserScan.h>
->>>>>>> Stashed changes
+#include <nav_msgs/Path.h>
+#include <sensor_msgs/LaserScan.h>
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2_ros/transform_broadcaster.h>
 #include <sstream>
@@ -39,8 +39,6 @@
 #include <visualization_msgs/MarkerArray.h>
 #include <turtlelib/diff_drive.hpp>
 #include <random>
-
-#define PI 3.14159265358979323846
 
 static int rate = 100;
 static std_msgs::UInt64 timestep;
@@ -170,20 +168,12 @@ int main(int argc, char * argv[])
 
     // create publishers
     ros::Publisher sensor_pub = nh.advertise<nuturtlebot_msgs::SensorData>("red/sensor_data", rate);
-<<<<<<< Updated upstream
     ros::Publisher timestep_pub = nhp.advertise<std_msgs::UInt64>("timestep", rate);
     ros::Publisher obstacles_pub = nhp.advertise<visualization_msgs::MarkerArray>("obstacles", 1, true);
     ros::Publisher walls_pub = nhp.advertise<visualization_msgs::MarkerArray>("walls", 1, true);
     ros::Publisher fake_sensor_pub = nhp.advertise<visualization_msgs::MarkerArray>("fake_sensor", 1, true);
-=======
-    ros::Publisher timestep_pub = nh.advertise<std_msgs::UInt64>("timestep", rate);
-    ros::Publisher obstacles_pub = nh.advertise<visualization_msgs::MarkerArray>("obstacles", 1, true);
-    ros::Publisher walls_pub = nh.advertise<visualization_msgs::MarkerArray>("walls", 1, true);
-    ros::Publisher fake_sensor_pub = nh.advertise<visualization_msgs::MarkerArray>("fake_sensor", 1, true);
     ros::Publisher path_pub = nh.advertise<nav_msgs::Path>("path", 1, true);
-    ros::Publisher laser_pub = nh.advertise<sensor_msgs::LaserScan>("laser_scan", 50);
-    ros::Timer timer = nh.createTimer(ros::Duration(1/5), timerCallback);
->>>>>>> Stashed changes
+    ros::Publisher laser_pub = nhp.advertise<sensor_msgs::LaserScan>("laser_scan", 50);
 
     // create subscribers
     ros::Subscriber sub = nh.subscribe("wheel_cmd", 1000, wheel_cmd_callback);
@@ -200,15 +190,12 @@ int main(int argc, char * argv[])
 
     visualization_msgs::MarkerArray wall_arr;
     wall_arr.markers.resize(num_walls);
-<<<<<<< Updated upstream
-=======
 
     nav_msgs::Path path;
     geometry_msgs::PoseStamped pose;
 
     int count = 0;
->>>>>>> Stashed changes
-    
+
     while(ros::ok())
     {
         // increment time step and publish
@@ -363,8 +350,6 @@ int main(int argc, char * argv[])
         transformStamped.transform.rotation.w = q.w();
         br.sendTransform(transformStamped);
 
-<<<<<<< Updated upstream
-=======
         // create path and publish
         pose.header.stamp = ros::Time::now();
         pose.header.frame_id = "world";
@@ -385,8 +370,8 @@ int main(int argc, char * argv[])
         scan.header.stamp = ros::Time::now();
         scan.header.frame_id = "red_base_scan";
         scan.angle_min = 0.0;
-        scan.angle_max = 2*PI;
-        scan.angle_increment = 2*PI / 360;
+        scan.angle_max = 2*turtlelib::PI;
+        scan.angle_increment = 2*turtlelib::PI / 360;
         scan.time_increment = 1/1800;
         scan.range_min = 0.120;
         scan.range_max = 3.5;
@@ -396,12 +381,13 @@ int main(int argc, char * argv[])
             scan.ranges[i] = 2;
         }
     
-        if (std::fmod(count, rate/5) == 0){
+        if (std::fmod(count, 20) == 0){
             fake_sensor_pub.publish(fake_sensor_arr);
             laser_pub.publish(scan);
         }
 
->>>>>>> Stashed changes
+        count+=1;
+
         sensor_pub.publish(sensor_data);
 
         isTeleporting = 0;
