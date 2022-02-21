@@ -405,6 +405,9 @@ int main(int argc, char * argv[])
                 x1 = Vmr.x;
                 y1 = Vmr.y;
 
+                turtlelib::Transform2D Trm = Tmr.inv();
+                turtlelib::Vector2D Vrm = Trm.translation();
+
                 // find slope of laser scan line
                 double angle = i*angle_increment;
                 double m = std::tan(angle);
@@ -466,12 +469,18 @@ int main(int argc, char * argv[])
                 turtlelib::Transform2D Tri = Tmr.inv()*Tmi;
                 turtlelib::Vector2D Vri = Tri.translation();
 
+                // calculate plotted location of intersection (some may be "reflections")
+                double px = distance(0.0, 0.0, Vri.x, Vri.y)*std::cos(angle);
+                double py = distance(0.0, 0.0, Vri.x, Vri.y)*std::sin(angle);
+
                 if (discriminant < 0){
                     scan.ranges[i] = 0;
                 }
-                else if (discriminant > 0){
+                else if (discriminant > 0 && distance(px, py, Vrm.x, Vrm.y) < distance(0.0, 0.0, Vrm.x, Vrm.y)){
                     scan.ranges[i] = distance(Vri.x, Vri.y, 0, 0);
-                    // scan.ranges[i] = (std::sqrt(std::pow(Vro.x - 0, 2) + std::pow(Vro.y - 0, 2)));
+                }
+                else {
+                    scan.ranges[i] = 0;
                 }
             }
         // }
