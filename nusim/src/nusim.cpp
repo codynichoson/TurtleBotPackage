@@ -392,8 +392,8 @@ int main(int argc, char * argv[])
         double d = 3.5;
 
         // iterate through obstacles
-        // for (int obs = 0; obs < 3; obs++){
-            turtlelib::Vector2D Vwm = {.x = obs_x[0], .y =obs_y[0]};
+        for (int obs = 0; obs < 3; obs++){
+            turtlelib::Vector2D Vwm = {.x = obs_x[obs], .y =obs_y[obs]};
             turtlelib::Transform2D Twm(Vwm); // world to obstacle
 
             // iterate through each laser angle
@@ -474,16 +474,16 @@ int main(int argc, char * argv[])
                 double py = distance(0.0, 0.0, Vri.x, Vri.y)*std::sin(angle);
 
                 if (discriminant < 0){
-                    scan.ranges[i] = 0;
+                    // scan.ranges[i] = 0;
                 }
                 else if (discriminant > 0 && distance(px, py, Vrm.x, Vrm.y) < distance(0.0, 0.0, Vrm.x, Vrm.y)){
                     scan.ranges[i] = distance(Vri.x, Vri.y, 0, 0);
                 }
                 else {
-                    scan.ranges[i] = 0;
+                    // scan.ranges[i] = 0;
                 }
             }
-        // }
+        }
 
         
     
