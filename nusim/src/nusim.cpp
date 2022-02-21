@@ -72,7 +72,7 @@ std::mt19937 & get_random()
      static std::random_device rd{}; 
      static std::mt19937 mt{rd()};
      // we return a reference to the pseudo-random number genrator object. This is always the
-     // same object every time get_random is called
+     // same object eV2ry time get_random is called
      return mt;
  }
 
@@ -381,15 +381,11 @@ int main(int argc, char * argv[])
 
         turtlelib::Vector2D Vwr = {.x = new_config.x, .y = new_config.y};
         turtlelib::Transform2D Twr(Vwr, new_config.theta); // world to laser
-        
-        // turtlelib::Transform2D To1l = Two1.inv()*Twl;
-        // turtlelib::Vector2D To1l_vec = To1l.translation();
 
-        // double x1 = To1l_vec.x, y1 = To1l_vec.y;
-        // double x1 = new_config.x, y1 = new_config.y;
         double x1, y1;
         double x2, y2;
-        double d = 3.5;
+        double laser_min = 0.12;
+        double laser_max = 3.5;
 
         // iterate through obstacles
         for (int obs = 0; obs < 3; obs++){
@@ -402,8 +398,6 @@ int main(int argc, char * argv[])
                 // find laser (robot) coordinates in marker frame
                 turtlelib::Transform2D Tmr = Twm.inv()*Twr;
                 turtlelib::Vector2D Vmr = Tmr.translation();
-                x1 = Vmr.x;
-                y1 = Vmr.y;
 
                 turtlelib::Transform2D Trm = Tmr.inv();
                 turtlelib::Vector2D Vrm = Trm.translation();
@@ -411,20 +405,26 @@ int main(int argc, char * argv[])
                 // find slope of laser scan line
                 double angle = i*angle_increment;
                 double m = std::tan(angle);
+                
+                // find first point at beginning of laser range
+                x1 = laser_min*std::cos(angle);
+                y1 = laser_min*std::sin(angle);
 
                 // find second point at end of laser range
-                x2 = d*std::cos(angle);
-                y2 = d*std::sin(angle);
+                x2 = laser_max*std::cos(angle);
+                y2 = laser_max*std::sin(angle);
 
-                // convert second point to marker frame
-                turtlelib::Vector2D Ver;
-                Ver.x = x2;
-                Ver.y = y2;
-                turtlelib::Transform2D Ter(Ver);
-                turtlelib::Transform2D Tme = Tmr*Ter.inv();
-                turtlelib::Vector2D Vme = Tme.translation();
-                x2 = Vme.x;
-                y2 = Vme.y;
+                // conV2rt points to marker frame
+                turtlelib::Vector2D V1r, V2r;
+                V1r.x = x1; V1r.y = y1;
+                V2r.x = x2; V2r.y = y2;
+                turtlelib::Transform2D T1r(V1r), T2r(V2r);
+                turtlelib::Transform2D Tm1 = Tmr*T1r.inv();
+                turtlelib::Transform2D Tm2 = Tmr*T2r.inv();
+                turtlelib::Vector2D Vm1 = Tm1.translation();
+                turtlelib::Vector2D Vm2 = Tm2.translation();
+                x1 = Vm1.x; y1 = Vm1.y;
+                x2 = Vm2.x; y2 = Vm2.y;
 
                 // check if line from laser at certain angle will intersect obstacle between first and second points
                 double dx = x2 - x1;
@@ -456,7 +456,7 @@ int main(int argc, char * argv[])
                 Vri2 = Tri2.translation();
                 
                 // only use intersection point closest to robot
-                if (distance(0.0, 0.0, Vri1.x, Vri1.y) < distance(0.0, 0.0, Vri2.x, Vri2.y)){
+                if (distance(laser_min, 0.0, Vri1.x, Vri1.y) < distance(laser_min, 0.0, Vri2.x, Vri2.y)){
                     Vmi = Vmi1;
                 }
                 else{
@@ -473,14 +473,8 @@ int main(int argc, char * argv[])
                 double px = distance(0.0, 0.0, Vri.x, Vri.y)*std::cos(angle);
                 double py = distance(0.0, 0.0, Vri.x, Vri.y)*std::sin(angle);
 
-                if (discriminant < 0){
-                    // scan.ranges[i] = 0;
-                }
-                else if (discriminant > 0 && distance(px, py, Vrm.x, Vrm.y) < distance(0.0, 0.0, Vrm.x, Vrm.y)){
+                if (discriminant > 0 && distance(px, py, Vrm.x, Vrm.y) < distance(0.0, 0.0, Vrm.x, Vrm.y)){
                     scan.ranges[i] = distance(Vri.x, Vri.y, 0, 0);
-                }
-                else {
-                    // scan.ranges[i] = 0;
                 }
             }
         }
