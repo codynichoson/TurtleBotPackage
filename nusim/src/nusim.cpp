@@ -126,8 +126,9 @@ void wheel_cmd_callback(const nuturtlebot_msgs::WheelCommands &wheelcmd)
     sensor_data.right_encoder = encoder_right;
 }
 
-void timerCallback(const ros::TimerEvent &){
-
+double distance(double x1, double y1, double x2, double y2){
+    double distance = (std::sqrt(std::pow(x2 - x1, 2) + std::pow(y2 - y1, 2)));
+    return distance;
 }
 
 /// \brief nusim node main function
@@ -364,6 +365,7 @@ int main(int argc, char * argv[])
         double laser_frequency = 5;
         double ranges[num_readings];
         double scan_time = 1/5;
+        double angle_increment = 2*turtlelib::PI / 360;
 
         //populate the LaserScan message
         sensor_msgs::LaserScan scan;
@@ -371,15 +373,110 @@ int main(int argc, char * argv[])
         scan.header.frame_id = "red_base_scan";
         scan.angle_min = 0.0;
         scan.angle_max = 2*turtlelib::PI;
-        scan.angle_increment = 2*turtlelib::PI / 360;
+        scan.angle_increment = angle_increment;
         scan.time_increment = 1/1800;
         scan.range_min = 0.120;
         scan.range_max = 3.5;
         scan.ranges.resize(num_readings);
 
-        for (int i = 0; i < num_readings; i++){
-            scan.ranges[i] = 2;
-        }
+        turtlelib::Vector2D Vwr = {.x = new_config.x, .y = new_config.y};
+        turtlelib::Transform2D Twr(Vwr, new_config.theta); // world to laser
+        
+        // turtlelib::Transform2D To1l = Two1.inv()*Twl;
+        // turtlelib::Vector2D To1l_vec = To1l.translation();
+
+        // double x1 = To1l_vec.x, y1 = To1l_vec.y;
+        // double x1 = new_config.x, y1 = new_config.y;
+        double x1, y1;
+        double x2, y2;
+        double d = 3.5;
+
+        // iterate through obstacles
+        // for (int obs = 0; obs < 3; obs++){
+            turtlelib::Vector2D Vwm = {.x = obs_x[0], .y =obs_y[0]};
+            turtlelib::Transform2D Twm(Vwm); // world to obstacle
+
+            // iterate through each laser angle
+            for (int i = 0; i < num_readings; i++){
+
+                // find laser (robot) coordinates in marker frame
+                turtlelib::Transform2D Tmr = Twm.inv()*Twr;
+                turtlelib::Vector2D Vmr = Tmr.translation();
+                x1 = Vmr.x;
+                y1 = Vmr.y;
+
+                // find slope of laser scan line
+                double angle = i*angle_increment;
+                double m = std::tan(angle);
+
+                // find second point at end of laser range
+                x2 = d*std::cos(angle);
+                y2 = d*std::sin(angle);
+
+                // convert second point to marker frame
+                turtlelib::Vector2D Ver;
+                Ver.x = x2;
+                Ver.y = y2;
+                turtlelib::Transform2D Ter(Ver);
+                turtlelib::Transform2D Tme = Tmr*Ter.inv();
+                turtlelib::Vector2D Vme = Tme.translation();
+                x2 = Vme.x;
+                y2 = Vme.y;
+
+                // check if line from laser at certain angle will intersect obstacle between first and second points
+                double dx = x2 - x1;
+                double dy = y2 - y1;
+                double dr = std::sqrt(dx*dx + dy*dy);
+                double D = x1*y2 - x2*y1;
+                double discriminant = collision_radius*collision_radius*dr*dr - D*D;
+                double sgn;
+                if (dy < 0){
+                    sgn = -1.0;
+                }
+                else{
+                    sgn = 1.0;
+                }
+
+                // if so, calculate the two intersection points with the circle
+                turtlelib::Vector2D Vmi1, Vmi2, Vmi;
+                Vmi1.x = (D*dy + sgn*dx*std::sqrt(collision_radius*collision_radius*dr*dr - D*D)) / (dr*dr);
+                Vmi1.y = (-D*dx + std::abs(dy)*std::sqrt(collision_radius*collision_radius*dr*dr - D*D)) / (dr*dr);
+                Vmi2.x = (D*dy - sgn*dx*std::sqrt(collision_radius*collision_radius*dr*dr - D*D)) / (dr*dr);
+                Vmi2.y = (-D*dx - std::abs(dy)*std::sqrt(collision_radius*collision_radius*dr*dr - D*D)) / (dr*dr);
+
+                turtlelib::Transform2D Tmi1(Vmi1), Tmi2(Vmi2), Tri1, Tri2;
+                Tri1 = Tmr.inv()*Tmi1;
+                Tri2 = Tmr.inv()*Tmi2;
+
+                turtlelib::Vector2D Vri1, Vri2;
+                Vri1 = Tri1.translation();
+                Vri2 = Tri2.translation();
+                
+                // only use intersection point closest to robot
+                if (distance(0.0, 0.0, Vri1.x, Vri1.y) < distance(0.0, 0.0, Vri2.x, Vri2.y)){
+                    Vmi = Vmi1;
+                }
+                else{
+                    Vmi = Vmi2;
+                }
+
+                turtlelib::Transform2D Tmi(Vmi);
+
+                // intersection relative to robot
+                turtlelib::Transform2D Tri = Tmr.inv()*Tmi;
+                turtlelib::Vector2D Vri = Tri.translation();
+
+                if (discriminant < 0){
+                    scan.ranges[i] = 0;
+                }
+                else if (discriminant > 0){
+                    scan.ranges[i] = distance(Vri.x, Vri.y, 0, 0);
+                    // scan.ranges[i] = (std::sqrt(std::pow(Vro.x - 0, 2) + std::pow(Vro.y - 0, 2)));
+                }
+            }
+        // }
+
+        
     
         if (std::fmod(count, 20) == 0){
             fake_sensor_pub.publish(fake_sensor_arr);
