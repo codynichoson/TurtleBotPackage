@@ -27,8 +27,6 @@
 #include <nuturtlebot_msgs/SensorData.h>
 #include <nav_msgs/Path.h>
 #include <sensor_msgs/LaserScan.h>
-#include <nav_msgs/Path.h>
-#include <sensor_msgs/LaserScan.h>
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2_ros/transform_broadcaster.h>
 #include <sstream>
@@ -414,7 +412,7 @@ int main(int argc, char * argv[])
                 x2 = laser_max*std::cos(angle);
                 y2 = laser_max*std::sin(angle);
 
-                // conV2rt points to marker frame
+                // convert points to marker frame
                 turtlelib::Vector2D V1r, V2r;
                 V1r.x = x1; V1r.y = y1;
                 V2r.x = x2; V2r.y = y2;
@@ -440,29 +438,28 @@ int main(int argc, char * argv[])
                     sgn = 1.0;
                 }
 
-                // if so, calculate the two intersection points with the circle
+                // calculate both intersection points of obstacle, in marker frame
                 turtlelib::Vector2D Vmi1, Vmi2, Vmi;
                 Vmi1.x = (D*dy + sgn*dx*std::sqrt(collision_radius*collision_radius*dr*dr - D*D)) / (dr*dr);
                 Vmi1.y = (-D*dx + std::abs(dy)*std::sqrt(collision_radius*collision_radius*dr*dr - D*D)) / (dr*dr);
                 Vmi2.x = (D*dy - sgn*dx*std::sqrt(collision_radius*collision_radius*dr*dr - D*D)) / (dr*dr);
                 Vmi2.y = (-D*dx - std::abs(dy)*std::sqrt(collision_radius*collision_radius*dr*dr - D*D)) / (dr*dr);
 
+                // convert intersections to robot frame
                 turtlelib::Transform2D Tmi1(Vmi1), Tmi2(Vmi2), Tri1, Tri2;
                 Tri1 = Tmr.inv()*Tmi1;
                 Tri2 = Tmr.inv()*Tmi2;
-
                 turtlelib::Vector2D Vri1, Vri2;
                 Vri1 = Tri1.translation();
                 Vri2 = Tri2.translation();
                 
-                // only use intersection point closest to robot
+                // only use intersection point closest to robot, convert to marker frame
                 if (distance(laser_min, 0.0, Vri1.x, Vri1.y) < distance(laser_min, 0.0, Vri2.x, Vri2.y)){
                     Vmi = Vmi1;
                 }
                 else{
                     Vmi = Vmi2;
                 }
-
                 turtlelib::Transform2D Tmi(Vmi);
 
                 // intersection relative to robot
@@ -473,14 +470,95 @@ int main(int argc, char * argv[])
                 double px = distance(0.0, 0.0, Vri.x, Vri.y)*std::cos(angle);
                 double py = distance(0.0, 0.0, Vri.x, Vri.y)*std::sin(angle);
 
+                std::normal_distribution<> laser_scanner_noise(0.01, 0.005);
+
                 if (discriminant > 0 && distance(px, py, Vrm.x, Vrm.y) < distance(0.0, 0.0, Vrm.x, Vrm.y)){
-                    scan.ranges[i] = distance(Vri.x, Vri.y, 0, 0);
+                    scan.ranges[i] = distance(Vri.x, Vri.y, 0, 0) + laser_scanner_noise(get_random());
                 }
             }
         }
 
-        
-    
+        // calculate wall-laser intersections
+        double a[] = {0.0, 1.0, 0.0, 1.0};
+        double b[] = {1.0, 0.0, 1.0, 0.0};
+        double c[] = {-(y_length/2), -(x_length/2), -(-y_length/2), -(-x_length/2)};
+        // double a[] = {0.0};
+        // double b[] = {1.0};
+        // double c[] = {-(y_length/2)};
+
+        // OTHER WAY
+        // double wallx3[4] = {-x_length/2, x_length/2, x_length/2, -x_length/2};
+        // double wally3[4] = {y_length/2, y_length/2, -y_length/2, -y_length/2};
+        // double wallx4[4] = {x_length/2, x_length/2, -x_length/2, -x_length/2};
+        // double wally4[4] = {y_length/2, -y_length/2, -y_length/2, y_length/2};
+
+        for (int j = 0; j < 1; j++){
+            for (int i = 0; i < num_readings; i++){
+                double angle = i*angle_increment + new_config.theta;
+                double m = std::tan(angle);
+
+                // in world frame (?)
+                double a1, b1, c1, a2, b2, c2;
+                a1 = -m;
+                b1 = 1;
+                c1 = -(new_config.y - m*new_config.x);
+                a2 = a[j];
+                b2 = b[j];
+                c2 = c[j];
+                
+                // OTHER WAY
+                // turtlelib::Vector2D Vrmin, Vrmax, Vwmin, Vwmax;
+                // Vrmin.x = x1; Vrmin.y = y1;
+                // Vrmax.x = x2; Vrmax.y = y2;
+                // turtlelib::Transform2D Trmin(Vrmin), Trmax(Vrmax), Twmin, Twmax;
+                // Twmin = Twr*Trmin;
+                // Twmax = Twr*Trmax;
+                // Vwmin = Twmin.translation();
+                // Vwmax = Twmax.translation();
+                // x1 = Vwmin.x;
+                // y1 = Vwmin.y;
+                // x2 = Vwmax.x;
+                // y2 = Vwmax.y;
+
+                // double x3, x4, y3, y4;
+                // // in world frame
+                // x3 = wallx3[j];
+                // y3 = wally3[j];
+                // x4 = wallx4[j];
+                // y4 = wally4[j];
+
+                // in world frame
+                turtlelib::Vector2D Vwwall;
+                Vwwall.x = (b1*c2 - b2*c1)/(a1*b2 - a2*b1);
+                Vwwall.y = (c1*a2 - c2*a1)/(a1*b2 - a2*b1);
+
+                // OTHER WAY
+                // double D = (x1 - x2)*(y3 - y4) - (y1 - y2)*(x3 - x4);
+                // Vwwall.x = ((x1*y2 - y1*x2)*(x3 - x4) - (x1 - x2)*(x3*y4 - y3*x4))/D;
+                // Vwwall.y = ((x1*y2 - y1*x2)*(y3 - y4) - (y1 - y2)*(x3*y4 - y3*x4))/D;
+
+                turtlelib::Transform2D Twwall(Vwwall);
+                turtlelib::Transform2D Trwall = Twr.inv()*Twwall;
+                turtlelib::Vector2D Vrwall = Trwall.translation();
+
+                // calculate plotted location of intersection (some may be "reflections")
+                double wx = distance(0.0, 0.0, Vrwall.x, Vrwall.y)*std::cos(angle);
+                double wy = distance(0.0, 0.0, Vrwall.x, Vrwall.y)*std::sin(angle);
+
+                if (scan.ranges[i] == 0 && distance(wx, wy, Vrwall.x, Vrwall.y) < distance(0.0, 0.0, Vrwall.x, Vrwall.y)){
+                    scan.ranges[i] = distance(Vrwall.x, Vrwall.y, 0.0, 0.0);
+                }
+
+                // if (Vwwall.x < -x_length/2 || Vwwall.x > x_length/2){
+                //     scan.ranges[i] = 0;
+                // }
+
+                // if (Vwwall.y < -y_length/2 || Vwwall.y > y_length/2){
+                //     scan.ranges[i] = 0;
+                // } 
+            }
+        }
+
         if (std::fmod(count, 20) == 0){
             fake_sensor_pub.publish(fake_sensor_arr);
             laser_pub.publish(scan);

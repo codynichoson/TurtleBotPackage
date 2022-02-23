@@ -160,13 +160,13 @@ Visualization Manager:
       Queue Size: 100
       Value: true
     - Class: rviz/MarkerArray
-      Enabled: true
+      Enabled: false
       Marker Topic: /nusim/walls
       Name: MarkerArray
       Namespaces:
-        "": true
+        {}
       Queue Size: 100
-      Value: true
+      Value: false
     - Class: rviz/MarkerArray
       Enabled: true
       Marker Topic: /nusim/fake_sensor
@@ -327,7 +327,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 5.009305477142334
+      Distance: 6.183534622192383
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -335,17 +335,17 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: 0
-        Y: 0
-        Z: 0
+        X: 0.29648154973983765
+        Y: 0.03667910397052765
+        Z: 0.7590956091880798
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.7203982472419739
+      Pitch: 1.519796371459961
       Target Frame: <Fixed Frame>
-      Yaw: 2.0154051780700684
+      Yaw: 4.700406074523926
     Saved: ~
 Window Geometry:
   Displays:
