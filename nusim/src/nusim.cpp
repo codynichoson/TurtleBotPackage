@@ -492,7 +492,7 @@ int main(int argc, char * argv[])
         // double wallx4[4] = {x_length/2, x_length/2, -x_length/2, -x_length/2};
         // double wally4[4] = {y_length/2, -y_length/2, -y_length/2, y_length/2};
 
-        for (int j = 0; j < 1; j++){
+        for (int j = 0; j < 4; j++){
             for (int i = 0; i < num_readings; i++){
                 double angle = i*angle_increment + new_config.theta;
                 double m = std::tan(angle);
@@ -527,15 +527,15 @@ int main(int argc, char * argv[])
                 // x4 = wallx4[j];
                 // y4 = wally4[j];
 
-                // in world frame
-                turtlelib::Vector2D Vwwall;
-                Vwwall.x = (b1*c2 - b2*c1)/(a1*b2 - a2*b1);
-                Vwwall.y = (c1*a2 - c2*a1)/(a1*b2 - a2*b1);
-
                 // OTHER WAY
                 // double D = (x1 - x2)*(y3 - y4) - (y1 - y2)*(x3 - x4);
                 // Vwwall.x = ((x1*y2 - y1*x2)*(x3 - x4) - (x1 - x2)*(x3*y4 - y3*x4))/D;
                 // Vwwall.y = ((x1*y2 - y1*x2)*(y3 - y4) - (y1 - y2)*(x3*y4 - y3*x4))/D;
+
+                // in world frame
+                turtlelib::Vector2D Vwwall;
+                Vwwall.x = (b1*c2 - b2*c1)/(a1*b2 - a2*b1);
+                Vwwall.y = (c1*a2 - c2*a1)/(a1*b2 - a2*b1);
 
                 turtlelib::Transform2D Twwall(Vwwall);
                 turtlelib::Transform2D Trwall = Twr.inv()*Twwall;
@@ -545,11 +545,17 @@ int main(int argc, char * argv[])
                 double wx = distance(0.0, 0.0, Vrwall.x, Vrwall.y)*std::cos(angle);
                 double wy = distance(0.0, 0.0, Vrwall.x, Vrwall.y)*std::sin(angle);
 
-                if (scan.ranges[i] == 0 && distance(wx, wy, Vrwall.x, Vrwall.y) < distance(0.0, 0.0, Vrwall.x, Vrwall.y)){
-                    scan.ranges[i] = distance(Vrwall.x, Vrwall.y, 0.0, 0.0);
+                if (distance(wx, wy, Vrwall.x, Vrwall.y) < distance(0.0, 0.0, Vrwall.x, Vrwall.y)){
+                    double check = distance(0.0, 0.0, wx, wy);
+                    if (scan.ranges[i] == 0 || check < scan.ranges[i]){
+                        scan.ranges[i] = distance(Vrwall.x, Vrwall.y, 0.0, 0.0);
+                    }
                 }
 
-                // if (Vwwall.x < -x_length/2 || Vwwall.x > x_length/2){
+                // if (wx > x_length/2 || wx < -x_length/2){
+                //     scan.ranges[i] = 0;
+                // }
+                // if (wy > y_length/2 || wy < -y_length/2){
                 //     scan.ranges[i] = 0;
                 // }
 
