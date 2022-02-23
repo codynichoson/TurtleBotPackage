@@ -495,7 +495,9 @@ int main(int argc, char * argv[])
         for (int j = 0; j < 4; j++){
             for (int i = 0; i < num_readings; i++){
                 double angle = i*angle_increment + new_config.theta;
+                // double angle = i*angle_increment;
                 double m = std::tan(angle);
+                ROS_WARN("angle: %f, at %d", angle, j);
 
                 // in world frame (?)
                 double a1, b1, c1, a2, b2, c2;
@@ -505,32 +507,6 @@ int main(int argc, char * argv[])
                 a2 = a[j];
                 b2 = b[j];
                 c2 = c[j];
-                
-                // OTHER WAY
-                // turtlelib::Vector2D Vrmin, Vrmax, Vwmin, Vwmax;
-                // Vrmin.x = x1; Vrmin.y = y1;
-                // Vrmax.x = x2; Vrmax.y = y2;
-                // turtlelib::Transform2D Trmin(Vrmin), Trmax(Vrmax), Twmin, Twmax;
-                // Twmin = Twr*Trmin;
-                // Twmax = Twr*Trmax;
-                // Vwmin = Twmin.translation();
-                // Vwmax = Twmax.translation();
-                // x1 = Vwmin.x;
-                // y1 = Vwmin.y;
-                // x2 = Vwmax.x;
-                // y2 = Vwmax.y;
-
-                // double x3, x4, y3, y4;
-                // // in world frame
-                // x3 = wallx3[j];
-                // y3 = wally3[j];
-                // x4 = wallx4[j];
-                // y4 = wally4[j];
-
-                // OTHER WAY
-                // double D = (x1 - x2)*(y3 - y4) - (y1 - y2)*(x3 - x4);
-                // Vwwall.x = ((x1*y2 - y1*x2)*(x3 - x4) - (x1 - x2)*(x3*y4 - y3*x4))/D;
-                // Vwwall.y = ((x1*y2 - y1*x2)*(y3 - y4) - (y1 - y2)*(x3*y4 - y3*x4))/D;
 
                 // in world frame
                 turtlelib::Vector2D Vwwall;
@@ -542,8 +518,8 @@ int main(int argc, char * argv[])
                 turtlelib::Vector2D Vrwall = Trwall.translation();
 
                 // calculate plotted location of intersection (some may be "reflections")
-                double wx = distance(0.0, 0.0, Vrwall.x, Vrwall.y)*std::cos(angle);
-                double wy = distance(0.0, 0.0, Vrwall.x, Vrwall.y)*std::sin(angle);
+                double wx = distance(0.0, 0.0, Vrwall.x, Vrwall.y)*std::cos(i*angle_increment);
+                double wy = distance(0.0, 0.0, Vrwall.x, Vrwall.y)*std::sin(i*angle_increment);
 
                 if (distance(wx, wy, Vrwall.x, Vrwall.y) < distance(0.0, 0.0, Vrwall.x, Vrwall.y)){
                     double check = distance(0.0, 0.0, wx, wy);
@@ -551,17 +527,6 @@ int main(int argc, char * argv[])
                         scan.ranges[i] = distance(Vrwall.x, Vrwall.y, 0.0, 0.0);
                     }
                 }
-
-                // if (wx > x_length/2 || wx < -x_length/2){
-                //     scan.ranges[i] = 0;
-                // }
-                // if (wy > y_length/2 || wy < -y_length/2){
-                //     scan.ranges[i] = 0;
-                // }
-
-                // if (Vwwall.y < -y_length/2 || Vwwall.y > y_length/2){
-                //     scan.ranges[i] = 0;
-                // } 
             }
         }
 
