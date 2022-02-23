@@ -153,7 +153,7 @@ int main(int argc, char * argv[])
     nhp.getParam("/nusim/encoder_ticks_to_rad", encoder_ticks_to_rad);
     nh.getParam("rate", rate);
     double basic_sensor_variance = 0.05; // add param
-    double max_range = 2; // add param
+    double max_range = 3.5; // add param
     double collision_radius = 0.11; // add param
 
     new_config = {.x = robot_start_x, .y = robot_start_y, .theta = robot_start_theta};
@@ -227,12 +227,12 @@ int main(int argc, char * argv[])
         // publish fake sensor markers
         for(int i = 0; i < obs_x.size(); i++){
             turtlelib::Vector2D new_config_vec = {new_config.x, new_config.y};
-            turtlelib::Vector2D obs_vec = {obs_x[i], obs_y[i]};
+            turtlelib::Vector2D Vwm = {obs_x[i], obs_y[i]};
             turtlelib::Transform2D Twr(new_config_vec, new_config.theta);
             turtlelib::Transform2D Trw = Twr.inv();
-            turtlelib::Transform2D Twm(obs_vec);
+            turtlelib::Transform2D Twm(Vwm);
             turtlelib::Transform2D Trm = Trw*Twm;
-            turtlelib::Vector2D Trm_vec = Trm.translation();
+            turtlelib::Vector2D Vrm = Trm.translation();
 
             // Generate a gaussian variable:
             double basic_sensor_variance = 0.001; // make a param
@@ -242,9 +242,16 @@ int main(int argc, char * argv[])
             fake_sensor_arr.markers[i].header.stamp = ros::Time::now();
             fake_sensor_arr.markers[i].id = i;
             fake_sensor_arr.markers[i].type = visualization_msgs::Marker::CYLINDER;
-            fake_sensor_arr.markers[i].action = visualization_msgs::Marker::ADD;
-            fake_sensor_arr.markers[i].pose.position.x = Trm_vec.x + fake_sensor_noise(get_random());
-            fake_sensor_arr.markers[i].pose.position.y = Trm_vec.y + fake_sensor_noise(get_random());;
+
+            if (distance(0.0, 0.0, Vrm.x, Vrm.y) < max_range){
+                fake_sensor_arr.markers[i].action = visualization_msgs::Marker::ADD;
+            }
+            else{
+                fake_sensor_arr.markers[i].action = visualization_msgs::Marker::DELETE;
+            }
+            
+            fake_sensor_arr.markers[i].pose.position.x = Vrm.x + fake_sensor_noise(get_random());
+            fake_sensor_arr.markers[i].pose.position.y = Vrm.y + fake_sensor_noise(get_random());;
             fake_sensor_arr.markers[i].pose.position.z = height/2;
             fake_sensor_arr.markers[i].pose.orientation.x = 0.0;
             fake_sensor_arr.markers[i].pose.orientation.y = 0.0;
@@ -482,22 +489,12 @@ int main(int argc, char * argv[])
         double a[] = {0.0, 1.0, 0.0, 1.0};
         double b[] = {1.0, 0.0, 1.0, 0.0};
         double c[] = {-(y_length/2), -(x_length/2), -(-y_length/2), -(-x_length/2)};
-        // double a[] = {0.0};
-        // double b[] = {1.0};
-        // double c[] = {-(y_length/2)};
-
-        // OTHER WAY
-        // double wallx3[4] = {-x_length/2, x_length/2, x_length/2, -x_length/2};
-        // double wally3[4] = {y_length/2, y_length/2, -y_length/2, -y_length/2};
-        // double wallx4[4] = {x_length/2, x_length/2, -x_length/2, -x_length/2};
-        // double wally4[4] = {y_length/2, -y_length/2, -y_length/2, y_length/2};
 
         for (int j = 0; j < 4; j++){
             for (int i = 0; i < num_readings; i++){
                 double angle = i*angle_increment + new_config.theta;
                 // double angle = i*angle_increment;
                 double m = std::tan(angle);
-                ROS_WARN("angle: %f, at %d", angle, j);
 
                 // in world frame (?)
                 double a1, b1, c1, a2, b2, c2;
