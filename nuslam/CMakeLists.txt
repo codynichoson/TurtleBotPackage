@@ -8,13 +8,17 @@ project(nuslam)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS 
-  geometry_msgs 
+  geometry_msgs
+  message_generation
+  message_runtime
+  nuturtlebot_msgs
   roscpp
   sensor_msgs 
   std_msgs
   std_srvs
   tf2
   tf2_ros
+  turtlelib
 )
 
 find_package(Armadillo)
@@ -109,13 +113,13 @@ find_package(Armadillo)
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES nuslam
+ INCLUDE_DIRS include
+ LIBRARIES nuslam
  CATKIN_DEPENDS
- geometry_msgs
+#  geometry_msgs
  roscpp
- sensor_msgs
- std_msgs
+#  sensor_msgs
+#  std_msgs
 #  DEPENDS system_lib
 )
 
@@ -126,15 +130,21 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-# include
-${catkin_INCLUDE_DIRS}
-${ARMADILLO_INCLUDE_DIRS}
+  include
+  ${catkin_INCLUDE_DIRS}
+  ${ARMADILLO_INCLUDE_DIRS}
 
 )
 
 ## Declare a C++ library
-add_library( ${PROJECT_NAME}
+add_library(${PROJECT_NAME}
   src/nuslam.cpp
+)
+
+target_link_libraries(${PROJECT_NAME}
+  ${catkin_LIBRARIES}
+  ${ARMADILLO_LIBRARIES}
+  turtlelib
 )
 
 ## Add cmake target dependencies of the library
@@ -145,32 +155,35 @@ add_library( ${PROJECT_NAME}
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(${PROJECT_NAME}_node src/slam.cpp)
+add_executable(slam src/slam.cpp)
+add_dependencies(slam ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(
+  slam
+  ${catkin_LIBRARIES}
+  ${ARMADILLO_LIBRARIES}
+  nuslam
+  turtlelib
+)
+
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
 ## e.g. "rosrun someones_pkg node" instead of "rosrun someones_pkg someones_pkg_node"
-# set_target_properties(${PROJECT_NAME}_node PROPERTIES OUTPUT_NAME node PREFIX "")
+# set_target_properties(slam PROPERTIES OUTPUT_NAME node PREFIX "")
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
-add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(
-  ${PROJECT_NAME}_node
-  ${catkin_LIBRARIES}
-  nuslam
-  turtlelib
-)
 
-target_link_libraries(
-  ${PROJECT_NAME}_node
-  ${ARMADILLO_LIBRARIES}
-  nuslam
-  turtlelib
-)
+
+# target_link_libraries(
+#   slam
+  
+#   nuslam
+#   turtlelib
+# )
 
 target_include_directories(${PROJECT_NAME} PUBLIC include/)
 # enable C++ 17
@@ -194,13 +207,13 @@ target_compile_options(${PROJECT_NAME} PUBLIC -Wall -Wextra)
 
 ## Mark executables for installation
 ## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_executables.html
-install(TARGETS ${PROJECT_NAME}_node
+install(TARGETS slam
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
 ## Mark libraries for installation
 ## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_libraries.html
-install(TARGETS ${PROJECT_NAME}_node
+install(TARGETS slam
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}

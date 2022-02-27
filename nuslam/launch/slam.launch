@@ -30,6 +30,7 @@
     <param name="green/robot_description" command="$(find xacro)/xacro '$(find nuturtle_description)/urdf/turtlebot3_burger.urdf.xacro' color:=green"/>
     <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" ns="green"/>
     <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher" ns="green"/>
+    <node pkg="tf2_ros" type="static_transform_publisher" name="world_to_map" args="0 0 0 0 0 0 1 world map" />
 
     <!-- When launching real robot -->
     <group if="$(eval arg('robot')!='nusim')">

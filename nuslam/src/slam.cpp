@@ -28,6 +28,7 @@
 #include <std_srvs/Trigger.h>
 #include <string>
 #include "nuslam/nuslam.hpp"
+#include <visualization_msgs/MarkerArray.h>
 
 int rate;
 nav_msgs::Odometry odom;
@@ -37,7 +38,9 @@ static sensor_msgs::JointState js;
 turtlelib::WheelAngles wheel_angles{.left = 0.0, .right = 0.0};
 turtlelib::DiffDrive ddrive;
 turtlelib::Twist2D twist = {0.0, 0.0, 0.0};
-int flag == 0;
+arma::mat z;
+int flag = 0;
+arma::mat state;
 
 /// \brief Subscribes to joint_states and calculates new red robot configuration
 /// \param js - Updated joint_states message
@@ -53,13 +56,15 @@ void joints_callback(const sensor_msgs::JointState &js) // odometry callback fun
 /// \brief Subscribes to fake_sensor and updates estimated marker coords
 /// \param fake_sensor - Updated fake_sensor message
 /// \return None
-void laser_callback(const sensor_msgs::JointState &fake_sensor) // odometry callback function
+void laser_callback(const visualization_msgs::MarkerArray &fake_sensor) // odometry callback function
 {   
     int num_markers = fake_sensor.markers.size();
 
     nuslam::SLAM Slammy(num_markers);
 
-    for (i = 0; i < num_markers; i++){
+    z = arma::mat(2*num_markers, 1, arma::fill::zeros);
+
+    for (int i = 0; i < num_markers; i++){
         double xi = fake_sensor.markers[i].pose.position.x;
         double yi = fake_sensor.markers[i].pose.position.y;
 
@@ -67,11 +72,11 @@ void laser_callback(const sensor_msgs::JointState &fake_sensor) // odometry call
         rb.range = std::sqrt(std::pow(xi, 2) + std::pow(yi, 2));
         rb.bearing = std::atan2(yi, xi);
 
-        Slammy.z(2*i, 0) = rb.range;
-        Slammy.z((2*i)+1, 0) = rb.bearing;
+        z(2*i, 0) = rb.range;
+        z((2*i)+1, 0) = rb.bearing;
 
         if (flag == 0){
-            Slammy.init_landmarks(Slammy.n, Slammy.z);
+            Slammy.init_landmarks(num_markers, z);
         }
     }
 
@@ -79,7 +84,7 @@ void laser_callback(const sensor_msgs::JointState &fake_sensor) // odometry call
 
     Slammy.predict(twist, rate);
 
-    arma::mat state = Slammy.update(n, Slammy.z)
+    state = Slammy.update(num_markers, z);
 }
 
 /// \brief Teleports blue robot (odometry) to desired pose in world frame
