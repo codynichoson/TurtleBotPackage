@@ -371,6 +371,8 @@ int main(int argc, char * argv[])
         double ranges[num_readings];
         double scan_time = 1/5;
         double angle_increment = 2*turtlelib::PI / 360;
+        double laser_min = 0.12;
+        double laser_max = 3.5;
 
         //populate the LaserScan message
         sensor_msgs::LaserScan scan;
@@ -380,8 +382,8 @@ int main(int argc, char * argv[])
         scan.angle_max = 2*turtlelib::PI;
         scan.angle_increment = angle_increment;
         scan.time_increment = 1/1800;
-        scan.range_min = 0.120;
-        scan.range_max = 3.5;
+        scan.range_min = laser_min;
+        scan.range_max = laser_max;
         scan.ranges.resize(num_readings);
 
         turtlelib::Vector2D Vwr = {.x = new_config.x, .y = new_config.y};
@@ -389,8 +391,7 @@ int main(int argc, char * argv[])
 
         double x1, y1;
         double x2, y2;
-        double laser_min = 0.12;
-        double laser_max = 3.5;
+        
 
         // iterate through obstacles
         for (int obs = 0; obs < 3; obs++){

@@ -4,6 +4,7 @@
     <arg name="robot"          default="nusim"    doc="robot name (nusim, localhost, or (robot_name))"          />
     <arg name="nusim_rate"     default="500"      doc="rate at which nusim node publishes (default 500)"        />
     <arg name="frequency"      default="100"      doc="frequency at which circle node publishes"                />
+    <arg name="use_rviz"       default="true"     doc="determines if rviz opens"                                />
 
     <remap from="/red/joint_states" to="/joint_states"/>
     <remap from="/red/wheel_cmd" to="/wheel_cmd"/>
@@ -31,7 +32,7 @@
         <node name="turtle_interface" pkg="nuturtle_control" type="turtle_interface" machine="turtlebot"/>
         <node name="odometry" pkg="nuturtle_control" type="odometry" machine="turtlebot"/>
         <include file="$(find nuturtle_control)/launch/basic_remote.launch" pass_all_args="true"/>
-        <node pkg="rviz" type="rviz" name="rviz" required="true" args="-f world -d $(find nuturtle_control)/config/nuturtle_control_2.rviz"/>
+        <node pkg="rviz" type="rviz" name="rviz" required="true" args="-f world -d $(find nuturtle_control)/config/nuturtle_control_2.rviz" if="$(eval arg('use_rviz')=='true')"/>
     </group>
 
     <!-- When launching simulation -->
@@ -44,7 +45,7 @@
         <rosparam file="$(find nusim)/config/basic_world.yaml"/>
         <param name="/red/robot_description" command="$(find xacro)/xacro '$(find nuturtle_description)/urdf/turtlebot3_burger.urdf.xacro' color:=red"/>
         <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher" ns="red"/>
-        <node pkg="rviz" type="rviz" name="rviz" required="true" args="-f world -d $(find nuturtle_control)/config/nuturtle_control.rviz"/>
+        <node pkg="rviz" type="rviz" name="rviz" required="true" args="-f world -d $(find nuturtle_control)/config/nuturtle_control.rviz" if="$(eval arg('use_rviz')=='true')"/>
     </group>
 
 </launch>
