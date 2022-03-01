@@ -89,6 +89,15 @@ void laser_callback(const visualization_msgs::MarkerArray &fake_sensor) // odome
     Slammy.predict(twist, 10.0);
 
     state = Slammy.update(num_markers, z);
+    // ROS_WARN("state1: %f", state(0,0));
+    // ROS_WARN("state2: %f", state(1,0));
+    // ROS_WARN("state3: %f", state(2,0));
+    // ROS_WARN("state4: %f", state(3,0));
+    // ROS_WARN("state5: %f", state(4,0));
+    // ROS_WARN("state6: %f", state(5,0));
+    // ROS_WARN("state7: %f", state(6,0));
+    // ROS_WARN("state8: %f", state(7,0));
+    // ROS_WARN("state9: %f", state(8,0));
     ROS_INFO_STREAM(state);
 
 }
@@ -150,6 +159,10 @@ int main(int argc, char * argv[])
         ROS_ERROR_STREAM("robot_start_theta parameter not found.");
     }
 
+    double radius, height;
+    nh.getParam("radius", radius);
+    nh.getParam("height", height);
+
     config = {.x = robot_start_x, .y = robot_start_y, .theta = robot_start_theta};
 
     state(0,0) = robot_start_theta;
@@ -164,11 +177,15 @@ int main(int argc, char * argv[])
     ros::Subscriber fake_sensor_sub = nh.subscribe("/nusim/fake_sensor", 100, laser_callback);
 
     ros::Publisher odom_pub = nh.advertise<nav_msgs::Odometry>("odom", rate);
+    ros::Publisher slam_obs_pub = nh.advertise<visualization_msgs::MarkerArray>("slam_obs", 1, true);
 
     ros::ServiceServer set_pose = nh.advertiseService("set_pose", set_pose_callback);
 
     tf2_ros::TransformBroadcaster Twb_br, Tmg_br, Tmo_br, Tog_br;
     geometry_msgs::TransformStamped Twb_msg, Tmg_msg, Tmo_msg, Tog_msg;
+
+    visualization_msgs::MarkerArray slam_obs_arr;
+    slam_obs_arr.markers.resize((state.n_rows - 3)/2);
 
     while(ros::ok())
     {
@@ -242,6 +259,29 @@ int main(int argc, char * argv[])
         Tog_msg.transform.rotation.z = q.z();
         Tog_msg.transform.rotation.w = q.w();
         Tog_br.sendTransform(Tog_msg);
+
+        for(int i = 0; i < (state.n_rows - 3)/2; i++){
+            slam_obs_arr.markers[i].header.frame_id = "map";
+            slam_obs_arr.markers[i].header.stamp = ros::Time::now();
+            slam_obs_arr.markers[i].id = i;
+            slam_obs_arr.markers[i].type = visualization_msgs::Marker::CYLINDER;
+            slam_obs_arr.markers[i].action = visualization_msgs::Marker::ADD;
+            slam_obs_arr.markers[i].pose.position.x = state((2*i)+3,0);
+            slam_obs_arr.markers[i].pose.position.y = state((2*i)+4,0);
+            slam_obs_arr.markers[i].pose.position.z = height/2;
+            slam_obs_arr.markers[i].pose.orientation.x = 0.0;
+            slam_obs_arr.markers[i].pose.orientation.y = 0.0;
+            slam_obs_arr.markers[i].pose.orientation.z = 0.0;
+            slam_obs_arr.markers[i].pose.orientation.w = 1.0;
+            slam_obs_arr.markers[i].scale.x = 2*radius;
+            slam_obs_arr.markers[i].scale.y = 2*radius;
+            slam_obs_arr.markers[i].scale.z = height;
+            slam_obs_arr.markers[i].color.r = 0.0;
+            slam_obs_arr.markers[i].color.g = 1.0;
+            slam_obs_arr.markers[i].color.b = 0.0;
+            slam_obs_arr.markers[i].color.a = 1.0;
+        }
+        slam_obs_pub.publish(slam_obs_arr);
         
         odom_pub.publish(odom);
 

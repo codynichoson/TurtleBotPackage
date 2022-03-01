@@ -8,8 +8,6 @@ Panels:
         - /Status1
         - /TF1/Frames1
         - /TF1/Tree1
-        - /TF1/Tree1/world1/map1
-        - /TF1/Tree1/world1/map1/odom1
       Splitter Ratio: 0.5
     Tree Height: 752
   - Class: rviz/Selection
@@ -99,7 +97,7 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-      Name: RobotModel
+      Name: Red Robot
       Robot Description: red/robot_description
       TF Prefix: ""
       Update Interval: 0
@@ -148,7 +146,7 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-      Name: RobotModel
+      Name: Blue Robot
       Robot Description: blue/robot_description
       TF Prefix: ""
       Update Interval: 0
@@ -197,7 +195,7 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-      Name: RobotModel
+      Name: Green Robot
       Robot Description: green/robot_description
       TF Prefix: ""
       Update Interval: 0
@@ -205,24 +203,32 @@ Visualization Manager:
       Visual Enabled: true
     - Class: rviz/MarkerArray
       Enabled: true
-      Marker Topic: /nusim/obstacles
-      Name: MarkerArray
+      Marker Topic: /nusim/walls
+      Name: Walls
       Namespaces:
         "": true
       Queue Size: 100
       Value: true
     - Class: rviz/MarkerArray
-      Enabled: false
-      Marker Topic: /nusim/walls
-      Name: MarkerArray
-      Namespaces:
-        {}
-      Queue Size: 100
-      Value: false
-    - Class: rviz/MarkerArray
       Enabled: true
       Marker Topic: /nusim/fake_sensor
-      Name: MarkerArray
+      Name: Simulated Obstacles
+      Namespaces:
+        "": true
+      Queue Size: 100
+      Value: true
+    - Class: rviz/MarkerArray
+      Enabled: true
+      Marker Topic: /nusim/obstacles
+      Name: Fake Obstacles
+      Namespaces:
+        "": true
+      Queue Size: 100
+      Value: true
+    - Class: rviz/MarkerArray
+      Enabled: true
+      Marker Topic: /slam_obs
+      Name: SLAM Obstacles
       Namespaces:
         "": true
       Queue Size: 100

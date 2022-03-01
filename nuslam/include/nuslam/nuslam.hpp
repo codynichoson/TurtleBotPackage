@@ -21,9 +21,23 @@ namespace nuslam
 
     class SLAM
     {
+        private:
+
+        int n {};
+        int size {};
+        arma::mat I {};
+        arma::mat state {};
+        arma::mat estimate {};
+        arma::mat covariance {};
+        arma::mat process_noise {};
+        arma::mat kalman_gain {};
+        arma::mat R {};
+
         public:
 
-        SLAM(int);
+        SLAM(int num_mark);
+
+        // SLAM(int);
 
         arma::mat find_h(int);                 // for each obstacle
 
@@ -37,20 +51,7 @@ namespace nuslam
 
         void predict(turtlelib::Twist2D, float);     // Eq 27 (20 + 5 or 7)
 
-        arma::mat update(int, arma::mat);                      //
-
-        
-        private:
-
-        int n;
-        arma::mat I;
-        arma::mat state;
-        arma::mat estimate;
-        arma::mat covariance;
-        arma::mat process_noise;
-        arma::mat kalman_gain;
-        arma::mat R;
-        // arma::mat A;
+        arma::mat update(int, arma::mat);                     
     };
 }
 

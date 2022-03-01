@@ -3,22 +3,17 @@
 
 namespace nuslam
 {
-    SLAM::SLAM(int num_markers){
-        n = num_markers;
-        int size = 3+2*n;
-        I = arma::eye(size, size);
-        state = arma::mat(size, 1);
-        estimate = arma::mat(size, 1, arma::fill::zeros);
-        covariance = arma::mat(size, size, arma::fill::zeros);
-        process_noise = arma::mat(size, size, arma::fill::zeros);
-        kalman_gain = arma::mat(size, 2*n, arma::fill::zeros);
-        // estimate = arma::mat(size, 1);
-        // covariance = arma::mat(size, size);
-        // process_noise = arma::mat(size, size);
-        // kalman_gain = arma::mat(size, 2*n);
-        arma::mat RI = arma::eye(2*n, 2*n);
-        R = RI*0.2;
-    }
+    // initalizer list for constructor
+    SLAM::SLAM(int num_mark) : n(num_mark), 
+                               size(3 + 2*n),
+                               I(arma::eye(size, size)), 
+                               state(arma::mat(size, 1)), 
+                               estimate(arma::mat(size, 1, arma::fill::zeros)), 
+                               covariance(arma::mat(size, size, arma::fill::zeros)), 
+                               process_noise(arma::mat(size, size, arma::fill::zeros)), 
+                               kalman_gain(arma::mat(size, 2*n, arma::fill::zeros)), 
+                               R((arma::eye(2*n, 2*n))*0.2) {}
+
 
     arma::mat SLAM::find_h(int n){
         arma::mat h(2*n,1, arma::fill::zeros);
