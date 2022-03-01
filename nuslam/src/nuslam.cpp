@@ -1,22 +1,30 @@
 #include "nuslam/nuslam.hpp"
+#include <ros/ros.h>
 
 namespace nuslam
 {
-    SLAM::SLAM(int n){
+    SLAM::SLAM(int num_markers){
+        n = num_markers;
         int size = 3+2*n;
         I = arma::eye(size, size);
-        state = arma::mat(size, 1, arma::fill::zeros);
-        estimate = arma::mat(size, 1, arma::fill::zeros);
-        covariance = arma::mat(size, size, arma::fill::zeros);
-        process_noise = arma::mat(size, size, arma::fill::zeros);
-        kalman_gain = arma::mat(size, 2, arma::fill::zeros);
+        state = arma::mat(size, 1);
+        // estimate = arma::mat(size, 1, arma::fill::zeros);
+        // covariance = arma::mat(size, size, arma::fill::zeros);
+        // process_noise = arma::mat(size, size, arma::fill::zeros);
+        // kalman_gain = arma::mat(size, 2*n, arma::fill::zeros);
+        estimate = arma::mat(size, 1);
+        covariance = arma::mat(size, size);
+        process_noise = arma::mat(size, size);
+        kalman_gain = arma::mat(size, 2*n);
+        arma::mat RI = arma::eye(2*n, 2*n);
+        R = RI*0.2;
     }
 
     arma::mat SLAM::find_h(int n){
         arma::mat h(2*n,1, arma::fill::zeros);
         for (int j = 1; j < n+1; j++){
             h(2*(j-1), 0) = std::sqrt(std::pow(state(2*j + 1, 0) - state(1,0), 2) + std::pow(state(2*j + 2, 0) - state(2,0), 2));
-            h(2*j, 0) = std::atan2(state(2*j + 2,0) - state(2,0), state(2*j + 1,0) - state(1,0)) - state(0,0);
+            h((2*j)-1, 0) = std::atan2(state(2*j + 2,0) - state(2,0), state(2*j + 1,0) - state(1,0)) - state(0,0);
         }
         return h;
     }
@@ -29,23 +37,24 @@ namespace nuslam
             double deltay = state(2*j + 2) - state(2,0);
             double d = std::pow(deltax, 2) + std::pow(deltay, 2);
 
-            // top row
-            H(2*(j-1),0) = 0;
-            H(2*(j-1),1) = -deltax/std::sqrt(d);
-            H(2*(j-1),2) = -deltay/std::sqrt(d);
-            H(2*(j-1),2*j+1) = deltax/std::sqrt(d);
-            H(2*(j-1),2*j+2) = deltay/std::sqrt(d);
+            if (d != 0.0){
+                // top row
+                H(2*(j-1),0) = 0;
+                H(2*(j-1),1) = -deltax/std::sqrt(d);
+                H(2*(j-1),2) = -deltay/std::sqrt(d);
+                H(2*(j-1),2*j+1) = deltax/std::sqrt(d);
+                H(2*(j-1),2*j+2) = deltay/std::sqrt(d);
 
-            // bottom row
-            H(2*j,0) = -1;
-            H(2*j,1) = deltay/d;
-            H(2*j,2) = -deltax/d;
-            H(2*j,2*j+1) = -deltay/d;
-            H(2*j,2*j+2) = deltax/d;
-
-            
+                // bottom row
+                H((2*j)-1,0) = -1;
+                H((2*j)-1,1) = deltay/d;
+                H((2*j)-1,2) = -deltax/d;
+                H((2*j)-1,2*j+1) = -deltay/d;
+                H((2*j)-1,2*j+2) = deltax/d;
+            }
         }
         return H;
+        
     }
 
     arma::mat SLAM::find_A(turtlelib::Twist2D twist, int rate){
@@ -65,10 +74,16 @@ namespace nuslam
         }
 
         A = I + temp;
+
+        return A;
     }
 
     void SLAM::updateState(turtlelib::Twist2D twist, int rate){
         arma::mat transition(3+2*n,1,arma::fill::zeros);
+
+        ROS_WARN("xdot: %f", twist.xdot);
+        ROS_WARN("ydot: %f", twist.ydot);
+        ROS_WARN("thetadot: %f", twist.thetadot);
 
         double deltax = twist.xdot/rate;
         double deltay = twist.ydot/rate;
@@ -83,23 +98,25 @@ namespace nuslam
             transition(1,0) = -(deltax/deltat)*std::sin(state(0,0)) + (deltax/deltat)*std::sin(state(0,0) + deltat);
             transition(2,0) = (deltax/deltat)*std::cos(state(0,0)) - (deltax/deltat)*std::cos(state(0,0) + deltat);
         }
-
         state = state + transition; // g(Xi_t, ut)  // Eq 5,7
     }
 
     void SLAM::init_landmarks(int n, arma::mat z){
         for (int j = 1; j < n+1; j++){
-            state(2*j+1,0) = state(1,0) + z(2*(j-1), 0)*std::cos(z(2*j, 0) + state(0,0));
-            state(2*j+2,0) = state(2,0) + z(2*(j-1), 0)*std::sin(z(2*j, 0) + state(0,0));
-        }
+            state((2*j)+1,0) = state(1,0) + z(2*(j-1), 0)*std::cos(z((2*j)-1, 0) + state(0,0));
+            state((2*j)+2,0) = state(2,0) + z(2*(j-1), 0)*std::sin(z((2*j)-1, 0) + state(0,0));
+        }        
     }
 
     void SLAM::predict(turtlelib::Twist2D twist, int rate){
+        
         SLAM::updateState(twist, rate); // Eq 20
 
-        SLAM::find_A(twist, rate);
+        arma::mat A = SLAM::find_A(twist, rate);
 
-        covariance = A*covariance*arma::trans(A) + process_noise;   // Eq 21
+        // covariance = A*covariance*arma::trans(A) + process_noise;   // Eq 21
+
+        covariance = A*covariance*arma::trans(A);
     }
 
     arma::mat SLAM::update(int n, arma::mat z){
@@ -109,10 +126,12 @@ namespace nuslam
         arma::mat z_hat = h;    // Eq 25
 
         arma::mat H = SLAM::find_H(n);
+        
+        arma::mat Ht = arma::trans(H);
 
         // Kalman gain
-        kalman_gain = covariance*arma::trans(H)*arma::inv((H*covariance*arma::trans(H)));  // Eq 26
-
+        kalman_gain = covariance*arma::trans(H)*arma::inv((H*covariance*arma::trans(H)) + R);  // Eq 26
+        
         // posterior statue update
         state = state + kalman_gain*(z - z_hat);  // Eq 27
 

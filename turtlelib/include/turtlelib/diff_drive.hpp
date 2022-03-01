@@ -70,6 +70,8 @@ namespace turtlelib
         /// \return a twisty treat!
         Twist2D Ang2Twist(WheelAngles wheel_angles);
 
+        // Twist2D getTwist();
+
         /// \brief convert wheel velocities to twist
         /// \param wheel_angles - left and right wheel velocities
         /// \return a twisty treat!

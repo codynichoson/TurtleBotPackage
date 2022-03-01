@@ -1,5 +1,5 @@
 #include "ros/ros.h"
-// #include <ros/console.h>
+#include <ros/console.h>
 #include <iostream>
 #include <cmath>
 #include "turtlelib/diff_drive.hpp"

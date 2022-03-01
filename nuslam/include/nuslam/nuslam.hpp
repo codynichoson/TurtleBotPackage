@@ -49,7 +49,8 @@ namespace nuslam
         arma::mat covariance;
         arma::mat process_noise;
         arma::mat kalman_gain;
-        arma::mat A;
+        arma::mat R;
+        // arma::mat A;
     };
 }
 

@@ -391,7 +391,6 @@ int main(int argc, char * argv[])
 
         double x1, y1;
         double x2, y2;
-        
 
         // iterate through obstacles
         for (int obs = 0; obs < 3; obs++){
