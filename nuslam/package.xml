@@ -2,7 +2,7 @@
 <package format="2">
   <name>nuslam</name>
   <version>0.0.0</version>
-  <description>The nuslam package</description>
+  <description>Performs EKF SLAM for TurtleBot</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
@@ -54,6 +54,20 @@
   <exec_depend>nuturtle_description</exec_depend>
   <exec_depend>nusim</exec_depend>
   <exec_depend>turtlelib</exec_depend>
+  <exec_depend>nuturtle_control</exec_depend>
+  <exec_depend>turtlebot3_teleop</exec_depend>
+  <exec_depend>xacro</exec_depend>
+  <exec_depend>joint_state_publisher</exec_depend>
+  <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>tf2_ros</exec_depend>
+
+  <build_depend>tf2_ros</build_depend>
+  <build_depend>turtlelib</build_depend>
+  <build_depend>nuturtlebot_msgs</build_depend>
+  <build_depend>std_srvs</build_depend>
+  <build_depend>tf2</build_depend>
+  <build_depend>message_generation</build_depend>
+  <build_depend>message_runtime</build_depend>
 
 
   <depend>roscpp</depend>

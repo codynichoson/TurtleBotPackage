@@ -62,6 +62,7 @@
   <exec_depend>tf2_ros</exec_depend>
   <exec_depend>turtlebot3_teleop</exec_depend>
   <exec_depend>rosserial_python</exec_depend>
+  <exec_depend>hls_lfcd_lds_driver</exec_depend>
 
   <build_depend>std_srvs</build_depend>
   <build_depend>tf2_ros</build_depend>

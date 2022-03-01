@@ -113,13 +113,13 @@ find_package(Armadillo)
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
- INCLUDE_DIRS include
- LIBRARIES nuslam
+#  INCLUDE_DIRS include
+#  LIBRARIES nuslam
  CATKIN_DEPENDS
-#  geometry_msgs
+ geometry_msgs
  roscpp
-#  sensor_msgs
-#  std_msgs
+ sensor_msgs
+ std_msgs
 #  DEPENDS system_lib
 )
 
@@ -161,7 +161,7 @@ target_link_libraries(
   slam
   ${catkin_LIBRARIES}
   ${ARMADILLO_LIBRARIES}
-  nuslam
+  ${${PROJECT_NAME}
   turtlelib
 )
 
