@@ -9,7 +9,7 @@ using std::logic_error;
 /// \brief PI.  Not in C++ standard until C++20.
 constexpr double PI=3.14159265358979323846;
 
-/// \brief Distance between wheels on TurtleBot.
+/// \brief Distance between wheels on TurtleBot/2
 constexpr double D = 0.08;
 
 /// \brief Wheel radius on TurtleBot.
@@ -129,9 +129,9 @@ namespace turtlelib{
 
     Twist2D DiffDrive::Vel2Twist(WheelVel wheel_vels){
         Twist2D twist;
-        twist.xdot = (r*(wheel_vels.left + wheel_vels.right))/2.0;
+        twist.thetadot = (r/(2*D))*(-wheel_vels.left+wheel_vels.right);
+        twist.xdot = (r/2)*(wheel_vels.left + wheel_vels.right);
         twist.ydot = 0.0;
-        twist.thetadot = (r/2.0*D)*(wheel_vels.right - wheel_vels.left);
 
         return twist;
     };

@@ -57,6 +57,9 @@ void joints_callback(const sensor_msgs::JointState &js) // odometry callback fun
     
     // twist = ddrive.Ang2Twist(wheel_angles);
     twist = ddrive.Vel2Twist(wheel_vels);
+    ROS_WARN("xdot: %f", twist.xdot);
+    ROS_WARN("ydot: %f", twist.ydot);
+    ROS_WARN("thetadot: %f", twist.thetadot);
     config = ddrive.fKin(wheel_angles, config);
 
     // twist = ddrive.Ang2Twist(wheel_angles);
@@ -69,8 +72,6 @@ void joints_callback(const sensor_msgs::JointState &js) // odometry callback fun
 void laser_callback(const visualization_msgs::MarkerArray &fake_sensor) // odometry callback function
 {   
     int num_markers = fake_sensor.markers.size();
-
-    // nuslam::SLAM Slammy(num_markers);
 
     z = arma::mat(2*num_markers, 1);
 
@@ -85,15 +86,18 @@ void laser_callback(const visualization_msgs::MarkerArray &fake_sensor) // odome
         z(2*i, 0) = rb.range;
         z((2*i)+1, 0) = rb.bearing;
     }
+
     if (flag == 0){
         Slammy.init_landmarks(num_markers, z);
     }
 
     flag = 1;
 
-    Slammy.predict(twist, rate);
+    Slammy.predict(twist, 10.0);
 
     state = Slammy.update(num_markers, z);
+    ROS_INFO_STREAM(state);
+
     ROS_WARN("x: %5.2f, y: %5.2f, t: %5.2f", state(1,0), state(2,0), state(0,0));
 }
 
@@ -117,6 +121,8 @@ int main(int argc, char * argv[])
     double robot_start_x;
     double robot_start_y;
     double robot_start_theta;
+
+    
     
     if (nh.hasParam("body_id")){
         nh.getParam("body_id", body_id);
@@ -156,6 +162,11 @@ int main(int argc, char * argv[])
     }
 
     config = {.x = robot_start_x, .y = robot_start_y, .theta = robot_start_theta};
+
+    state(0,0) = robot_start_theta;
+    state(1,0) = robot_start_x;
+    state(2,0) = robot_start_y;
+    // ROS_WARN("state %f, %f, %f" state(0,0), state(1,0), state(2,0));
 
     ros::Rate r(rate);
 
@@ -213,6 +224,7 @@ int main(int argc, char * argv[])
         turtlelib::Transform2D Tog(Vog, config.theta);
 
         turtlelib::Transform2D Tmo = Tmg*Tog.inv();
+        // Tmo = Tmo.inv();
         turtlelib::Vector2D Vmo = Tmo.translation();
         double theta_mo = Tmo.rotation();
 

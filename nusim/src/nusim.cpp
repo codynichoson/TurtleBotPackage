@@ -235,7 +235,7 @@ int main(int argc, char * argv[])
             turtlelib::Vector2D Vrm = Trm.translation();
 
             // Generate a gaussian variable:
-            double basic_sensor_variance = 0.001; // make a param
+            double basic_sensor_variance = 0.00; // make a param
             std::normal_distribution<> fake_sensor_noise(0, basic_sensor_variance); // (mean, variance)
 
             fake_sensor_arr.markers[i].header.frame_id = "red_base_footprint";

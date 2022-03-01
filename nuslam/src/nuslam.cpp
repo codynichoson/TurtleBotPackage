@@ -8,14 +8,14 @@ namespace nuslam
         int size = 3+2*n;
         I = arma::eye(size, size);
         state = arma::mat(size, 1);
-        // estimate = arma::mat(size, 1, arma::fill::zeros);
-        // covariance = arma::mat(size, size, arma::fill::zeros);
-        // process_noise = arma::mat(size, size, arma::fill::zeros);
-        // kalman_gain = arma::mat(size, 2*n, arma::fill::zeros);
-        estimate = arma::mat(size, 1);
-        covariance = arma::mat(size, size);
-        process_noise = arma::mat(size, size);
-        kalman_gain = arma::mat(size, 2*n);
+        estimate = arma::mat(size, 1, arma::fill::zeros);
+        covariance = arma::mat(size, size, arma::fill::zeros);
+        process_noise = arma::mat(size, size, arma::fill::zeros);
+        kalman_gain = arma::mat(size, 2*n, arma::fill::zeros);
+        // estimate = arma::mat(size, 1);
+        // covariance = arma::mat(size, size);
+        // process_noise = arma::mat(size, size);
+        // kalman_gain = arma::mat(size, 2*n);
         arma::mat RI = arma::eye(2*n, 2*n);
         R = RI*0.2;
     }
@@ -57,7 +57,7 @@ namespace nuslam
         
     }
 
-    arma::mat SLAM::find_A(turtlelib::Twist2D twist, int rate){
+    arma::mat SLAM::find_A(turtlelib::Twist2D twist, float rate){
         arma::mat A(3+2*n, 3+2*n, arma::fill::zeros), temp(3+2*n, 3+2*n, arma::fill::zeros);
 
         double deltax = twist.xdot/rate;
@@ -78,12 +78,8 @@ namespace nuslam
         return A;
     }
 
-    void SLAM::updateState(turtlelib::Twist2D twist, int rate){
+    void SLAM::updateState(turtlelib::Twist2D twist, float rate){
         arma::mat transition(3+2*n,1,arma::fill::zeros);
-
-        ROS_WARN("xdot: %f", twist.xdot);
-        ROS_WARN("ydot: %f", twist.ydot);
-        ROS_WARN("thetadot: %f", twist.thetadot);
 
         double deltax = twist.xdot/rate;
         double deltay = twist.ydot/rate;
@@ -98,7 +94,10 @@ namespace nuslam
             transition(1,0) = -(deltax/deltat)*std::sin(state(0,0)) + (deltax/deltat)*std::sin(state(0,0) + deltat);
             transition(2,0) = (deltax/deltat)*std::cos(state(0,0)) - (deltax/deltat)*std::cos(state(0,0) + deltat);
         }
-        state = state + transition; // g(Xi_t, ut)  // Eq 5,7
+        // state = state + transition; // g(Xi_t, ut)  // Eq 5,7
+        state(0,0) = state(0,0) + transition(0,0);
+        state(1,0) = state(1,0) + transition(1,0);
+        state(2,0) = state(2,0) + transition(2,0);
     }
 
     void SLAM::init_landmarks(int n, arma::mat z){
@@ -108,7 +107,7 @@ namespace nuslam
         }        
     }
 
-    void SLAM::predict(turtlelib::Twist2D twist, int rate){
+    void SLAM::predict(turtlelib::Twist2D twist, float rate){
         
         SLAM::updateState(twist, rate); // Eq 20
 

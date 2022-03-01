@@ -29,13 +29,13 @@ namespace nuslam
 
         arma::mat find_H(int);                 // for each obstacle
 
-        arma::mat find_A(turtlelib::Twist2D, int);   // Eq 9 & 10, state transition
+        arma::mat find_A(turtlelib::Twist2D, float);   // Eq 9 & 10, state transition
 
-        void updateState(turtlelib::Twist2D, int); // Eq 5 & 6
+        void updateState(turtlelib::Twist2D, float); // Eq 5 & 6
 
         void init_landmarks(int, arma::mat);            //
 
-        void predict(turtlelib::Twist2D, int);     // Eq 27 (20 + 5 or 7)
+        void predict(turtlelib::Twist2D, float);     // Eq 27 (20 + 5 or 7)
 
         arma::mat update(int, arma::mat);                      //
 
