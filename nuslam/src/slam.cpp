@@ -53,17 +53,10 @@ void joints_callback(const sensor_msgs::JointState &js) // odometry callback fun
     wheel_angles.right = js.position[1];
     wheel_vels.left = js.velocity[0];
     wheel_vels.right = js.velocity[1];
-    // ROS_WARN("wheelvel - left: %f, right: %f", wheel_vels.left, wheel_vels.right);
     
-    // twist = ddrive.Ang2Twist(wheel_angles);
     twist = ddrive.Vel2Twist(wheel_vels);
-    ROS_WARN("xdot: %f", twist.xdot);
-    ROS_WARN("ydot: %f", twist.ydot);
-    ROS_WARN("thetadot: %f", twist.thetadot);
-    config = ddrive.fKin(wheel_angles, config);
 
-    // twist = ddrive.Ang2Twist(wheel_angles);
-    // ROS_WARN("left: %f, right: %f", wheel_angles.left, wheel_angles.right);
+    config = ddrive.fKin(wheel_angles, config);
 }
 
 /// \brief Subscribes to fake_sensor and updates estimated marker coords
@@ -98,7 +91,6 @@ void laser_callback(const visualization_msgs::MarkerArray &fake_sensor) // odome
     state = Slammy.update(num_markers, z);
     ROS_INFO_STREAM(state);
 
-    ROS_WARN("x: %5.2f, y: %5.2f, t: %5.2f", state(1,0), state(2,0), state(0,0));
 }
 
 /// \brief Teleports blue robot (odometry) to desired pose in world frame
@@ -117,12 +109,9 @@ int main(int argc, char * argv[])
     ros::init(argc, argv, "odometry");
     ros::NodeHandle nh;
 
-    
     double robot_start_x;
     double robot_start_y;
     double robot_start_theta;
-
-    
     
     if (nh.hasParam("body_id")){
         nh.getParam("body_id", body_id);
@@ -166,7 +155,8 @@ int main(int argc, char * argv[])
     state(0,0) = robot_start_theta;
     state(1,0) = robot_start_x;
     state(2,0) = robot_start_y;
-    // ROS_WARN("state %f, %f, %f" state(0,0), state(1,0), state(2,0));
+
+    ROS_WARN("state: %f, %f, %f", state(1,0), state(2,0), state(0,0));
 
     ros::Rate r(rate);
 
@@ -224,7 +214,6 @@ int main(int argc, char * argv[])
         turtlelib::Transform2D Tog(Vog, config.theta);
 
         turtlelib::Transform2D Tmo = Tmg*Tog.inv();
-        // Tmo = Tmo.inv();
         turtlelib::Vector2D Vmo = Tmo.translation();
         double theta_mo = Tmo.rotation();
 
@@ -253,19 +242,6 @@ int main(int argc, char * argv[])
         Tog_msg.transform.rotation.z = q.z();
         Tog_msg.transform.rotation.w = q.w();
         Tog_br.sendTransform(Tog_msg);
-
-        // Tmg_msg.header.stamp = ros::Time::now();
-        // Tmg_msg.header.frame_id = "map";
-        // Tmg_msg.child_frame_id = "green_base_footprint";
-        // Tmg_msg.transform.translation.x = state(1,0);
-        // Tmg_msg.transform.translation.y = state(2,0);
-        // Tmg_msg.transform.translation.z = 0.0;
-        // q.setRPY(0, 0, state(0,0));
-        // Tmg_msg.transform.rotation.x = q.x();
-        // Tmg_msg.transform.rotation.y = q.y();
-        // Tmg_msg.transform.rotation.z = q.z();
-        // Tmg_msg.transform.rotation.w = q.w();
-        // Tmg_br.sendTransform(Tmg_msg);
         
         odom_pub.publish(odom);
 

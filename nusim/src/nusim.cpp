@@ -110,7 +110,8 @@ bool teleport_callback(nusim::teleport::Request &q, nusim::teleport::Response &r
 void wheel_cmd_callback(const nuturtlebot_msgs::WheelCommands &wheelcmd)
 {
     // Generate a gaussian variable:
-    std::normal_distribution<> wheel_cmd_noise(1, 0.2); // (mean, variance)
+    std::normal_distribution<> wheel_cmd_noise(1, 0.0); // (mean, variance)
+    // std::normal_distribution<> wheel_cmd_noise(0, 0.0); // (mean, variance)
 
     // adding noise
     wheelvel.left = wheel_cmd_noise(get_random()) * wheelcmd.left_velocity * motor_cmd_to_radsec;
@@ -310,8 +311,10 @@ int main(int argc, char * argv[])
         walls_pub.publish(wall_arr);
 
         // Generate a gaussian variable:
-        std::uniform_real_distribution<> left_noise(1, 1.05); // (mean, variance)
-        std::uniform_real_distribution<> right_noise(1, 1.05); // (mean, variance)
+        // std::uniform_real_distribution<> left_noise(1, 1.05);
+        // std::uniform_real_distribution<> right_noise(1, 1.05);
+        std::uniform_real_distribution<> left_noise(1, 1);
+        std::uniform_real_distribution<> right_noise(1, 1);
 
         double left_slip = left_noise(get_random())*wheelvel.left/rate;
         double right_slip = right_noise(get_random())*wheelvel.right/rate;
@@ -377,7 +380,8 @@ int main(int argc, char * argv[])
         //populate the LaserScan message
         sensor_msgs::LaserScan scan;
         scan.header.stamp = ros::Time::now();
-        scan.header.frame_id = "red_base_scan";
+        // scan.header.frame_id = "red_base_scan";
+        scan.header.frame_id = "red_base_footprint";
         scan.angle_min = 0.0;
         scan.angle_max = 2*turtlelib::PI;
         scan.angle_increment = angle_increment;
