@@ -161,7 +161,7 @@ target_link_libraries(
   slam
   ${catkin_LIBRARIES}
   ${ARMADILLO_LIBRARIES}
-  ${${PROJECT_NAME}
+  ${PROJECT_NAME}
   turtlelib
 )
 
