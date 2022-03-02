@@ -32,26 +32,54 @@ namespace nuslam
         arma::mat process_noise {};
         arma::mat kalman_gain {};
         arma::mat R {};
+        arma::mat Q {};
 
         public:
 
+        /// \brief class constructor to initialize private parameters
+        /// \param num_mark - the number of visible landmarks
+        /// \return none
         SLAM(int num_mark);
 
-        // SLAM(int);
+        /// \brief calculate range and bearing to landmarks
+        /// \param n - number of landmarks
+        /// \return h - a matrix of all range and bearing values to landmarks
+        arma::mat find_h(int);
 
-        arma::mat find_h(int);                 // for each obstacle
+        /// \brief derivative of h with respect to the state
+        /// \param n - number of landmarks
+        /// \return H - derivate of of h matrix
+        arma::mat find_H(int);
 
-        arma::mat find_H(int);                 // for each obstacle
+        /// \brief calculate transition
+        /// \param twist - twist of robot
+        /// \param rate - publishing rate
+        /// \return A - transition
+        arma::mat find_A(turtlelib::Twist2D, float);
 
-        arma::mat find_A(turtlelib::Twist2D, float);   // Eq 9 & 10, state transition
+        /// \brief update the state of the robot and landmarks
+        /// \param twist - twist of robot
+        /// \param rate - publishing rate
+        /// \return none
+        void updateState(turtlelib::Twist2D, float);
 
-        void updateState(turtlelib::Twist2D, float); // Eq 5 & 6
+        /// \brief initialize landmark locations
+        /// \param n - number of landmarks
+        /// \param z - range and bearing to visible landmarks
+        /// \return a 
+        void init_landmarks(int, arma::mat);
 
-        void init_landmarks(int, arma::mat);            //
+        /// \brief update state estimate and propogate uncertainty
+        /// \param twist - twist of robot
+        /// \param rate - publishing rate
+        /// \return none
+        void predict(turtlelib::Twist2D, float);
 
-        void predict(turtlelib::Twist2D, float);     // Eq 27 (20 + 5 or 7)
-
-        arma::mat update(int, arma::mat);                     
+        /// \brief compute Kalman gain and posterior state update
+        /// \param n - number of landmarks
+        /// \param z - range and bearing to visible landmarks
+        /// \return robot and landmark state
+        arma::mat update(int, arma::mat);
     };
 }
 

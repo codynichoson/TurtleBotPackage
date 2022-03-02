@@ -12,7 +12,17 @@ namespace nuslam
                                covariance(arma::mat(size, size, arma::fill::zeros)), 
                                process_noise(arma::mat(size, size, arma::fill::zeros)), 
                                kalman_gain(arma::mat(size, 2*n, arma::fill::zeros)), 
-                               R((arma::eye(2*n, 2*n))*0.2) {}
+                               R((arma::eye(2*n, 2*n))*0.0002), 
+                               Q(arma::mat(size, size, arma::fill::eye)) 
+
+                               {
+                                //    covariance(3,3) = 1000000;
+                                //    covariance(4,4) = 1000000;
+                                //    covariance(5,5) = 1000000;
+                                //    covariance(6,6) = 1000000;
+                                //    covariance(7,7) = 1000000;
+                                //    covariance(8,8) = 1000000;
+                               }
 
 
     arma::mat SLAM::find_h(int n){
@@ -58,6 +68,9 @@ namespace nuslam
         double deltax = twist.xdot/rate;
         double deltay = twist.ydot/rate;
         double deltat = twist.thetadot/rate;
+        // double deltax = twist.xdot;
+        // double deltay = twist.ydot;
+        // double deltat = twist.thetadot;
 
         if (twist.thetadot == 0){
             temp(1,0) = -deltax*std::sin(state(0,0));
@@ -79,6 +92,9 @@ namespace nuslam
         double deltax = twist.xdot/rate;
         double deltay = twist.ydot/rate;
         double deltat = twist.thetadot/rate;
+        // double deltax = twist.xdot;
+        // double deltay = twist.ydot;
+        // double deltat = twist.thetadot;
 
         if (twist.thetadot == 0){
             transition(1,0) = deltax*std::cos(state(0,0));
@@ -108,7 +124,11 @@ namespace nuslam
 
         arma::mat A = SLAM::find_A(twist, rate);
 
-        // covariance = A*covariance*arma::trans(A) + process_noise;   // Eq 21
+        Q(1,1) = 1;
+        Q(2,2) = 1;
+        Q(3,3) = 1;
+
+        // covariance = A*covariance*arma::trans(A) + Q;   // Eq 21
 
         covariance = A*covariance*arma::trans(A);
     }

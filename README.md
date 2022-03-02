@@ -15,10 +15,13 @@ An adaptation of the TurtleBot model suitable to this project's needs.
 A C++ library used for performing 2D rigid body transformations and other functionalities.
 
 `nusim`  
-A simluator and visualizer that provides a simulated robot environment for our TurtleBot.  
+A simulator and visualizer that provides a simulated robot environment for our TurtleBot.  
 
 `nuturtle_control`  
 A package containing several nodes used for controlling the robot in both simulation and in the real world environment.
+
+`nuslam`
+A C++ library and node that implement Feature-Based Kalman Filter SLAM on the simulated TurtleBot.
 
 
 
