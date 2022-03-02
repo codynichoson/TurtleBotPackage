@@ -13,15 +13,15 @@ namespace nuslam
                                process_noise(arma::mat(size, size, arma::fill::zeros)), 
                                kalman_gain(arma::mat(size, 2*n, arma::fill::zeros)), 
                                R((arma::eye(2*n, 2*n))*0.0002), 
-                               Q(arma::mat(size, size, arma::fill::eye)) 
+                               Q(arma::mat(size, size, arma::fill::zeros)) 
 
                                {
-                                //    covariance(3,3) = 1000000;
-                                //    covariance(4,4) = 1000000;
-                                //    covariance(5,5) = 1000000;
-                                //    covariance(6,6) = 1000000;
-                                //    covariance(7,7) = 1000000;
-                                //    covariance(8,8) = 1000000;
+                                   covariance(3,3) = 1000000;
+                                   covariance(4,4) = 1000000;
+                                   covariance(5,5) = 1000000;
+                                   covariance(6,6) = 1000000;
+                                   covariance(7,7) = 1000000;
+                                   covariance(8,8) = 1000000;
                                }
 
 
@@ -124,13 +124,12 @@ namespace nuslam
 
         arma::mat A = SLAM::find_A(twist, rate);
 
-        Q(1,1) = 1;
-        Q(2,2) = 1;
-        Q(3,3) = 1;
+        Q(0,0) = 1000;
+        Q(1,1) = 1000;
+        Q(2,2) = 1000;
+        
 
-        // covariance = A*covariance*arma::trans(A) + Q;   // Eq 21
-
-        covariance = A*covariance*arma::trans(A);
+        covariance = A*covariance*arma::trans(A) + Q;   // Eq 21
     }
 
     arma::mat SLAM::update(int n, arma::mat z){
@@ -145,9 +144,14 @@ namespace nuslam
 
         // Kalman gain
         kalman_gain = covariance*arma::trans(H)*arma::inv((H*covariance*arma::trans(H)) + R);  // Eq 26
+
+        arma::mat deltaz = z - z_hat;
+        deltaz(1,0) = turtlelib::normalizeAngle(deltaz(1,0));
+        deltaz(3,0) = turtlelib::normalizeAngle(deltaz(3,0));
+        deltaz(5,0) = turtlelib::normalizeAngle(deltaz(5,0));
         
         // posterior statue update
-        state = state + kalman_gain*(z - z_hat);  // Eq 27
+        state = state + kalman_gain*deltaz;  // Eq 27
 
         // posterior covariance
         covariance = (I - kalman_gain*H)*covariance;    // Eq 28
