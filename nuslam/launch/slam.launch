@@ -21,9 +21,9 @@
     
 
     <!-- Loading stuff for blue odometry robot in Rviz -->
-    <param name="/blue/robot_description" command="$(find xacro)/xacro '$(find nuturtle_description)/urdf/turtlebot3_burger.urdf.xacro' color:=blue"/>
-    <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher" ns="blue"/>
-    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" ns="blue"/>
+    <param name="/nu_purple/robot_description" command="$(find xacro)/xacro '$(find nuturtle_description)/urdf/turtlebot3_burger.urdf.xacro' color:=nu_purple"/>
+    <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher" ns="nu_purple"/>
+    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" ns="nu_purple"/>
     <!-- <node pkg="tf2_ros" type="static_transform_publisher" name="world_to_odom" args="0 0 0 0 0 0 1 world odom" /> -->
 
     <param name="green/robot_description" command="$(find xacro)/xacro '$(find nuturtle_description)/urdf/turtlebot3_burger.urdf.xacro' color:=green"/>

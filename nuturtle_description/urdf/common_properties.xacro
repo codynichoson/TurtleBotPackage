@@ -41,4 +41,8 @@
   <material name="white">
     <color rgba="1.0 1.0 1.0 1.0"/>
   </material>
+
+  <material name="nu_purple">
+    <color rgba="0.3 0.16 0.52 1.0"/>
+  </material>
 </robot>

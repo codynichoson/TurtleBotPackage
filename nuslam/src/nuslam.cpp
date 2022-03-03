@@ -62,15 +62,12 @@ namespace nuslam
         
     }
 
-    arma::mat SLAM::find_A(turtlelib::Twist2D twist, float rate){
+    arma::mat SLAM::find_A(turtlelib::Twist2D twist){
         arma::mat A(3+2*n, 3+2*n, arma::fill::zeros), temp(3+2*n, 3+2*n, arma::fill::zeros);
 
-        double deltax = twist.xdot/rate;
-        double deltay = twist.ydot/rate;
-        double deltat = twist.thetadot/rate;
-        // double deltax = twist.xdot;
-        // double deltay = twist.ydot;
-        // double deltat = twist.thetadot;
+        double deltax = twist.xdot;
+        double deltay = twist.ydot;
+        double deltat = twist.thetadot;
 
         if (twist.thetadot == 0){
             temp(1,0) = -deltax*std::sin(state(0,0));
@@ -86,15 +83,12 @@ namespace nuslam
         return A;
     }
 
-    void SLAM::updateState(turtlelib::Twist2D twist, float rate){
+    void SLAM::updateState(turtlelib::Twist2D twist){
         arma::mat transition(3+2*n,1,arma::fill::zeros);
 
-        double deltax = twist.xdot/rate;
-        double deltay = twist.ydot/rate;
-        double deltat = twist.thetadot/rate;
-        // double deltax = twist.xdot;
-        // double deltay = twist.ydot;
-        // double deltat = twist.thetadot;
+        double deltax = twist.xdot;
+        double deltay = twist.ydot;
+        double deltat = twist.thetadot;
 
         if (twist.thetadot == 0){
             transition(1,0) = deltax*std::cos(state(0,0));
@@ -118,16 +112,15 @@ namespace nuslam
         }        
     }
 
-    void SLAM::predict(turtlelib::Twist2D twist, float rate){
+    void SLAM::predict(turtlelib::Twist2D twist){
         
-        SLAM::updateState(twist, rate); // Eq 20
+        SLAM::updateState(twist); // Eq 20
 
-        arma::mat A = SLAM::find_A(twist, rate);
+        arma::mat A = SLAM::find_A(twist);
 
         Q(0,0) = 1000;
         Q(1,1) = 1000;
         Q(2,2) = 1000;
-        
 
         covariance = A*covariance*arma::trans(A) + Q;   // Eq 21
     }
