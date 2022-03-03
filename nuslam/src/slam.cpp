@@ -29,6 +29,8 @@
 #include <string>
 #include "nuslam/nuslam.hpp"
 #include <visualization_msgs/MarkerArray.h>
+#include <geometry_msgs/PoseStamped.h>
+#include <nav_msgs/Path.h>
 
 int rate;
 nav_msgs::Odometry odom;
@@ -86,18 +88,10 @@ void laser_callback(const visualization_msgs::MarkerArray &fake_sensor) // odome
 
     flag = 1;
 
-    Slammy.predict(twist, 10.0);
+    Slammy.predict(twist);
 
     state = Slammy.update(num_markers, z);
-    // ROS_WARN("state1: %f", state(0,0));
-    // ROS_WARN("state2: %f", state(1,0));
-    // ROS_WARN("state3: %f", state(2,0));
-    // ROS_WARN("state4: %f", state(3,0));
-    // ROS_WARN("state5: %f", state(4,0));
-    // ROS_WARN("state6: %f", state(5,0));
-    // ROS_WARN("state7: %f", state(6,0));
-    // ROS_WARN("state8: %f", state(7,0));
-    // ROS_WARN("state9: %f", state(8,0));
+
     ROS_INFO_STREAM(state);
 
 }
@@ -178,6 +172,8 @@ int main(int argc, char * argv[])
 
     ros::Publisher odom_pub = nh.advertise<nav_msgs::Odometry>("odom", rate);
     ros::Publisher slam_obs_pub = nh.advertise<visualization_msgs::MarkerArray>("slam_obs", 1, true);
+    ros::Publisher odom_path_pub = nh.advertise<nav_msgs::Path>("odom_path", 1, true);
+    ros::Publisher slam_path_pub = nh.advertise<nav_msgs::Path>("slam_path", 1, true);
 
     ros::ServiceServer set_pose = nh.advertiseService("set_pose", set_pose_callback);
 
@@ -186,6 +182,9 @@ int main(int argc, char * argv[])
 
     visualization_msgs::MarkerArray slam_obs_arr;
     slam_obs_arr.markers.resize((state.n_rows - 3)/2);
+
+    nav_msgs::Path odom_path, slam_path;
+    geometry_msgs::PoseStamped odom_pose, slam_pose;
 
     while(ros::ok())
     {
@@ -199,7 +198,6 @@ int main(int argc, char * argv[])
         odom.pose.pose.orientation.z = q.z();
         odom.pose.pose.orientation.w = q.w();
         
-        
         odom.child_frame_id = body_id;
         odom.twist.twist.linear.x = twist.xdot;
         odom.twist.twist.angular.z = twist.thetadot;
@@ -208,7 +206,7 @@ int main(int argc, char * argv[])
         // Twb_msg.header.frame_id = odom_id;
         // Twb_msg.child_frame_id = body_id;
         Twb_msg.header.frame_id = "world";
-        Twb_msg.child_frame_id = "blue_base_footprint";
+        Twb_msg.child_frame_id = "nu_purple_base_footprint";
         Twb_msg.transform.translation.x = config.x;
         Twb_msg.transform.translation.y = config.y;
         Twb_msg.transform.translation.z = 0.0;
@@ -259,6 +257,27 @@ int main(int argc, char * argv[])
         Tog_msg.transform.rotation.z = q.z();
         Tog_msg.transform.rotation.w = q.w();
         Tog_br.sendTransform(Tog_msg);
+
+        // create odom path and publish
+        odom_pose.header.stamp = ros::Time::now();
+        odom_pose.header.frame_id = "world";
+        odom_pose.pose.position.x = config.x;
+        odom_pose.pose.position.y = config.y;
+        odom_path.header.stamp = ros::Time::now();
+        odom_path.header.frame_id = "world";
+        odom_path.poses.push_back(odom_pose);
+        odom_path_pub.publish(odom_path);
+
+        // create slam path and publish
+        slam_pose.header.stamp = ros::Time::now();
+        slam_pose.header.frame_id = "world";
+        slam_pose.pose.position.x = state(1,0);
+        slam_pose.pose.position.y = state(2,0);
+        slam_path.header.stamp = ros::Time::now();
+        slam_path.header.frame_id = "world";
+        slam_path.poses.push_back(slam_pose);
+        slam_path_pub.publish(slam_path);
+
 
         for(int i = 0; i < (state.n_rows - 3)/2; i++){
             slam_obs_arr.markers[i].header.frame_id = "map";

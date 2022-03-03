@@ -53,15 +53,13 @@ namespace nuslam
 
         /// \brief calculate transition
         /// \param twist - twist of robot
-        /// \param rate - publishing rate
         /// \return A - transition
-        arma::mat find_A(turtlelib::Twist2D, float);
+        arma::mat find_A(turtlelib::Twist2D);
 
         /// \brief update the state of the robot and landmarks
         /// \param twist - twist of robot
-        /// \param rate - publishing rate
         /// \return none
-        void updateState(turtlelib::Twist2D, float);
+        void updateState(turtlelib::Twist2D);
 
         /// \brief initialize landmark locations
         /// \param n - number of landmarks
@@ -71,9 +69,8 @@ namespace nuslam
 
         /// \brief update state estimate and propogate uncertainty
         /// \param twist - twist of robot
-        /// \param rate - publishing rate
         /// \return none
-        void predict(turtlelib::Twist2D, float);
+        void predict(turtlelib::Twist2D);
 
         /// \brief compute Kalman gain and posterior state update
         /// \param n - number of landmarks

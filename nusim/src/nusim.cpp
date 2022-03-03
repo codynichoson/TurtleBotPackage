@@ -55,7 +55,7 @@ static int num_walls = 4;
 static turtlelib::WheelAngles wheelangles = {.left = 0.0, .right = 0.0};
 static turtlelib::WheelAngles slip_wheelangles = {.left = 0.0, .right = 0.0};
 static turtlelib::WheelVel wheelvel;
-static turtlelib::Config new_config, hold_config;
+static turtlelib::Config config;
 
 int isResetting = 0;
 int isTeleporting = 0;
@@ -80,9 +80,9 @@ std::mt19937 & get_random()
 bool reset_callback(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res)
 {
     timestep.data = 0;
-    new_config.x = 0.0;
-    new_config.y = 0.0;
-    new_config.theta = 0.0;
+    config.x = 0.0;
+    config.y = 0.0;
+    config.theta = 0.0;
 
     isResetting = 1;
     ROS_WARN("Let's try that again...");
@@ -94,9 +94,9 @@ bool reset_callback(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response
 /// \return True
 bool teleport_callback(nusim::teleport::Request &q, nusim::teleport::Response &res)
 {
-    new_config.x = q.x;
-    new_config.y = q.y;
-    new_config.theta = q.theta;
+    config.x = q.x;
+    config.y = q.y;
+    config.theta = q.theta;
 
     isTeleporting = 1;
     ROS_WARN("Now I'm in a new place!");
@@ -137,7 +137,7 @@ int main(int argc, char * argv[])
     ros::NodeHandle nhp("~");
     ros::NodeHandle nh;
 
-    int collision_flag = 0;
+    int collision_flag = 4;
 
     nh.getParam("radius", radius);
     nh.getParam("height", height);
@@ -157,8 +157,7 @@ int main(int argc, char * argv[])
     double max_range = 3.5; // add param
     double collision_radius = 0.11; // add param
 
-    new_config = {.x = robot_start_x, .y = robot_start_y, .theta = robot_start_theta};
-    hold_config = {.x = robot_start_x, .y = robot_start_y, .theta = robot_start_theta};
+    config = {.x = robot_start_x, .y = robot_start_y, .theta = robot_start_theta};
     
     ros::Rate r(rate);
 
@@ -227,9 +226,9 @@ int main(int argc, char * argv[])
 
         // publish fake sensor markers
         for(int i = 0; i < obs_x.size(); i++){
-            turtlelib::Vector2D new_config_vec = {new_config.x, new_config.y};
+            turtlelib::Vector2D config_vec = {config.x, config.y};
             turtlelib::Vector2D Vwm = {obs_x[i], obs_y[i]};
-            turtlelib::Transform2D Twr(new_config_vec, new_config.theta);
+            turtlelib::Transform2D Twr(config_vec, config.theta);
             turtlelib::Transform2D Trw = Twr.inv();
             turtlelib::Transform2D Twm(Vwm);
             turtlelib::Transform2D Trm = Trw*Twm;
@@ -323,36 +322,27 @@ int main(int argc, char * argv[])
         slip_wheelangles = {.left = slip_wheelangles.left + left_slip, .right = slip_wheelangles.right + right_slip};
         
         // get new config
-        new_config = ddrive.fKin(wheelangles, new_config);
+        config = ddrive.fKin(wheelangles, config);
 
         // check if new config is in a collision state
         for(int i = 0; i < 3; i++){
-            double distance = std::sqrt(std::pow(obs_x[i] - new_config.x, 2) + std::pow(obs_y[i] - new_config.y, 2));
+            double distance = std::sqrt(std::pow(obs_x[i] - config.x, 2) + std::pow(obs_y[i] - config.y, 2));
             if (distance < (collision_radius + radius)){
-                collision_flag+=1;
+                double ang = std::atan2((config.y - obs_y[i]),(config.x - obs_x[i]));
+                config.x = obs_x[i] + (collision_radius + radius)*std::cos(ang);
+                config.y = obs_y[i] + (collision_radius + radius)*std::sin(ang);
             }
         }
-
-        // if not, hold_config gets updated
-        // if so, new_config becomes hold_config
-        if (collision_flag == 0){
-            hold_config = new_config;
-        }
-        else{
-            new_config = hold_config;
-        }
-
-        collision_flag = 0;
 
         // populate transform and publish
         transformStamped.header.stamp = ros::Time::now();
         transformStamped.header.frame_id = "world";
         transformStamped.child_frame_id = "red_base_footprint";
-        transformStamped.transform.translation.x = new_config.x;
-        transformStamped.transform.translation.y = new_config.y;
+        transformStamped.transform.translation.x = config.x;
+        transformStamped.transform.translation.y = config.y;
         transformStamped.transform.translation.z = 0.0;
         tf2::Quaternion q;
-        q.setRPY(0, 0, new_config.theta);
+        q.setRPY(0, 0, config.theta);
         transformStamped.transform.rotation.x = q.x();
         transformStamped.transform.rotation.y = q.y();
         transformStamped.transform.rotation.z = q.z();
@@ -362,8 +352,8 @@ int main(int argc, char * argv[])
         // create path and publish
         pose.header.stamp = ros::Time::now();
         pose.header.frame_id = "world";
-        pose.pose.position.x = new_config.x;
-        pose.pose.position.y = new_config.y;
+        pose.pose.position.x = config.x;
+        pose.pose.position.y = config.y;
         path.header.stamp = ros::Time::now();
         path.header.frame_id = "world";
         path.poses.push_back(pose);
@@ -390,8 +380,8 @@ int main(int argc, char * argv[])
         scan.range_max = laser_max;
         scan.ranges.resize(num_readings);
 
-        turtlelib::Vector2D Vwr = {.x = new_config.x, .y = new_config.y};
-        turtlelib::Transform2D Twr(Vwr, new_config.theta); // world to laser
+        turtlelib::Vector2D Vwr = {.x = config.x, .y = config.y};
+        turtlelib::Transform2D Twr(Vwr, config.theta); // world to laser
 
         double x1, y1;
         double x2, y2;
@@ -496,7 +486,7 @@ int main(int argc, char * argv[])
 
         for (int j = 0; j < 4; j++){
             for (int i = 0; i < num_readings; i++){
-                double angle = i*angle_increment + new_config.theta;
+                double angle = i*angle_increment + config.theta;
                 // double angle = i*angle_increment;
                 double m = std::tan(angle);
 
@@ -504,7 +494,7 @@ int main(int argc, char * argv[])
                 double a1, b1, c1, a2, b2, c2;
                 a1 = -m;
                 b1 = 1;
-                c1 = -(new_config.y - m*new_config.x);
+                c1 = -(config.y - m*config.x);
                 a2 = a[j];
                 b2 = b[j];
                 c2 = c[j];
