@@ -19,3 +19,6 @@ This library contains functions used for implementing EKF SLAM. The math and log
 ### Nodes
 #### `slam.cpp`
 This node implements EKF SLAM using the `nuslam` library. 
+
+![slam_hw3_screenshot](https://user-images.githubusercontent.com/62906322/156726797-4f0eb09c-e53c-4b65-96d2-f23736f57f34.png)
+
