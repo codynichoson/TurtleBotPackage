@@ -12,3 +12,13 @@ thickness: 0.15
 robot_start_x: 0.0
 robot_start_y: 0.0
 robot_start_theta: 0.0
+basic_sensor_variance: 0.05
+# max_laser_range: 3.5
+max_laser_range: 0.5
+collision_radius_robot: 0.11
+wheel_cmd_mean: 0.0
+wheel_cmd_variance: 0.01
+fake_sensor_mean: 0.0
+fake_sensor_variance: 0.01
+laser_noise_mean: 0.0
+laser_noise_variance: 0.01

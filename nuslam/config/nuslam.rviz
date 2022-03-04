@@ -361,7 +361,7 @@ Visualization Manager:
     - Alpha: 1
       Buffer Length: 1
       Class: rviz/Path
-      Color: 0; 0; 255
+      Color: 78; 42; 138
       Enabled: true
       Head Diameter: 0.30000001192092896
       Head Length: 0.20000000298023224
@@ -462,7 +462,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 3.245358467102051
+      Distance: 3.2406482696533203
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -499,4 +499,4 @@ Window Geometry:
     collapsed: false
   Width: 1680
   X: 0
-  Y: 27
+  Y: 0

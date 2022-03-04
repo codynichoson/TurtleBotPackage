@@ -106,6 +106,11 @@ bool set_pose_callback(nuturtle_control::set_pose::Request &q, nuturtle_control:
     return true;
 }
 
+double distance(double x1, double y1, double x2, double y2){
+    double distance = (std::sqrt(std::pow(x2 - x1, 2) + std::pow(y2 - y1, 2)));
+    return distance;
+}
+
 /// \brief odometry node main function
 int main(int argc, char * argv[])
 {
@@ -115,6 +120,9 @@ int main(int argc, char * argv[])
     double robot_start_x;
     double robot_start_y;
     double robot_start_theta;
+    double radius; 
+    double height;
+    double max_laser_range;
     
     if (nh.hasParam("body_id")){
         nh.getParam("body_id", body_id);
@@ -152,18 +160,30 @@ int main(int argc, char * argv[])
     else{
         ROS_ERROR_STREAM("robot_start_theta parameter not found.");
     }
-
-    double radius, height;
-    nh.getParam("radius", radius);
-    nh.getParam("height", height);
+    if (nh.hasParam("radius")){
+        nh.getParam("radius", radius);
+    }
+    else{
+        ROS_ERROR_STREAM("radius parameter not found.");
+    }
+    if (nh.hasParam("height")){
+        nh.getParam("height", height);
+    }
+    else{
+        ROS_ERROR_STREAM("height parameter not found.");
+    }
+    if (nh.hasParam("max_laser_range")){
+        nh.getParam("max_laser_range", max_laser_range);
+    }
+    else{
+        ROS_ERROR_STREAM("max_laser_range parameter not found.");
+    }
 
     config = {.x = robot_start_x, .y = robot_start_y, .theta = robot_start_theta};
 
     state(0,0) = robot_start_theta;
     state(1,0) = robot_start_x;
     state(2,0) = robot_start_y;
-
-    ROS_WARN("state: %f, %f, %f", state(1,0), state(2,0), state(0,0));
 
     ros::Rate r(rate);
 
@@ -203,8 +223,6 @@ int main(int argc, char * argv[])
         odom.twist.twist.angular.z = twist.thetadot;
 
         Twb_msg.header.stamp = ros::Time::now();
-        // Twb_msg.header.frame_id = odom_id;
-        // Twb_msg.child_frame_id = body_id;
         Twb_msg.header.frame_id = "world";
         Twb_msg.child_frame_id = "nu_purple_base_footprint";
         Twb_msg.transform.translation.x = config.x;
@@ -278,13 +296,19 @@ int main(int argc, char * argv[])
         slam_path.poses.push_back(slam_pose);
         slam_path_pub.publish(slam_path);
 
-
         for(int i = 0; i < (state.n_rows - 3)/2; i++){
             slam_obs_arr.markers[i].header.frame_id = "map";
             slam_obs_arr.markers[i].header.stamp = ros::Time::now();
             slam_obs_arr.markers[i].id = i;
             slam_obs_arr.markers[i].type = visualization_msgs::Marker::CYLINDER;
-            slam_obs_arr.markers[i].action = visualization_msgs::Marker::ADD;
+
+            if (distance(state(1,0), state(2,0), state((2*i)+3,0), state((2*i)+4,0)) < max_laser_range){
+                slam_obs_arr.markers[i].action = visualization_msgs::Marker::ADD;
+            }
+            else{
+                slam_obs_arr.markers[i].action = visualization_msgs::Marker::DELETE;
+            }
+
             slam_obs_arr.markers[i].pose.position.x = state((2*i)+3,0);
             slam_obs_arr.markers[i].pose.position.y = state((2*i)+4,0);
             slam_obs_arr.markers[i].pose.position.z = height/2;

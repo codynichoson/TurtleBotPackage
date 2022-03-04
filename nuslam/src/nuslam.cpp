@@ -6,24 +6,26 @@ namespace nuslam
     // initalizer list for constructor
     SLAM::SLAM(int num_mark) : n(num_mark), 
                                size(3 + 2*n),
-                               I(arma::eye(size, size)), 
-                               state(arma::mat(size, 1)), 
-                               estimate(arma::mat(size, 1, arma::fill::zeros)), 
-                               covariance(arma::mat(size, size, arma::fill::zeros)), 
-                               process_noise(arma::mat(size, size, arma::fill::zeros)), 
-                               kalman_gain(arma::mat(size, 2*n, arma::fill::zeros)), 
-                               R((arma::eye(2*n, 2*n))*0.0002), 
-                               Q(arma::mat(size, size, arma::fill::zeros)) 
-
+                               I(arma::eye(size, size)),
+                               state(arma::mat(size, 1)),
+                               estimate(arma::mat(size, 1, arma::fill::zeros)),
+                               covariance(arma::mat(size, size, arma::fill::zeros)),
+                               process_noise(arma::mat(size, size, arma::fill::zeros)),
+                               kalman_gain(arma::mat(size, 2*n, arma::fill::zeros)),
+                               R((arma::eye(2*n, 2*n))*0.001),
+                               Q(arma::mat(size, size, arma::fill::zeros))
                                {
-                                   covariance(3,3) = 1000000;
-                                   covariance(4,4) = 1000000;
-                                   covariance(5,5) = 1000000;
-                                   covariance(6,6) = 1000000;
-                                   covariance(7,7) = 1000000;
-                                   covariance(8,8) = 1000000;
-                               }
+                                    covariance(3,3) = 1000000;
+                                    covariance(4,4) = 1000000;
+                                    covariance(5,5) = 1000000;
+                                    covariance(6,6) = 1000000;
+                                    covariance(7,7) = 1000000;
+                                    covariance(8,8) = 1000000;
 
+                                    Q(0,0) = 1;
+                                    Q(1,1) = 1;
+                                    Q(2,2) = 1;
+                               }
 
     arma::mat SLAM::find_h(int n){
         arma::mat h(2*n,1, arma::fill::zeros);
@@ -59,7 +61,6 @@ namespace nuslam
             }
         }
         return H;
-        
     }
 
     arma::mat SLAM::find_A(turtlelib::Twist2D twist){
@@ -99,7 +100,7 @@ namespace nuslam
             transition(1,0) = -(deltax/deltat)*std::sin(state(0,0)) + (deltax/deltat)*std::sin(state(0,0) + deltat);
             transition(2,0) = (deltax/deltat)*std::cos(state(0,0)) - (deltax/deltat)*std::cos(state(0,0) + deltat);
         }
-        // state = state + transition; // g(Xi_t, ut)  // Eq 5,7
+
         state(0,0) = state(0,0) + transition(0,0);
         state(1,0) = state(1,0) + transition(1,0);
         state(2,0) = state(2,0) + transition(2,0);
@@ -113,26 +114,17 @@ namespace nuslam
     }
 
     void SLAM::predict(turtlelib::Twist2D twist){
-        
-        SLAM::updateState(twist); // Eq 20
-
+        SLAM::updateState(twist);
         arma::mat A = SLAM::find_A(twist);
-
-        Q(0,0) = 1000;
-        Q(1,1) = 1000;
-        Q(2,2) = 1000;
-
-        covariance = A*covariance*arma::trans(A) + Q;   // Eq 21
+        covariance = A*covariance*arma::trans(A) + Q;
     }
 
     arma::mat SLAM::update(int n, arma::mat z){
         arma::mat h = SLAM::find_h(n);
 
         // theoretical measurement
-        arma::mat z_hat = h;    // Eq 25
-
+        arma::mat z_hat = h;
         arma::mat H = SLAM::find_H(n);
-        
         arma::mat Ht = arma::trans(H);
 
         // Kalman gain

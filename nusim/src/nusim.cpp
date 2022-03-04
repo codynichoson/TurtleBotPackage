@@ -62,6 +62,21 @@ int isTeleporting = 0;
 static nuturtlebot_msgs::SensorData sensor_data;
 static turtlelib::DiffDrive ddrive;
 
+static double wheel_cmd_mean = 0.0;
+static double wheel_cmd_variance = 0.01;
+
+static double fake_sensor_mean = 0.0;
+static double fake_sensor_variance = 0.01;
+
+static double left_slip_mean = -0.01;
+static double left_slip_variance = 0.01;
+
+static double right_slip_mean = -0.01;
+static double right_slip_variance = 0.01;
+
+static double laser_noise_mean = 0.0;
+static double laser_noise_variance = 0.01;
+
 /// \brief Random number generator
 /// \return mt
 std::mt19937 & get_random()
@@ -69,7 +84,7 @@ std::mt19937 & get_random()
      // static variables inside a function are created once and persist for the remainder of the program
      static std::random_device rd{}; 
      static std::mt19937 mt{rd()};
-     // we return a reference to the pseudo-random number genrator object. This is always the
+     // we return a reference to the pseudo-random number generator object. This is always the
      // same object eV2ry time get_random is called
      return mt;
  }
@@ -110,12 +125,12 @@ bool teleport_callback(nusim::teleport::Request &q, nusim::teleport::Response &r
 void wheel_cmd_callback(const nuturtlebot_msgs::WheelCommands &wheelcmd)
 {
     // Generate a gaussian variable:
-    std::normal_distribution<> wheel_cmd_noise(1, 0.0); // (mean, variance)
-    // std::normal_distribution<> wheel_cmd_noise(0, 0.0); // (mean, variance)
+    // std::normal_distribution<> wheel_cmd_noise(0, 0.01); // (mean, variance)
+    std::normal_distribution<> wheel_cmd_noise(wheel_cmd_mean, wheel_cmd_variance); // (mean, variance)
 
     // adding noise
-    wheelvel.left = wheel_cmd_noise(get_random()) * wheelcmd.left_velocity * motor_cmd_to_radsec;
-    wheelvel.right = wheel_cmd_noise(get_random()) * wheelcmd.right_velocity * motor_cmd_to_radsec;
+    wheelvel.left = (wheelcmd.left_velocity * motor_cmd_to_radsec) + wheel_cmd_noise(get_random());
+    wheelvel.right = (wheelcmd.right_velocity * motor_cmd_to_radsec) + wheel_cmd_noise(get_random());
     
     // calculate encoder stuff to populate sensor_data
     int encoder_left = (int)(((wheelvel.left/rate) + slip_wheelangles.left)/encoder_ticks_to_rad);
@@ -138,6 +153,9 @@ int main(int argc, char * argv[])
     ros::NodeHandle nh;
 
     int collision_flag = 4;
+    double fake_sensor_variance;
+    double max_laser_range;
+    double collision_radius_robot;
 
     nh.getParam("radius", radius);
     nh.getParam("height", height);
@@ -153,9 +171,11 @@ int main(int argc, char * argv[])
     nh.getParam("/nusim/motor_cmd_to_radsec", motor_cmd_to_radsec);
     nhp.getParam("/nusim/encoder_ticks_to_rad", encoder_ticks_to_rad);
     nh.getParam("rate", rate);
-    double basic_sensor_variance = 0.05; // add param
-    double max_range = 3.5; // add param
-    double collision_radius = 0.11; // add param
+    nh.getParam("fake_sensor_variance", fake_sensor_variance);
+    nh.getParam("max_laser_range", max_laser_range);
+    nh.getParam("collision_radius_robot", collision_radius_robot);
+    nh.getParam("wheel_cmd_mean", wheel_cmd_mean);
+    nh.getParam("wheel_cmd_variance", wheel_cmd_variance);
 
     config = {.x = robot_start_x, .y = robot_start_y, .theta = robot_start_theta};
     
@@ -235,15 +255,14 @@ int main(int argc, char * argv[])
             turtlelib::Vector2D Vrm = Trm.translation();
 
             // Generate a gaussian variable:
-            double basic_sensor_variance = 0.00; // make a param
-            std::normal_distribution<> fake_sensor_noise(0, basic_sensor_variance); // (mean, variance)
+            std::normal_distribution<> fake_sensor_noise(fake_sensor_mean, fake_sensor_variance);
 
             fake_sensor_arr.markers[i].header.frame_id = "red_base_footprint";
             fake_sensor_arr.markers[i].header.stamp = ros::Time::now();
             fake_sensor_arr.markers[i].id = i;
             fake_sensor_arr.markers[i].type = visualization_msgs::Marker::CYLINDER;
 
-            if (distance(0.0, 0.0, Vrm.x, Vrm.y) < max_range){
+            if (distance(0.0, 0.0, Vrm.x, Vrm.y) < max_laser_range){
                 fake_sensor_arr.markers[i].action = visualization_msgs::Marker::ADD;
             }
             else{
@@ -310,13 +329,11 @@ int main(int argc, char * argv[])
         walls_pub.publish(wall_arr);
 
         // Generate a gaussian variable:
-        // std::uniform_real_distribution<> left_noise(1, 1.05);
-        // std::uniform_real_distribution<> right_noise(1, 1.05);
-        std::uniform_real_distribution<> left_noise(1, 1);
-        std::uniform_real_distribution<> right_noise(1, 1);
+        std::uniform_real_distribution<> left_noise(left_slip_mean, left_slip_variance);
+        std::uniform_real_distribution<> right_noise(right_slip_mean, right_slip_variance);
 
-        double left_slip = left_noise(get_random())*wheelvel.left/rate;
-        double right_slip = right_noise(get_random())*wheelvel.right/rate;
+        double left_slip = wheelvel.left/rate + left_noise(get_random());
+        double right_slip = wheelvel.right/rate + left_noise(get_random());
             
         wheelangles = {.left = ((wheelvel.left/rate)+wheelangles.left), .right = ((wheelvel.right/rate)+wheelangles.right)};
         slip_wheelangles = {.left = slip_wheelangles.left + left_slip, .right = slip_wheelangles.right + right_slip};
@@ -327,10 +344,10 @@ int main(int argc, char * argv[])
         // check if new config is in a collision state
         for(int i = 0; i < 3; i++){
             double distance = std::sqrt(std::pow(obs_x[i] - config.x, 2) + std::pow(obs_y[i] - config.y, 2));
-            if (distance < (collision_radius + radius)){
+            if (distance < (collision_radius_robot + radius)){
                 double ang = std::atan2((config.y - obs_y[i]),(config.x - obs_x[i]));
-                config.x = obs_x[i] + (collision_radius + radius)*std::cos(ang);
-                config.y = obs_y[i] + (collision_radius + radius)*std::sin(ang);
+                config.x = obs_x[i] + (collision_radius_robot + radius)*std::cos(ang);
+                config.y = obs_y[i] + (collision_radius_robot + radius)*std::sin(ang);
             }
         }
 
@@ -370,7 +387,6 @@ int main(int argc, char * argv[])
         //populate the LaserScan message
         sensor_msgs::LaserScan scan;
         scan.header.stamp = ros::Time::now();
-        // scan.header.frame_id = "red_base_scan";
         scan.header.frame_id = "red_base_footprint";
         scan.angle_min = 0.0;
         scan.angle_max = 2*turtlelib::PI;
@@ -430,7 +446,7 @@ int main(int argc, char * argv[])
                 double dy = y2 - y1;
                 double dr = std::sqrt(dx*dx + dy*dy);
                 double D = x1*y2 - x2*y1;
-                double discriminant = collision_radius*collision_radius*dr*dr - D*D;
+                double discriminant = collision_radius_robot*collision_radius_robot*dr*dr - D*D;
                 double sgn;
                 if (dy < 0){
                     sgn = -1.0;
@@ -441,10 +457,10 @@ int main(int argc, char * argv[])
 
                 // calculate both intersection points of obstacle, in marker frame
                 turtlelib::Vector2D Vmi1, Vmi2, Vmi;
-                Vmi1.x = (D*dy + sgn*dx*std::sqrt(collision_radius*collision_radius*dr*dr - D*D)) / (dr*dr);
-                Vmi1.y = (-D*dx + std::abs(dy)*std::sqrt(collision_radius*collision_radius*dr*dr - D*D)) / (dr*dr);
-                Vmi2.x = (D*dy - sgn*dx*std::sqrt(collision_radius*collision_radius*dr*dr - D*D)) / (dr*dr);
-                Vmi2.y = (-D*dx - std::abs(dy)*std::sqrt(collision_radius*collision_radius*dr*dr - D*D)) / (dr*dr);
+                Vmi1.x = (D*dy + sgn*dx*std::sqrt(collision_radius_robot*collision_radius_robot*dr*dr - D*D)) / (dr*dr);
+                Vmi1.y = (-D*dx + std::abs(dy)*std::sqrt(collision_radius_robot*collision_radius_robot*dr*dr - D*D)) / (dr*dr);
+                Vmi2.x = (D*dy - sgn*dx*std::sqrt(collision_radius_robot*collision_radius_robot*dr*dr - D*D)) / (dr*dr);
+                Vmi2.y = (-D*dx - std::abs(dy)*std::sqrt(collision_radius_robot*collision_radius_robot*dr*dr - D*D)) / (dr*dr);
 
                 // convert intersections to robot frame
                 turtlelib::Transform2D Tmi1(Vmi1), Tmi2(Vmi2), Tri1, Tri2;
@@ -471,7 +487,7 @@ int main(int argc, char * argv[])
                 double px = distance(0.0, 0.0, Vri.x, Vri.y)*std::cos(angle);
                 double py = distance(0.0, 0.0, Vri.x, Vri.y)*std::sin(angle);
 
-                std::normal_distribution<> laser_scanner_noise(0.01, 0.005);
+                std::normal_distribution<> laser_scanner_noise(laser_noise_mean, laser_noise_variance);
 
                 if (discriminant > 0 && distance(px, py, Vrm.x, Vrm.y) < distance(0.0, 0.0, Vrm.x, Vrm.y)){
                     scan.ranges[i] = distance(Vri.x, Vri.y, 0, 0) + laser_scanner_noise(get_random());
@@ -512,10 +528,12 @@ int main(int argc, char * argv[])
                 double wx = distance(0.0, 0.0, Vrwall.x, Vrwall.y)*std::cos(i*angle_increment);
                 double wy = distance(0.0, 0.0, Vrwall.x, Vrwall.y)*std::sin(i*angle_increment);
 
+                std::normal_distribution<> laser_scanner_noise(laser_noise_mean, laser_noise_variance);
+
                 if (distance(wx, wy, Vrwall.x, Vrwall.y) < distance(0.0, 0.0, Vrwall.x, Vrwall.y)){
                     double check = distance(0.0, 0.0, wx, wy);
                     if (scan.ranges[i] == 0 || check < scan.ranges[i]){
-                        scan.ranges[i] = distance(Vrwall.x, Vrwall.y, 0.0, 0.0);
+                        scan.ranges[i] = distance(Vrwall.x, Vrwall.y, 0.0, 0.0) + laser_scanner_noise(get_random());
                     }
                 }
             }
