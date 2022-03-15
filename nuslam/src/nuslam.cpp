@@ -31,7 +31,7 @@ namespace nuslam
         arma::mat h(2*n,1, arma::fill::zeros);
         for (int j = 1; j < n+1; j++){
             h(2*(j-1), 0) = std::sqrt(std::pow(state(2*j + 1, 0) - state(1,0), 2) + std::pow(state(2*j + 2, 0) - state(2,0), 2));
-            h((2*j)-1, 0) = std::atan2(state(2*j + 2,0) - state(2,0), state(2*j + 1,0) - state(1,0)) - state(0,0);
+            h((2*j)-1, 0) = std::atan2(state(2*j + 2, 0) - state(2, 0), state(2*j + 1, 0) - state(1, 0)) - state(0, 0);
         }
         return h;
     }
@@ -40,8 +40,8 @@ namespace nuslam
         arma::mat H(2*n, 3+2*n, arma::fill::zeros);
 
         for (int j = 1; j < n+1; j++){
-            double deltax = state(2*j + 1) - state(1,0);
-            double deltay = state(2*j + 2) - state(2,0);
+            double deltax = state(2*j + 1, 0) - state(1, 0);
+            double deltay = state(2*j + 2, 0) - state(2, 0);
             double d = std::pow(deltax, 2) + std::pow(deltay, 2);
 
             if (d != 0.0){

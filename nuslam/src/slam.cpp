@@ -1,10 +1,8 @@
 /*******************************************************************************
- * ODOMETRY NODE
+ * SLAM NODE
  * 
  * Node Description:
- * This node publishes odometry messages and the odometry transform of the robot.
- * It also offers a service to reset the pose of the blue robot (representing robot
- * pose calculated via odometry) to a desired configuration. 
+ * This node ...
  * 
  * Publishers:
  * odom - The pose of the robot based on odometry 
@@ -30,7 +28,7 @@
 #include "nuslam/nuslam.hpp"
 #include <visualization_msgs/MarkerArray.h>
 #include <geometry_msgs/PoseStamped.h>
-#include <nav_msgs/Path.h>
+    #include <nav_msgs/Path.h>
 
 int rate;
 nav_msgs::Odometry odom;
