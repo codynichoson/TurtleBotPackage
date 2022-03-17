@@ -15,16 +15,13 @@ namespace nuslam
                                R((arma::eye(2*n, 2*n))*0.001),
                                Q(arma::mat(size, size, arma::fill::zeros))
                                {
-                                    covariance(3,3) = 1000000;
-                                    covariance(4,4) = 1000000;
-                                    covariance(5,5) = 1000000;
-                                    covariance(6,6) = 1000000;
-                                    covariance(7,7) = 1000000;
-                                    covariance(8,8) = 1000000;
+                                   arma::mat sub_covar(size-3, size-3, arma::fill::eye);
+                                   sub_covar = sub_covar*1000000;
+                                   covariance.submat(3, 3, size-1, size-1);
 
-                                    Q(0,0) = 1;
-                                    Q(1,1) = 1;
-                                    Q(2,2) = 1;
+                                   Q(0,0) = 1;
+                                   Q(1,1) = 1;
+                                   Q(2,2) = 1;
                                }
 
     arma::mat SLAM::find_h(int n){
@@ -35,6 +32,13 @@ namespace nuslam
         }
         return h;
     }
+
+    // arma::mat SLAM::find_h_j(int j){
+    //     arma::mat h_j(2, 1, arma::fill::zeros);
+    //     h(0, 0) = std::sqrt(std::pow(state(2*j + 1, 0) - state(1,0), 2) + std::pow(state(2*j + 2, 0) - state(2,0), 2));
+    //     h(1, 0) = std::atan2(state(2*j + 2, 0) - state(2, 0), state(2*j + 1, 0) - state(1, 0)) - state(0, 0);
+    //     return h_j;
+    // }
 
     arma::mat SLAM::find_H(int n){
         arma::mat H(2*n, 3+2*n, arma::fill::zeros);
@@ -62,6 +66,31 @@ namespace nuslam
         }
         return H;
     }
+
+    // arma::mat SLAM::find_H_j(int j){
+    //     arma::mat H_j(2, 3+2*n, arma::fill::zeros);
+
+    //     double deltax = state(2*j + 1, 0) - state(1, 0);
+    //     double deltay = state(2*j + 2, 0) - state(2, 0);
+    //     double d = std::pow(deltax, 2) + std::pow(deltay, 2);
+
+    //     if (d != 0.0){
+    //         // top row
+    //         H(0,0) = 0;
+    //         H(0,1) = -deltax/std::sqrt(d);
+    //         H(0,2) = -deltay/std::sqrt(d);
+    //         H(0,2*j+1) = deltax/std::sqrt(d);
+    //         H(0,2*j+2) = deltay/std::sqrt(d);
+
+    //         // bottom row
+    //         H(1,0) = -1;
+    //         H(1,1) = deltay/d;
+    //         H(1,2) = -deltax/d;
+    //         H(1,2*j+1) = -deltay/d;
+    //         H(1,2*j+2) = deltax/d;
+    //     }
+    //     return H_j;
+    // }
 
     arma::mat SLAM::find_A(turtlelib::Twist2D twist){
         arma::mat A(3+2*n, 3+2*n, arma::fill::zeros), temp(3+2*n, 3+2*n, arma::fill::zeros);
@@ -121,6 +150,17 @@ namespace nuslam
 
     arma::mat SLAM::update(int n, arma::mat z){
         arma::mat h = SLAM::find_h(n);
+
+        // for (int j = 1; j < n+1; j++){
+        //     arma::mat h_j = SLAM::find_h_j(j);
+        //     arma::mat z_hat_j = h_j;
+        //     arma::mat H_j = SLAM::find_H_j(j);
+        //     arma::mat Ht_j = arma::trans(H_j);
+
+        //     kalman_gain = 
+
+
+        // }
 
         // theoretical measurement
         arma::mat z_hat = h;
