@@ -4,11 +4,6 @@
 
 namespace nuslam
 {
-    // initalizer list for constructor
-    // CircleFit::CircleFit(){
-        
-    // }
-
     Circle CircleFit::detect_circle(std::vector<turtlelib::Vector2D> cluster)
     {
         int n = cluster.size();
@@ -128,7 +123,56 @@ namespace nuslam
         circle_return.y = b + ymean;
 
         return circle_return;
+    }
 
+    std::vector<std::vector<turtlelib::Vector2D>> CircleFit::circles_only(std::vector<std::vector<turtlelib::Vector2D>> cluster_list)
+    {
+        std::vector<std::vector<turtlelib::Vector2D>> new_cluster_list;
 
+        for (int i = 0; i < cluster_list.size(); i++)
+        {
+            std::vector<turtlelib::Vector2D> cluster = cluster_list.at(i);
+            std::vector<double> angle_list; 
+            double angle;
+
+            turtlelib::Vector2D P1 = {.x = cluster.at(0).x, .y = cluster.at(0).y};
+            turtlelib::Vector2D P2 = {.x = cluster.back().x, .y = cluster.back().y};
+
+            double sum = 0.0;
+
+            for (int j = 1; j < cluster.size() - 1; j++)
+            {
+                turtlelib::Vector2D P1_P{.x = P1.x - cluster.at(j).x, .y = P1.y - cluster.at(j).y}; // vector between P1 and P
+                turtlelib::Vector2D P2_P{.x = P2.x - cluster.at(j).x, .y = P2.y - cluster.at(j).y}; // vector between P2 and P
+                // ROS_WARN("P1x: %f   P1y: %f   P2x: %f   P2y: %f   Px: %f   Py: %f", P1.x, P1.y, P2.x, P2.y, cluster.at(j).x, cluster.at(j).y);
+                // ROS_WARN("P1_Px: %f   P1_Py: %f   P2_Px: %f   P2_Py: %f", P1_P.x, P1_P.y, P2_P.x, P2_P.y);
+
+                angle = turtlelib::rad2deg(turtlelib::angle(P1_P, P2_P));
+                // ROS_WARN("angle: %f", angle);
+                angle_list.push_back(angle);
+
+                sum += angle;
+            }
+
+            double mean = sum / angle_list.size();
+            // ROS_WARN("mean: %f", mean);
+
+            double val_sum = 0.0;
+
+            for (int k = 0; k < angle_list.size(); k++)
+            {
+                val_sum += pow((angle_list.at(k) - mean), 2);
+            }
+
+            double stdev = sqrt(val_sum / (angle_list.size() - 1.0));
+            ROS_WARN("stdev: %f", stdev);
+
+            if (mean > 90.0 && mean < 135.0 && stdev < 0.15)    // if cluster does not meet circle characteristics
+            {
+                new_cluster_list.push_back(cluster_list.at(i));   // murder it
+            }
+        }
+
+        return new_cluster_list;
     }
 }

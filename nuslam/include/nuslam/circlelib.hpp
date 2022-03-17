@@ -25,21 +25,20 @@ namespace nuslam
     class CircleFit
     {
         private:
-
             int n {};
             int size {};
             arma::mat I {};
 
         public:
-
-            // /// \brief class constructor to initialize private parameters
-            // /// \return none
-            // CircleFit();
-
             /// \brief calculate centroid of points
             /// \param cluster - a cluster of points
             /// \return centroid - the centroid of the cluster 
             Circle detect_circle(std::vector<turtlelib::Vector2D>);
+
+            /// \brief cleanse the cluster_list of any non-circle clusters
+            /// \param cluster_list - a vector containing multiple clusters
+            /// \return cluster_list_circles_only - the cluster list with any non-circles removed
+            std::vector<std::vector<turtlelib::Vector2D>> circles_only(std::vector<std::vector<turtlelib::Vector2D>>);
     };
 }
 
