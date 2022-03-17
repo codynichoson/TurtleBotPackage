@@ -491,6 +491,9 @@ int main(int argc, char * argv[])
 
                 if (discriminant > 0 && distance(px, py, Vrm.x, Vrm.y) < distance(0.0, 0.0, Vrm.x, Vrm.y)){
                     scan.ranges[i] = distance(Vri.x, Vri.y, 0, 0) + laser_scanner_noise(get_random());
+                    if (scan.ranges[i] >= 3.5){
+                        scan.ranges[i] = 0.0;
+                    }
                 }
             }
         }
@@ -534,6 +537,9 @@ int main(int argc, char * argv[])
                     double check = distance(0.0, 0.0, wx, wy);
                     if (scan.ranges[i] == 0 || check < scan.ranges[i]){
                         scan.ranges[i] = distance(Vrwall.x, Vrwall.y, 0.0, 0.0) + laser_scanner_noise(get_random());
+                        if (scan.ranges[i] >= 3.5){
+                            scan.ranges[i] = 0.0;
+                        }
                     }
                 }
             }

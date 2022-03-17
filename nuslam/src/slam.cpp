@@ -28,7 +28,7 @@
 #include "nuslam/nuslam.hpp"
 #include <visualization_msgs/MarkerArray.h>
 #include <geometry_msgs/PoseStamped.h>
-    #include <nav_msgs/Path.h>
+#include <nav_msgs/Path.h>
 
 int rate;
 nav_msgs::Odometry odom;

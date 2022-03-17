@@ -50,7 +50,7 @@
         <rosparam file="$(find nusim)/config/basic_world.yaml"/>
         <param name="/red/robot_description" command="$(find xacro)/xacro '$(find nuturtle_description)/urdf/turtlebot3_burger.urdf.xacro' color:=red"/>
         <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher" ns="red"/>
-        <node pkg="rviz" type="rviz" name="rviz" required="true" args="-f world -d $(find nuslam)/config/nuslam.rviz"/>
+        <node pkg="rviz" type="rviz" name="rviz" required="true" args="-f world -d $(find nuslam)/config/landmarks.rviz"/>
     </group>
 
 </launch>

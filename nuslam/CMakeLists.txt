@@ -139,6 +139,7 @@ include_directories(
 ## Declare a C++ library
 add_library(${PROJECT_NAME}
   src/nuslam.cpp
+  src/circlelib.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}
@@ -252,6 +253,11 @@ install(TARGETS ${PROJECT_NAME} landmarks
 #############
 ## Testing ##
 #############
+
+# catch_add_test(${PROJECT_NAME}_test 
+#     tests/tests.cpp
+
+# )
 
 ## Add gtest based cpp test target and link libraries
 # catkin_add_gtest(${PROJECT_NAME}-test test/test_nuslam.cpp)
