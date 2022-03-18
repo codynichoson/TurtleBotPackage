@@ -42,12 +42,12 @@ static turtlelib::Twist2D twist = {0.0, 0.0, 0.0};
 arma::mat z;
 int flag = 0;
 
-// nuslam::SLAM Slammy(num_landmarks);
+// nuslam::SLAM Slammy(max_landmarks);
 // static arma::mat state(9, 1, arma::fill::zeros);
 
-int num_landmarks = 3;
-static arma::mat state(3+2*num_landmarks, 1, arma::fill::zeros);
-nuslam::SLAM Slammy(num_landmarks);
+int max_landmarks = 10;
+static arma::mat state(3+2*max_landmarks, 1, arma::fill::zeros);
+nuslam::SLAM Slammy(max_landmarks);
 
 /// \brief Subscribes to joint_states and calculates new red robot configuration
 /// \param js - Updated joint_states message
@@ -70,7 +70,7 @@ void joints_callback(const sensor_msgs::JointState &js) // odometry callback fun
 void laser_callback(const visualization_msgs::MarkerArray &fake_sensor) // odometry callback function
 {   
     // int num_markers = fake_sensor.markers.size();
-    int num_markers = num_landmarks;
+    int num_markers = max_landmarks;
 
     z = arma::mat(2*num_markers, 1);
 
@@ -95,15 +95,15 @@ void laser_callback(const visualization_msgs::MarkerArray &fake_sensor) // odome
     }
 
     if (flag == 0){
-        // Slammy.init_landmarks(num_markers, z);
-        Slammy.init_landmarks(fake_sensor.markers.size(), z);
+        Slammy.init_landmarks(num_markers, z);
+        // Slammy.init_landmarks(fake_sensor.markers.size(), z);
     }
 
     flag = 1;
 
     Slammy.predict(twist);
 
-    state = Slammy.update(num_markers, z);
+    state = Slammy.update(num_markers, fake_sensor.markers.size(), z);
 }
 
 /// \brief Teleports blue robot (odometry) to desired pose in world frame
@@ -211,7 +211,6 @@ int main(int argc, char * argv[])
     geometry_msgs::TransformStamped Twb_msg, Tmg_msg, Tmo_msg, Tog_msg;
 
     visualization_msgs::MarkerArray slam_obs_arr;
-    slam_obs_arr.markers.resize((state.n_rows - 3)/2);
 
     nav_msgs::Path odom_path, slam_path;
     geometry_msgs::PoseStamped odom_pose, slam_pose;
@@ -306,37 +305,30 @@ int main(int argc, char * argv[])
         slam_path.poses.push_back(slam_pose);
         slam_path_pub.publish(slam_path);
 
-        // int index;
+        int index;
 
-        // // find where actual landmarks end and zeros begin
-        // for (int q = 3; q < 2*num_landmarks + 3; q=q+2)
-        // {
-        //     if (state(q,0) == 0.0 && state(q+1,0) == 0.0){
-        //         index = q - 1;
-        //         break;
+        // find where actual landmarks end and zeros begin
+        for (int q = 3; q < 2*max_landmarks + 3; q=q+2)
+        {
+            if (state(q,0) == 0.0 && state(q+1,0) == 0.0){
+                index = q - 1;
+                break;
+            }
+        }
 
-        //     }
-        // }
+        // number of landmarks
+        int dem_obs = ((index + 1) - 3)/2;
 
-        // // number of landmarks
-        // int dem_obs = ((index + 1) - 3)/2;
-        // ROS_WARN("thing: %d", dem_obs);
+        slam_obs_arr.markers.resize(dem_obs);
 
-        for(int i = 0; i < (state.n_rows - 3)/2; i++){
+        // for(int i = 0; i < (state.n_rows - 3)/2; i++){
+        for(int i = 0; i < dem_obs; i++){
             
             slam_obs_arr.markers[i].header.frame_id = "map";
             slam_obs_arr.markers[i].header.stamp = ros::Time::now();
             slam_obs_arr.markers[i].id = i;
             slam_obs_arr.markers[i].type = visualization_msgs::Marker::CYLINDER;
             slam_obs_arr.markers[i].action = visualization_msgs::Marker::ADD;
-
-            // if (distance(state(1,0), state(2,0), state((2*i)+3,0), state((2*i)+4,0)) < max_laser_range){
-            //     slam_obs_arr.markers[i].action = visualization_msgs::Marker::ADD;
-            // }
-            // else{
-            //     slam_obs_arr.markers[i].action = visualization_msgs::Marker::DELETE;
-            // }
-
             slam_obs_arr.markers[i].pose.position.x = state((2*i)+3,0);
             slam_obs_arr.markers[i].pose.position.y = state((2*i)+4,0);
             slam_obs_arr.markers[i].pose.position.z = height/2;

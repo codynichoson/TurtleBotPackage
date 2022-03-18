@@ -17,9 +17,15 @@ namespace nuslam
                                known_landmarks(),
                                sus_landmarks()
                                {
-                                    arma::mat sub_covar(size-3, size-3, arma::fill::eye);
-                                    sub_covar = sub_covar*1000000;
-                                    covariance.submat(3, 3, size-1, size-1);
+                                    // arma::mat sub_covar(size-3, size-3, arma::fill::eye);
+                                    // sub_covar = sub_covar*1000000;
+                                    // covariance.submat(3, 3, size-2, size-2);
+                                    covariance(3,3) = 1000000;
+                                    covariance(4,4) = 1000000;
+                                    covariance(5,5) = 1000000;
+                                    covariance(6,6) = 1000000;
+                                    covariance(7,7) = 1000000;
+                                    covariance(8,8) = 1000000;
 
                                     Q(0,0) = 1;
                                     Q(1,1) = 1;
@@ -35,10 +41,11 @@ namespace nuslam
         return h;
     }
 
-    arma::mat SLAM::find_H(int n){
+    arma::mat SLAM::find_H(int n, int real_n){
         arma::mat H(2*n, 3+2*n, arma::fill::zeros);
 
-        for (int j = 1; j < n+1; j++){
+        // for (int j = 1; j < n+1; j++){
+        for (int j = 1; j < real_n+1; j++){
             double deltax = state(2*j + 1, 0) - state(1, 0);
             double deltay = state(2*j + 2, 0) - state(2, 0);
             double d = std::pow(deltax, 2) + std::pow(deltay, 2);
@@ -124,21 +131,21 @@ namespace nuslam
         covariance = A*covariance*arma::trans(A) + Q;
     }
 
-    arma::mat SLAM::update(int n, arma::mat z){
+    arma::mat SLAM::update(int n, int real_n, arma::mat z){
         arma::mat h = SLAM::find_h(n);
 
         // theoretical measurement
         arma::mat z_hat = h;
-        arma::mat H = SLAM::find_H(n);
+        arma::mat H = SLAM::find_H(n, real_n);
         arma::mat Ht = arma::trans(H);
 
         // Kalman gain
         kalman_gain = covariance*arma::trans(H)*arma::inv((H*covariance*arma::trans(H)) + R);  // Eq 26
 
         arma::mat deltaz = z - z_hat;
-        deltaz(1,0) = turtlelib::normalizeAngle(deltaz(1,0));
-        deltaz(3,0) = turtlelib::normalizeAngle(deltaz(3,0));
-        deltaz(5,0) = turtlelib::normalizeAngle(deltaz(5,0));
+        for (int i = 1; i < deltaz.size(); i = i+2){
+            deltaz(i,0) = turtlelib::normalizeAngle(deltaz(i,0));
+        }
         
         // posterior statue update
         state = state + kalman_gain*deltaz;  // Eq 27
@@ -154,7 +161,7 @@ namespace nuslam
         return distance;
     }
 
-    
+
 
     void SLAM::check_landmarks(std::vector<turtlelib::Vector2D> temp_landmarks){
         double threshold = 0.5;

@@ -51,7 +51,7 @@ namespace nuslam
         /// \brief derivative of h with respect to the state
         /// \param n - number of landmarks
         /// \return H - derivate of of h matrix
-        arma::mat find_H(int);
+        arma::mat find_H(int, int);
 
         /// \brief calculate transition
         /// \param twist - twist of robot
@@ -78,7 +78,7 @@ namespace nuslam
         /// \param n - number of landmarks
         /// \param z - range and bearing to visible landmarks
         /// \return robot and landmark state
-        arma::mat update(int, arma::mat);
+        arma::mat update(int, int, arma::mat);
 
         double distance(turtlelib::Vector2D v1, turtlelib::Vector2D v2);
 
