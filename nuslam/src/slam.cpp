@@ -194,7 +194,8 @@ int main(int argc, char * argv[])
     ros::Rate r(rate);
 
     ros::Subscriber joint_sub = nh.subscribe("joint_states", 100, joints_callback);
-    ros::Subscriber fake_sensor_sub = nh.subscribe("/nusim/fake_sensor", 100, laser_callback);
+    // ros::Subscriber fake_sensor_sub = nh.subscribe("/nusim/fake_sensor", 100, laser_callback);
+    ros::Subscriber fake_sensor_sub = nh.subscribe("landmarks", 100, laser_callback);
 
     ros::Publisher odom_pub = nh.advertise<nav_msgs::Odometry>("odom", rate);
     ros::Publisher slam_obs_pub = nh.advertise<visualization_msgs::MarkerArray>("slam_obs", 1, true);

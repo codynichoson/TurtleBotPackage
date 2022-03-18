@@ -490,7 +490,8 @@ int main(int argc, char * argv[])
                 std::normal_distribution<> laser_scanner_noise(laser_noise_mean, laser_noise_variance);
 
                 if (discriminant > 0 && distance(px, py, Vrm.x, Vrm.y) < distance(0.0, 0.0, Vrm.x, Vrm.y)){
-                    scan.ranges[i] = distance(Vri.x, Vri.y, 0, 0) + laser_scanner_noise(get_random());
+                    // scan.ranges[i] = distance(Vri.x, Vri.y, 0, 0) + laser_scanner_noise(get_random());
+                    scan.ranges[i] = distance(Vri.x, Vri.y, 0, 0);
                     if (scan.ranges[i] >= 3.5){
                         scan.ranges[i] = 0.0;
                     }
