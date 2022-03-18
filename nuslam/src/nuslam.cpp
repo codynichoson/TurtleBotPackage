@@ -109,6 +109,8 @@ namespace nuslam
         for (int j = 1; j < n+1; j++){
             state((2*j)+1,0) = state(1,0) + z(2*(j-1), 0)*std::cos(z((2*j)-1, 0) + state(0,0));
             state((2*j)+2,0) = state(2,0) + z(2*(j-1), 0)*std::sin(z((2*j)-1, 0) + state(0,0));
+
+            // initial known landmarks for data assocation
             turtlelib::Vector2D landmark;
             landmark.x = state((2*j)+1,0);
             landmark.y = state((2*j)+2,0);
@@ -155,18 +157,18 @@ namespace nuslam
     void SLAM::check_landmarks(std::vector<turtlelib::Vector2D> temp_landmarks){
         double threshold = 0.5;
 
-
+        // compare currently known landmarks to new ones
         for (int i = 0; i < known_landmarks.size(); i++){
             for (int j = 0; j < temp_landmarks.size(); j++){
+
+                // if distance between any new and known landmarks is low enough
                 if (SLAM::distance(known_landmarks.at(i), temp_landmarks.at(j)) > threshold){
+
+                    // add to list of known landmarks
                     known_landmarks.push_back(temp_landmarks.at(j));
                 }
             }
         }
     }
-
-
-
-
 }
 
