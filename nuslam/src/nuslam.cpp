@@ -155,6 +155,7 @@ namespace nuslam
     void SLAM::check_landmarks(std::vector<turtlelib::Vector2D> temp_landmarks){
         double threshold = 0.5;
 
+
         for (int i = 0; i < known_landmarks.size(); i++){
             for (int j = 0; j < temp_landmarks.size(); j++){
                 if (SLAM::distance(known_landmarks.at(i), temp_landmarks.at(j)) > threshold){
