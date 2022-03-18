@@ -42,7 +42,7 @@ static turtlelib::Twist2D twist = {0.0, 0.0, 0.0};
 arma::mat z;
 int flag = 0;
 
-int max_landmarks = 10;
+int max_landmarks = 15;
 static arma::mat state(3+2*max_landmarks, 1, arma::fill::zeros);
 nuslam::SLAM Slammy(max_landmarks);
 

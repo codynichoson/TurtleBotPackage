@@ -96,7 +96,7 @@ class Landmarks
                 // if (curr_dist > threshold || curr_dist == 0.0)
                 if (curr_dist > threshold && prev_dist < threshold)
                 {
-                    if (cluster.size() > 8)
+                    if (cluster.size() > 3)
                     {
                         cluster_list.push_back(cluster);
                         cluster.clear();
@@ -242,7 +242,6 @@ class Landmarks
         int num_clusters;
         std::vector<std::vector<turtlelib::Vector2D>> cluster_list;
         std::vector<turtlelib::Vector2D> cluster;
-        // nuslam::CircleFit CircleBoy;
 };
 
 int main(int argc, char * argv[])

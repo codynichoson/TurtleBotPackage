@@ -383,6 +383,7 @@ int main(int argc, char * argv[])
         double angle_increment = 2*turtlelib::PI / 360;
         double laser_min = 0.12;
         double laser_max = 3.5;
+        // double laser_max = 1.0;
 
         //populate the LaserScan message
         sensor_msgs::LaserScan scan;
@@ -492,7 +493,7 @@ int main(int argc, char * argv[])
                 if (discriminant > 0 && distance(px, py, Vrm.x, Vrm.y) < distance(0.0, 0.0, Vrm.x, Vrm.y)){
                     // scan.ranges[i] = distance(Vri.x, Vri.y, 0, 0) + laser_scanner_noise(get_random());
                     scan.ranges[i] = distance(Vri.x, Vri.y, 0, 0);
-                    if (scan.ranges[i] >= 3.5){
+                    if (scan.ranges[i] >= laser_max){
                         scan.ranges[i] = 0.0;
                     }
                 }

@@ -38,7 +38,6 @@ namespace nuslam
     arma::mat SLAM::find_H(int n, int real_n){
         arma::mat H(2*n, 3+2*n, arma::fill::zeros);
 
-        // for (int j = 1; j < n+1; j++){
         for (int j = 1; j < real_n+1; j++){
             double deltax = state(2*j + 1, 0) - state(1, 0);
             double deltay = state(2*j + 2, 0) - state(2, 0);

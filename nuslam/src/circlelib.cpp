@@ -152,7 +152,6 @@ namespace nuslam
             }
 
             double mean = sum / angle_list.size();
-            ROS_WARN("mean: %f", turtlelib::rad2deg(mean));
 
             double val_sum = 0.0;
 
@@ -162,9 +161,8 @@ namespace nuslam
             }
 
             double stdev = sqrt(val_sum / (angle_list.size() - 1.0));
-            ROS_WARN("stdev: %f", stdev);
 
-            if (turtlelib::rad2deg(mean) > 100.0 && turtlelib::rad2deg(mean) < 150.0 && stdev < 0.35)    // if cluster meets circle characteristics
+            if (turtlelib::rad2deg(mean) > 100.0 && turtlelib::rad2deg(mean) < 150.0 && stdev < 0.30)    // if cluster meets circle characteristics
             {
                 new_cluster_list.push_back(cluster_list.at(i));   // keep it
             }
