@@ -154,6 +154,8 @@ namespace nuslam
         return distance;
     }
 
+    
+
     void SLAM::check_landmarks(std::vector<turtlelib::Vector2D> temp_landmarks){
         double threshold = 0.5;
 

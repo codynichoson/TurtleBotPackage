@@ -96,7 +96,7 @@ class Landmarks
                 // if (curr_dist > threshold || curr_dist == 0.0)
                 if (curr_dist > threshold && prev_dist < threshold)
                 {
-                    if (cluster.size() > 3)
+                    if (cluster.size() > 8)
                     {
                         cluster_list.push_back(cluster);
                         cluster.clear();
