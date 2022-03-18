@@ -17,15 +17,9 @@ namespace nuslam
                                known_landmarks(),
                                sus_landmarks()
                                {
-                                    // arma::mat sub_covar(size-3, size-3, arma::fill::eye);
-                                    // sub_covar = sub_covar*1000000;
-                                    // covariance.submat(3, 3, size-2, size-2);
-                                    covariance(3,3) = 1000000;
-                                    covariance(4,4) = 1000000;
-                                    covariance(5,5) = 1000000;
-                                    covariance(6,6) = 1000000;
-                                    covariance(7,7) = 1000000;
-                                    covariance(8,8) = 1000000;
+                                    for (int i = 3; i < 3+2*n; i++){
+                                        covariance(i,i) = 10000000;
+                                    }
 
                                     Q(0,0) = 1;
                                     Q(1,1) = 1;

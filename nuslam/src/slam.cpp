@@ -42,9 +42,6 @@ static turtlelib::Twist2D twist = {0.0, 0.0, 0.0};
 arma::mat z;
 int flag = 0;
 
-// nuslam::SLAM Slammy(max_landmarks);
-// static arma::mat state(9, 1, arma::fill::zeros);
-
 int max_landmarks = 10;
 static arma::mat state(3+2*max_landmarks, 1, arma::fill::zeros);
 nuslam::SLAM Slammy(max_landmarks);
@@ -96,7 +93,6 @@ void laser_callback(const visualization_msgs::MarkerArray &fake_sensor) // odome
 
     if (flag == 0){
         Slammy.init_landmarks(num_markers, z);
-        // Slammy.init_landmarks(fake_sensor.markers.size(), z);
     }
 
     flag = 1;
