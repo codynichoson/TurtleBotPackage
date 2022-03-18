@@ -165,7 +165,7 @@ namespace nuslam
             }
 
             double stdev = sqrt(val_sum / (angle_list.size() - 1.0));
-            ROS_WARN("stdev: %f", stdev);
+            // ROS_WARN("stdev: %f", stdev);
 
             if (turtlelib::rad2deg(mean) > 90.0 && turtlelib::rad2deg(mean) < 135.0 && stdev < 0.15)    // if cluster does not meet circle characteristics
             {

@@ -41,9 +41,8 @@ turtlelib::DiffDrive ddrive;
 static turtlelib::Twist2D twist = {0.0, 0.0, 0.0};
 arma::mat z;
 int flag = 0;
-int arbitrary = 100;
-static arma::mat state(3 + 2*arbitrary, 1, arma::fill::zeros);
-nuslam::SLAM Slammy(arbitrary);
+static arma::mat state(9, 1, arma::fill::zeros);
+nuslam::SLAM Slammy(3);
 
 /// \brief Subscribes to joint_states and calculates new red robot configuration
 /// \param js - Updated joint_states message
@@ -66,21 +65,12 @@ void joints_callback(const sensor_msgs::JointState &js) // odometry callback fun
 void laser_callback(const visualization_msgs::MarkerArray &fake_sensor) // odometry callback function
 {   
     int num_markers = fake_sensor.markers.size();
-    num_markers = arbitrary;
 
     z = arma::mat(2*num_markers, 1);
 
-    double xi, yi;
-
     for (int i = 0; i < num_markers; i++){
-        if (i > fake_sensor.markers.size() - 1){
-            xi = 0.0;
-            yi = 0.0;
-        }
-        else{
-            xi = fake_sensor.markers[i].pose.position.x;
-            yi = fake_sensor.markers[i].pose.position.y;
-        }
+        double xi = fake_sensor.markers[i].pose.position.x;
+        double yi = fake_sensor.markers[i].pose.position.y;
 
         nuslam::RangeBearing rb;
         rb.range = std::sqrt(std::pow(xi, 2) + std::pow(yi, 2));
@@ -88,7 +78,6 @@ void laser_callback(const visualization_msgs::MarkerArray &fake_sensor) // odome
 
         z(2*i, 0) = rb.range;
         z((2*i)+1, 0) = rb.bearing;
-
     }
 
     if (flag == 0){
@@ -100,11 +89,8 @@ void laser_callback(const visualization_msgs::MarkerArray &fake_sensor) // odome
     Slammy.predict(twist);
 
     state = Slammy.update(num_markers, z);
-    
-    // for (int i = 0; i < num_markers*2; i++)
-    // {
-    //     ROS_WARN("state(%d,%d): %f", i+3, 0, state(i+3,0));
-    // }
+
+    ROS_INFO_STREAM(state);
 
 }
 
@@ -308,33 +294,12 @@ int main(int argc, char * argv[])
         slam_path.poses.push_back(slam_pose);
         slam_path_pub.publish(slam_path);
 
-        int index;
-
-        // find where actual landmarks end and zeros begin
-        for (int q = 3; q < 2*arbitrary + 3; q=q+2)
-        {
-            if (state(q,0) == 0.0 && state(q+1,0) == 0.0){
-                index = q - 1;
-                break;
-            }
-        }
-
-        // number of landmarks
-        int dem_obs = ((index + 1) - 3)/2;
-        ROS_WARN("thing: %d", dem_obs);
-
-        // for (int i = 0; i < (state.n_rows - 3)/2; i++){
-        for (int i = 0; i < dem_obs; i++){
-            
+        for(int i = 0; i < (state.n_rows - 3)/2; i++){
             slam_obs_arr.markers[i].header.frame_id = "map";
             slam_obs_arr.markers[i].header.stamp = ros::Time::now();
             slam_obs_arr.markers[i].id = i;
             slam_obs_arr.markers[i].type = visualization_msgs::Marker::CYLINDER;
-
-            // if (state((2*i)+3,0) == 0.0 && state((2*i)+4,0) == 0.0)
-            // {
-            //     slam_obs_arr.markers[i].action = visualization_msgs::Marker::DELETE;
-            // }
+            slam_obs_arr.markers[i].action = visualization_msgs::Marker::ADD;
 
             // if (distance(state(1,0), state(2,0), state((2*i)+3,0), state((2*i)+4,0)) < max_laser_range){
             //     slam_obs_arr.markers[i].action = visualization_msgs::Marker::ADD;
