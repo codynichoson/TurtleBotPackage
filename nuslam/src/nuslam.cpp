@@ -7,20 +7,19 @@ namespace nuslam
     SLAM::SLAM(int num_mark) : n(num_mark), 
                                size(3 + 2*n),
                                I(arma::eye(size, size)),
-                               state(arma::mat(size, 1)),
+                               state(arma::mat(size, 1, arma::fill::zeros)),
                                estimate(arma::mat(size, 1, arma::fill::zeros)),
                                covariance(arma::mat(size, size, arma::fill::zeros)),
                                process_noise(arma::mat(size, size, arma::fill::zeros)),
                                kalman_gain(arma::mat(size, 2*n, arma::fill::zeros)),
                                R((arma::eye(2*n, 2*n))*0.001),
-                               Q(arma::mat(size, size, arma::fill::zeros))
+                               Q(arma::mat(size, size, arma::fill::zeros)),
+                               known_landmarks(),
+                               sus_landmarks()
                                {
-                                    covariance(3,3) = 1000000;
-                                    covariance(4,4) = 1000000;
-                                    covariance(5,5) = 1000000;
-                                    covariance(6,6) = 1000000;
-                                    covariance(7,7) = 1000000;
-                                    covariance(8,8) = 1000000;
+                                    arma::mat sub_covar(size-3, size-3, arma::fill::eye);
+                                    sub_covar = sub_covar*1000000;
+                                    covariance.submat(3, 3, size-1, size-1);
 
                                     Q(0,0) = 1;
                                     Q(1,1) = 1;
@@ -110,7 +109,11 @@ namespace nuslam
         for (int j = 1; j < n+1; j++){
             state((2*j)+1,0) = state(1,0) + z(2*(j-1), 0)*std::cos(z((2*j)-1, 0) + state(0,0));
             state((2*j)+2,0) = state(2,0) + z(2*(j-1), 0)*std::sin(z((2*j)-1, 0) + state(0,0));
-        }        
+            turtlelib::Vector2D landmark;
+            landmark.x = state((2*j)+1,0);
+            landmark.y = state((2*j)+2,0);
+            known_landmarks.push_back(landmark);
+        }
     }
 
     void SLAM::predict(turtlelib::Twist2D twist){
@@ -143,5 +146,26 @@ namespace nuslam
 
         return state;
     }
+
+    double SLAM::distance(turtlelib::Vector2D v1, turtlelib::Vector2D v2){
+        double distance = (std::sqrt(std::pow(v2.x - v1.x, 2) + std::pow(v2.y - v1.y, 2)));
+        return distance;
+    }
+
+    void SLAM::check_landmarks(std::vector<turtlelib::Vector2D> temp_landmarks){
+        double threshold = 0.5;
+
+        for (int i = 0; i < known_landmarks.size(); i++){
+            for (int j = 0; j < temp_landmarks.size(); j++){
+                if (SLAM::distance(known_landmarks.at(i), temp_landmarks.at(j)) > threshold){
+                    known_landmarks.push_back(temp_landmarks.at(j));
+                }
+            }
+        }
+    }
+
+
+
+
 }
 

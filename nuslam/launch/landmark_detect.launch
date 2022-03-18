@@ -35,6 +35,7 @@
     <group if="$(eval arg('robot')!='nusim')">
         <node name="turtle_interface" pkg="nuturtle_control" type="turtle_interface" machine="turtlebot"/>
         <node name="slam" pkg="nuslam" type="slam" machine="turtlebot"/>
+        <node name="landmarks" pkg="nuslam" type="landmarks"/>
         <include file="$(find nuturtle_control)/launch/basic_remote.launch" pass_all_args="true"/>
         <node pkg="rviz" type="rviz" name="rviz" required="true" args="-f world -d $(find nuturtle_control)/config/nuturtle_control_2.rviz"/>
     </group>

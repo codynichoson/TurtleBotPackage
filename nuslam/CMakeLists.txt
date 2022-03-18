@@ -254,11 +254,11 @@ install(TARGETS ${PROJECT_NAME} landmarks
 ## Testing ##
 #############
 
-# catch_add_test(${PROJECT_NAME}_test 
-#     tests/tests.cpp
+catch_add_test(${PROJECT_NAME}_test 
+    tests/circle_tests.cpp
+)
 
-# )
-
+target_link_libraries(${PROJECT_NAME}_test ${PROJECT_NAME} ${catkin_LIBRARIES} ${ARMADILLO_LIBRARIES})
 ## Add gtest based cpp test target and link libraries
 # catkin_add_gtest(${PROJECT_NAME}-test test/test_nuslam.cpp)
 # if(TARGET ${PROJECT_NAME}-test)

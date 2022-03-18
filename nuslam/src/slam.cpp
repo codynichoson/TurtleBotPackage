@@ -41,8 +41,13 @@ turtlelib::DiffDrive ddrive;
 static turtlelib::Twist2D twist = {0.0, 0.0, 0.0};
 arma::mat z;
 int flag = 0;
-static arma::mat state(9, 1, arma::fill::zeros);
-nuslam::SLAM Slammy(3);
+
+// nuslam::SLAM Slammy(num_landmarks);
+// static arma::mat state(9, 1, arma::fill::zeros);
+
+int num_landmarks = 3;
+static arma::mat state(3+2*num_landmarks, 1, arma::fill::zeros);
+nuslam::SLAM Slammy(num_landmarks);
 
 /// \brief Subscribes to joint_states and calculates new red robot configuration
 /// \param js - Updated joint_states message
@@ -64,24 +69,34 @@ void joints_callback(const sensor_msgs::JointState &js) // odometry callback fun
 /// \return None
 void laser_callback(const visualization_msgs::MarkerArray &fake_sensor) // odometry callback function
 {   
-    int num_markers = fake_sensor.markers.size();
+    // int num_markers = fake_sensor.markers.size();
+    int num_markers = num_landmarks;
 
     z = arma::mat(2*num_markers, 1);
 
     for (int i = 0; i < num_markers; i++){
-        double xi = fake_sensor.markers[i].pose.position.x;
-        double yi = fake_sensor.markers[i].pose.position.y;
 
-        nuslam::RangeBearing rb;
-        rb.range = std::sqrt(std::pow(xi, 2) + std::pow(yi, 2));
-        rb.bearing = std::atan2(yi, xi);
+        if (i < fake_sensor.markers.size())
+        {
+            double xi = fake_sensor.markers[i].pose.position.x;
+            double yi = fake_sensor.markers[i].pose.position.y;
 
-        z(2*i, 0) = rb.range;
-        z((2*i)+1, 0) = rb.bearing;
+            nuslam::RangeBearing rb;
+            rb.range = std::sqrt(std::pow(xi, 2) + std::pow(yi, 2));
+            rb.bearing = std::atan2(yi, xi);
+
+            z(2*i, 0) = rb.range;
+            z((2*i)+1, 0) = rb.bearing;
+        }
+        else{
+            z(2*i, 0) = 0.0;
+            z((2*i)+1, 0) = 0.0;
+        }
     }
 
     if (flag == 0){
-        Slammy.init_landmarks(num_markers, z);
+        // Slammy.init_landmarks(num_markers, z);
+        Slammy.init_landmarks(fake_sensor.markers.size(), z);
     }
 
     flag = 1;
@@ -89,9 +104,6 @@ void laser_callback(const visualization_msgs::MarkerArray &fake_sensor) // odome
     Slammy.predict(twist);
 
     state = Slammy.update(num_markers, z);
-
-    ROS_INFO_STREAM(state);
-
 }
 
 /// \brief Teleports blue robot (odometry) to desired pose in world frame
@@ -294,7 +306,24 @@ int main(int argc, char * argv[])
         slam_path.poses.push_back(slam_pose);
         slam_path_pub.publish(slam_path);
 
+        // int index;
+
+        // // find where actual landmarks end and zeros begin
+        // for (int q = 3; q < 2*num_landmarks + 3; q=q+2)
+        // {
+        //     if (state(q,0) == 0.0 && state(q+1,0) == 0.0){
+        //         index = q - 1;
+        //         break;
+
+        //     }
+        // }
+
+        // // number of landmarks
+        // int dem_obs = ((index + 1) - 3)/2;
+        // ROS_WARN("thing: %d", dem_obs);
+
         for(int i = 0; i < (state.n_rows - 3)/2; i++){
+            
             slam_obs_arr.markers[i].header.frame_id = "map";
             slam_obs_arr.markers[i].header.stamp = ros::Time::now();
             slam_obs_arr.markers[i].id = i;

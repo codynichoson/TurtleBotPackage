@@ -33,6 +33,8 @@ namespace nuslam
         arma::mat kalman_gain {};
         arma::mat R {};
         arma::mat Q {};
+        std::vector<turtlelib::Vector2D> known_landmarks {};
+        std::vector<turtlelib::Vector2D> sus_landmarks {};
 
         public:
 
@@ -77,6 +79,10 @@ namespace nuslam
         /// \param z - range and bearing to visible landmarks
         /// \return robot and landmark state
         arma::mat update(int, arma::mat);
+
+        double distance(turtlelib::Vector2D v1, turtlelib::Vector2D v2);
+
+        void check_landmarks(std::vector<turtlelib::Vector2D> temp_landmarks);
     };
 }
 

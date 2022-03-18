@@ -144,18 +144,15 @@ namespace nuslam
             {
                 turtlelib::Vector2D P1_P{.x = P1.x - cluster.at(j).x, .y = P1.y - cluster.at(j).y}; // vector between P1 and P
                 turtlelib::Vector2D P2_P{.x = P2.x - cluster.at(j).x, .y = P2.y - cluster.at(j).y}; // vector between P2 and P
-                // ROS_WARN("P1x: %f   P1y: %f   P2x: %f   P2y: %f   Px: %f   Py: %f", P1.x, P1.y, P2.x, P2.y, cluster.at(j).x, cluster.at(j).y);
-                // ROS_WARN("P1_Px: %f   P1_Py: %f   P2_Px: %f   P2_Py: %f", P1_P.x, P1_P.y, P2_P.x, P2_P.y);
 
                 angle = turtlelib::angle(P1_P, P2_P);
-                // ROS_WARN("angle: %f", angle);
                 angle_list.push_back(angle);
 
                 sum += angle;
             }
 
             double mean = sum / angle_list.size();
-            // ROS_WARN("mean: %f", mean);
+            ROS_WARN("mean: %f", turtlelib::rad2deg(mean));
 
             double val_sum = 0.0;
 
@@ -165,11 +162,11 @@ namespace nuslam
             }
 
             double stdev = sqrt(val_sum / (angle_list.size() - 1.0));
-            // ROS_WARN("stdev: %f", stdev);
+            ROS_WARN("stdev: %f", stdev);
 
-            if (turtlelib::rad2deg(mean) > 90.0 && turtlelib::rad2deg(mean) < 135.0 && stdev < 0.15)    // if cluster does not meet circle characteristics
+            if (turtlelib::rad2deg(mean) > 85.0 && turtlelib::rad2deg(mean) < 140.0 && stdev < 0.35)    // if cluster meets circle characteristics
             {
-                new_cluster_list.push_back(cluster_list.at(i));   // murder it
+                new_cluster_list.push_back(cluster_list.at(i));   // keep it
             }
         }
 

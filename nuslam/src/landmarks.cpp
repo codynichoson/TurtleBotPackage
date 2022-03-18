@@ -204,14 +204,14 @@ class Landmarks
                 landmark_arr.markers[lm_id].action = visualization_msgs::Marker::ADD;
                 landmark_arr.markers[lm_id].pose.position.x = est_landmarks.at(a).x;
                 landmark_arr.markers[lm_id].pose.position.y = est_landmarks.at(a).y;
-                landmark_arr.markers[lm_id].pose.position.z = 0.125;
+                landmark_arr.markers[lm_id].pose.position.z = 0.3;
                 landmark_arr.markers[lm_id].pose.orientation.x = 0.0;
                 landmark_arr.markers[lm_id].pose.orientation.y = 0.0;
                 landmark_arr.markers[lm_id].pose.orientation.z = 0.0;
                 landmark_arr.markers[lm_id].pose.orientation.w = 1.0;
                 landmark_arr.markers[lm_id].scale.x = 0.038*2.0;
                 landmark_arr.markers[lm_id].scale.y = 0.038*2.0;
-                landmark_arr.markers[lm_id].scale.z = 0.25;
+                landmark_arr.markers[lm_id].scale.z = 0.05;
                 landmark_arr.markers[lm_id].color.r = 1.0;
                 landmark_arr.markers[lm_id].color.g = 1.0;
                 landmark_arr.markers[lm_id].color.b = 0.0;
