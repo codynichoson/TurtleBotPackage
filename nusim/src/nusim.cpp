@@ -192,8 +192,8 @@ int main(int argc, char * argv[])
     ros::Publisher walls_pub = nhp.advertise<visualization_msgs::MarkerArray>("walls", 1, true);
     ros::Publisher fake_sensor_pub = nhp.advertise<visualization_msgs::MarkerArray>("fake_sensor", 1, true);
     ros::Publisher path_pub = nh.advertise<nav_msgs::Path>("path", 1, true);
-    // ros::Publisher laser_pub = nhp.advertise<sensor_msgs::LaserScan>("laser_scan", 50);
-    ros::Publisher laser_pub = nhp.advertise<sensor_msgs::LaserScan>("scan", 50);
+    ros::Publisher laser_pub = nhp.advertise<sensor_msgs::LaserScan>("laser_scan", 50);
+    // ros::Publisher laser_pub = nhp.advertise<sensor_msgs::LaserScan>("scan", 50);
 
     // create subscribers
     ros::Subscriber sub = nh.subscribe("wheel_cmd", 1000, wheel_cmd_callback);

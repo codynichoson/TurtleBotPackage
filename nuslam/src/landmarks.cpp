@@ -34,8 +34,8 @@ class Landmarks
         {
             cluster_pub = nh.advertise<visualization_msgs::MarkerArray>("clusters", 1, true);
             landmark_pub = nh.advertise<visualization_msgs::MarkerArray>("landmarks", 1, true);
-            // laser_sub = nh.subscribe("/nusim/laser_scan", 10, &Landmarks::laser_scan_callback, this);
-            laser_sub = nh.subscribe("scan", 10, &Landmarks::laser_scan_callback, this);
+            laser_sub = nh.subscribe("/nusim/laser_scan", 10, &Landmarks::laser_scan_callback, this);
+            // laser_sub = nh.subscribe("scan", 10, &Landmarks::laser_scan_callback, this);
             num_clusters = 0;
             num_degrees = 360;
         }
@@ -122,7 +122,7 @@ class Landmarks
 
                 nuslam::Circle temp_circle = CircleBoy.detect_circle(cluster);
 
-                if (temp_circle.radius < 0.1){
+                if (temp_circle.radius < 0.2){
                     est_landmarks.at(i) = temp_circle; 
                 }                
             }
@@ -134,7 +134,8 @@ class Landmarks
             {
                 for (int b = 0; b < cluster_list.at(a).size(); b++)
                 {
-                    cluster_arr.markers[id].header.frame_id = "nu_purple_base_scan";
+                    // cluster_arr.markers[id].header.frame_id = "nu_purple_base_scan";
+                    cluster_arr.markers[id].header.frame_id = "red_base_footprint";
                     cluster_arr.markers[id].header.stamp = ros::Time::now();
                     cluster_arr.markers[id].id = id;
                     cluster_arr.markers[id].type = visualization_msgs::Marker::SPHERE;
@@ -200,20 +201,27 @@ class Landmarks
 
             for (int a = 0; a < cluster_list.size(); a++)
             {
-                landmark_arr.markers[lm_id].header.frame_id = "nu_purple_base_scan";
+                // landmark_arr.markers[lm_id].header.frame_id = "nu_purple_base_scan";
+                landmark_arr.markers[lm_id].header.frame_id = "red_base_footprint";
                 landmark_arr.markers[lm_id].header.stamp = ros::Time::now();
                 landmark_arr.markers[lm_id].id = lm_id;
                 landmark_arr.markers[lm_id].type = visualization_msgs::Marker::CYLINDER;
                 landmark_arr.markers[lm_id].action = visualization_msgs::Marker::ADD;
                 landmark_arr.markers[lm_id].pose.position.x = est_landmarks.at(a).x;
                 landmark_arr.markers[lm_id].pose.position.y = est_landmarks.at(a).y;
-                landmark_arr.markers[lm_id].pose.position.z = 0.0;
+                landmark_arr.markers[lm_id].pose.position.z = 0.1;
                 landmark_arr.markers[lm_id].pose.orientation.x = 0.0;
                 landmark_arr.markers[lm_id].pose.orientation.y = 0.0;
                 landmark_arr.markers[lm_id].pose.orientation.z = 0.0;
                 landmark_arr.markers[lm_id].pose.orientation.w = 1.0;
-                landmark_arr.markers[lm_id].scale.x = est_landmarks.at(a).radius*2.0;
-                landmark_arr.markers[lm_id].scale.y = est_landmarks.at(a).radius*2.0;
+                if (est_landmarks.at(a).radius > 0.0){
+                    landmark_arr.markers[lm_id].scale.x = est_landmarks.at(a).radius*2.0;
+                    landmark_arr.markers[lm_id].scale.y = est_landmarks.at(a).radius*2.0;
+                }
+                else{
+                    landmark_arr.markers[lm_id].scale.x = 0.038*2.0;
+                    landmark_arr.markers[lm_id].scale.y = 0.038*2.0;
+                }
                 landmark_arr.markers[lm_id].scale.z = 0.25;
                 landmark_arr.markers[lm_id].color.r = 1.0;
                 landmark_arr.markers[lm_id].color.g = 1.0;
