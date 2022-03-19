@@ -24,7 +24,7 @@ This library contains a function used to find the location and size of an associ
 
 ### Nodes
 #### `slam.cpp`
-This node implements EKF SLAM using the `nuslam` library. 
+This node implements EKF SLAM using the `nuslam` library. It uses estimated landmark data from the robot's laser scanner. An attempt was made at using data association to keep track of known landmarks using Euclidean distances, but it remains unfinished.
 
 #### `landmarks.cpp`
 This node subscribes to laser scan data and uses it to estimate landmark locations.
