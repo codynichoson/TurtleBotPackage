@@ -26,7 +26,7 @@ This library contains a function used to find the location and size of an associ
 #### `slam.cpp`
 This node implements EKF SLAM using the `nuslam` library. 
 
-#### `landmarks`
+#### `landmarks.cpp`
 This node subscribes to laser scan data and uses it to estimate landmark locations.
 
 ### Media
