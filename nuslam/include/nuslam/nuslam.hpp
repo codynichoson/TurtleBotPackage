@@ -82,7 +82,11 @@ namespace nuslam
 
         double distance(turtlelib::Vector2D v1, turtlelib::Vector2D v2);
 
-        void check_landmarks(std::vector<turtlelib::Vector2D> temp_landmarks);
+        std::vector<turtlelib::Vector2D> get_known_landmarks();
+
+        bool check_landmarks(std::vector<turtlelib::Vector2D> temp_landmarks);
+
+        
     };
 }
 

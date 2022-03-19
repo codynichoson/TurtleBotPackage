@@ -41,6 +41,7 @@ turtlelib::DiffDrive ddrive;
 static turtlelib::Twist2D twist = {0.0, 0.0, 0.0};
 arma::mat z;
 int flag = 0;
+bool new_landmark = true;
 
 int max_landmarks = 15;
 static arma::mat state(3+2*max_landmarks, 1, arma::fill::zeros);
@@ -91,9 +92,22 @@ void laser_callback(const visualization_msgs::MarkerArray &fake_sensor) // odome
         }
     }
 
-    if (flag == 0){
+    if (flag == 0 || new_landmark == true){
         Slammy.init_landmarks(num_markers, z);
+        new_landmark = false;
     }
+
+    // DATA ASSOCIATION IN PROGRESS
+    // else{
+    //     std::vector<turtlelib::Vector2D> current_landmarks;
+    //     for (int i = 0; i < num_mark; i++){
+    //         turtlelib::Vector2D current_landmark;
+    //         current_landmark.x = fake_sensor.markers[i].pose.position.x;
+    //         current_landmark.y = fake_sensor.markers[i].pose.position.y;
+    //         current_landmarks.push_back(current_landmark);
+    //     }
+    //     new_landmark = Slammy.check_landmarks(current_landmarks);
+    // }
 
     flag = 1;
 

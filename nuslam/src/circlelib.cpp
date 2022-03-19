@@ -162,7 +162,7 @@ namespace nuslam
 
             double stdev = sqrt(val_sum / (angle_list.size() - 1.0));
 
-            if (turtlelib::rad2deg(mean) > 100.0 && turtlelib::rad2deg(mean) < 150.0 && stdev < 0.30)    // if cluster meets circle characteristics
+            if (turtlelib::rad2deg(mean) > 100.0 && turtlelib::rad2deg(mean) < 150.0 && stdev < 0.15)    // if cluster meets circle characteristics
             {
                 new_cluster_list.push_back(cluster_list.at(i));   // keep it
             }

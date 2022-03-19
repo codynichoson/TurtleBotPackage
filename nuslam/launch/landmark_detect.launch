@@ -34,10 +34,11 @@
     <!-- When launching real robot -->
     <group if="$(eval arg('robot')!='nusim')">
         <node name="turtle_interface" pkg="nuturtle_control" type="turtle_interface" machine="turtlebot"/>
-        <node name="slam" pkg="nuslam" type="slam" machine="turtlebot"/>
+        <node name="slam" pkg="nuslam" type="slam"/>
         <node name="landmarks" pkg="nuslam" type="landmarks"/>
+        <rosparam file="$(find nusim)/config/basic_world.yaml"/>
         <include file="$(find nuturtle_control)/launch/basic_remote.launch" pass_all_args="true"/>
-        <node pkg="rviz" type="rviz" name="rviz" required="true" args="-f world -d $(find nuturtle_control)/config/nuturtle_control_2.rviz"/>
+        <node pkg="rviz" type="rviz" name="rviz" required="true" args="-f world -d $(find nuslam)/config/real_robot.rviz"/>
     </group>
 
     <!-- When launching simulation -->

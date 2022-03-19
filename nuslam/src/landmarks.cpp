@@ -34,7 +34,8 @@ class Landmarks
         {
             cluster_pub = nh.advertise<visualization_msgs::MarkerArray>("clusters", 1, true);
             landmark_pub = nh.advertise<visualization_msgs::MarkerArray>("landmarks", 1, true);
-            laser_sub = nh.subscribe("/nusim/laser_scan", 10, &Landmarks::laser_scan_callback, this);
+            // laser_sub = nh.subscribe("/nusim/laser_scan", 10, &Landmarks::laser_scan_callback, this);
+            laser_sub = nh.subscribe("scan", 10, &Landmarks::laser_scan_callback, this);
             num_clusters = 0;
             num_degrees = 360;
         }
@@ -60,22 +61,17 @@ class Landmarks
                 {   
                     prev_range = laser_scan.ranges[num_degrees-1];
                     prev_angle = num_degrees-1;
-
-                    curr_range = laser_scan.ranges[angle];
-                    curr_angle = angle;
-
-                    curr_dist = abs(curr_range - prev_range);
                 }
                 else if (angle != 0)
                 {
                     prev_range = laser_scan.ranges[angle - 1];
                     prev_angle = angle - 1;
-
-                    curr_range = laser_scan.ranges[angle];
-                    curr_angle = angle;
-
-                    curr_dist = abs(curr_range - prev_range);
                 }
+
+                curr_range = laser_scan.ranges[angle];
+                curr_angle = angle;
+
+                curr_dist = abs(curr_range - prev_range);
 
                 if (curr_dist < threshold && curr_dist != 0.0)      // if a cluster point is found
                 {
@@ -124,8 +120,11 @@ class Landmarks
                     point_count++;
                 }
 
-                est_landmarks.at(i) = CircleBoy.detect_circle(cluster); 
-                
+                nuslam::Circle temp_circle = CircleBoy.detect_circle(cluster);
+
+                if (temp_circle.radius < 0.1){
+                    est_landmarks.at(i) = temp_circle; 
+                }                
             }
 
             visualization_msgs::MarkerArray cluster_arr;
@@ -135,14 +134,14 @@ class Landmarks
             {
                 for (int b = 0; b < cluster_list.at(a).size(); b++)
                 {
-                    cluster_arr.markers[id].header.frame_id = "red_base_footprint";
+                    cluster_arr.markers[id].header.frame_id = "nu_purple_base_scan";
                     cluster_arr.markers[id].header.stamp = ros::Time::now();
                     cluster_arr.markers[id].id = id;
                     cluster_arr.markers[id].type = visualization_msgs::Marker::SPHERE;
                     cluster_arr.markers[id].action = visualization_msgs::Marker::ADD;
                     cluster_arr.markers[id].pose.position.x = cluster_list.at(a).at(b).x;
                     cluster_arr.markers[id].pose.position.y = cluster_list.at(a).at(b).y;
-                    cluster_arr.markers[id].pose.position.z = 0.2;
+                    cluster_arr.markers[id].pose.position.z = 0.0;
                     cluster_arr.markers[id].pose.orientation.x = 0.0;
                     cluster_arr.markers[id].pose.orientation.y = 0.0;
                     cluster_arr.markers[id].pose.orientation.z = 0.0;
@@ -150,37 +149,41 @@ class Landmarks
                     cluster_arr.markers[id].scale.x = 0.02;
                     cluster_arr.markers[id].scale.y = 0.02;
                     cluster_arr.markers[id].scale.z = 0.02;
-                    if (a == 0){
-                        cluster_arr.markers[id].color.r = 1.0;
-                        cluster_arr.markers[id].color.g = 0.0;
-                        cluster_arr.markers[id].color.b = 0.0;
-                    }
-                    else if (a == 1){
-                        cluster_arr.markers[id].color.r = 0.0;
-                        cluster_arr.markers[id].color.g = 1.0;
-                        cluster_arr.markers[id].color.b = 0.0;
-                    }
-                    else if (a == 2){
-                        cluster_arr.markers[id].color.r = 0.0;
-                        cluster_arr.markers[id].color.g = 0.0;
-                        cluster_arr.markers[id].color.b = 1.0;
-                    }
-                    else if (a == 3){
-                        cluster_arr.markers[id].color.r = 0.8;
-                        cluster_arr.markers[id].color.g = 0.0;
-                        cluster_arr.markers[id].color.b = 1.0;
-                    }
-                    else if (a == 4){
-                        cluster_arr.markers[id].color.r = 0.2;
-                        cluster_arr.markers[id].color.g = 0.3;
-                        cluster_arr.markers[id].color.b = 0.5;
-                    }
-                    else{
-                        cluster_arr.markers[id].color.r = 0.5;
-                        cluster_arr.markers[id].color.g = 0.5;
-                        cluster_arr.markers[id].color.b = 1.0;
-                    }
                     
+                    // if (a == 0){
+                    //     cluster_arr.markers[id].color.r = 1.0;
+                    //     cluster_arr.markers[id].color.g = 0.0;
+                    //     cluster_arr.markers[id].color.b = 0.0;
+                    // }
+                    // else if (a == 1){
+                    //     cluster_arr.markers[id].color.r = 0.0;
+                    //     cluster_arr.markers[id].color.g = 1.0;
+                    //     cluster_arr.markers[id].color.b = 0.0;
+                    // }
+                    // else if (a == 2){
+                    //     cluster_arr.markers[id].color.r = 0.0;
+                    //     cluster_arr.markers[id].color.g = 0.0;
+                    //     cluster_arr.markers[id].color.b = 1.0;
+                    // }
+                    // else if (a == 3){
+                    //     cluster_arr.markers[id].color.r = 0.8;
+                    //     cluster_arr.markers[id].color.g = 0.0;
+                    //     cluster_arr.markers[id].color.b = 1.0;
+                    // }
+                    // else if (a == 4){
+                    //     cluster_arr.markers[id].color.r = 0.2;
+                    //     cluster_arr.markers[id].color.g = 0.3;
+                    //     cluster_arr.markers[id].color.b = 0.5;
+                    // }
+                    // else{
+                    //     cluster_arr.markers[id].color.r = 0.5;
+                    //     cluster_arr.markers[id].color.g = 0.5;
+                    //     cluster_arr.markers[id].color.b = 1.0;
+                    // }
+                    
+                    cluster_arr.markers[id].color.r = 1.0;
+                    cluster_arr.markers[id].color.g = 1.0;
+                    cluster_arr.markers[id].color.b = 0.0;
                     cluster_arr.markers[id].color.a = 1.0;
                     
                     id++;
@@ -197,21 +200,21 @@ class Landmarks
 
             for (int a = 0; a < cluster_list.size(); a++)
             {
-                landmark_arr.markers[lm_id].header.frame_id = "red_base_footprint";
+                landmark_arr.markers[lm_id].header.frame_id = "nu_purple_base_scan";
                 landmark_arr.markers[lm_id].header.stamp = ros::Time::now();
                 landmark_arr.markers[lm_id].id = lm_id;
                 landmark_arr.markers[lm_id].type = visualization_msgs::Marker::CYLINDER;
                 landmark_arr.markers[lm_id].action = visualization_msgs::Marker::ADD;
                 landmark_arr.markers[lm_id].pose.position.x = est_landmarks.at(a).x;
                 landmark_arr.markers[lm_id].pose.position.y = est_landmarks.at(a).y;
-                landmark_arr.markers[lm_id].pose.position.z = 0.3;
+                landmark_arr.markers[lm_id].pose.position.z = 0.0;
                 landmark_arr.markers[lm_id].pose.orientation.x = 0.0;
                 landmark_arr.markers[lm_id].pose.orientation.y = 0.0;
                 landmark_arr.markers[lm_id].pose.orientation.z = 0.0;
                 landmark_arr.markers[lm_id].pose.orientation.w = 1.0;
-                landmark_arr.markers[lm_id].scale.x = 0.038*2.0;
-                landmark_arr.markers[lm_id].scale.y = 0.038*2.0;
-                landmark_arr.markers[lm_id].scale.z = 0.05;
+                landmark_arr.markers[lm_id].scale.x = est_landmarks.at(a).radius*2.0;
+                landmark_arr.markers[lm_id].scale.y = est_landmarks.at(a).radius*2.0;
+                landmark_arr.markers[lm_id].scale.z = 0.25;
                 landmark_arr.markers[lm_id].color.r = 1.0;
                 landmark_arr.markers[lm_id].color.g = 1.0;
                 landmark_arr.markers[lm_id].color.b = 0.0;

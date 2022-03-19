@@ -154,10 +154,14 @@ namespace nuslam
         return distance;
     }
 
+    std::vector<turtlelib::Vector2D> SLAM::get_known_landmarks(){
+        return known_landmarks;
+    }
 
-
-    void SLAM::check_landmarks(std::vector<turtlelib::Vector2D> temp_landmarks){
+    bool SLAM::check_landmarks(std::vector<turtlelib::Vector2D> temp_landmarks){
         double threshold = 0.5;
+
+        int original_size = known_landmarks.size();
 
         // compare currently known landmarks to new ones
         for (int i = 0; i < known_landmarks.size(); i++){
@@ -170,6 +174,15 @@ namespace nuslam
                     known_landmarks.push_back(temp_landmarks.at(j));
                 }
             }
+        }
+
+        int new_size = known_landmarks.size();
+
+        if (new_size > original_size){
+            return true;
+        }
+        else{
+            return false;
         }
     }
 }

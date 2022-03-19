@@ -10,7 +10,7 @@
 
   <node pkg="hls_lfcd_lds_driver" type="hlds_laser_publisher" name="turtlebot3_lds" machine="turtlebot">
     <param name="port" value="/dev/ttyUSB0"/>
-    <param name="frame_id" value="blue_base_scan"/>
+    <param name="frame_id" value="nu_purple_base_scan"/>
   </node>
 
 </launch>
