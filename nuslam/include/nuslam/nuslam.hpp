@@ -2,7 +2,7 @@
 #define SLAMLIB_INCLUDE_GUARD_HPP
 
 /// \file
-/// \brief SLAM Library
+/// \brief SLAM Library Header
 
 #include <turtlelib/diff_drive.hpp>
 #include <armadillo>
@@ -80,13 +80,21 @@ namespace nuslam
         /// \return robot and landmark state
         arma::mat update(int, int, arma::mat);
 
+        /// \brief compute the distance between two Vector2D points
+        /// \param v1 - first point, a turtlelib::Vector2D
+        /// \param v2 - second point, a turtlelib::Vector2D
+        /// \return distance between two points
         double distance(turtlelib::Vector2D v1, turtlelib::Vector2D v2);
 
+        // DATA ASSOCIATIONS
+        /// \brief retrieve the known landmarks from a private parameter
+        /// \return an std::vector<turtlelib::Vector2D> of the known landmarks
         std::vector<turtlelib::Vector2D> get_known_landmarks();
 
+        /// \brief compute the distance between two Vector2D points
+        /// \param temp_landmarks - a vector of the most recent landmark estimates
+        /// \return a boolean, if there are any new landmarks
         bool check_landmarks(std::vector<turtlelib::Vector2D> temp_landmarks);
-
-        
     };
 }
 

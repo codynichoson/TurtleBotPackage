@@ -19,7 +19,6 @@
         <param name="~frequency" value="$(arg frequency)"/>
     </node>
     <include file="$(find turtlebot3_teleop)/launch/turtlebot3_teleop_key.launch" if="$(eval arg('cmd_src')=='teleop')"/>
-    
 
     <!-- Loading stuff for blue odometry robot in Rviz -->
     <param name="/nu_purple/robot_description" command="$(find xacro)/xacro '$(find nuturtle_description)/urdf/turtlebot3_burger.urdf.xacro' color:=nu_purple"/>

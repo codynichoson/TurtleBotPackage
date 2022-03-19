@@ -1,3 +1,6 @@
+/// \file
+/// \brief SLAM Library
+
 #include "nuslam/nuslam.hpp"
 #include <ros/ros.h>
 

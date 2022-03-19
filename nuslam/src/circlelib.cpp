@@ -64,7 +64,6 @@ namespace nuslam
         H(2,2) = 1;
         H(3,0) = 2;
 
-
         // compute H inverse
         arma::mat H_inv = inv(H);
 

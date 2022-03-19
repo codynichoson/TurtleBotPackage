@@ -2,20 +2,14 @@
  * LANDMARKS NODE
  * 
  * Node Description:
- * This node serves to create a simulated environment for our robot to navigate.
+ * This node uses laser scan data to estimate landmark locations.
  * 
  * Publishers:
- * sensor_data - Encoder tick values from the robot
- * timestep - Timestep of the simulation
- * obstacles - The attributes of the column obstacles in the simulated environment
- * walls - The attributes of the walls of our simulated environment
+ * clusters - Groups of close data points from the laser scan
+ * landmarks - Estimated landmark locations based on laser scan data
  * 
  * Subscribers:
- * wheel_cmd - Wheel commands for the robot calculated from cmd_vel values.
- * may know?
- * Services:
- * /reset - Moves red robot back to a (0,0,0) configuration
- * /teleport - Moves red robot to inputted configuration relative to world frame
+ * /nusim/laser_scan - laser scan data from the TurtleBot lidar 
  ******************************************************************************/
 
 #include "ros/ros.h"
@@ -130,11 +124,12 @@ class Landmarks
             visualization_msgs::MarkerArray cluster_arr;
             cluster_arr.markers.resize(point_count);
 
+            // populate cluster vector
             for (int a = 0; a < cluster_list.size(); a++)
             {
                 for (int b = 0; b < cluster_list.at(a).size(); b++)
                 {
-                    // cluster_arr.markers[id].header.frame_id = "nu_purple_base_scan";
+                    // cluster_arr.markers[id].header.frame_id = "nu_purple_base_scan";  // for real robot
                     cluster_arr.markers[id].header.frame_id = "red_base_footprint";
                     cluster_arr.markers[id].header.stamp = ros::Time::now();
                     cluster_arr.markers[id].id = id;
@@ -149,42 +144,10 @@ class Landmarks
                     cluster_arr.markers[id].pose.orientation.w = 1.0;
                     cluster_arr.markers[id].scale.x = 0.02;
                     cluster_arr.markers[id].scale.y = 0.02;
-                    cluster_arr.markers[id].scale.z = 0.02;
-                    
-                    // if (a == 0){
-                    //     cluster_arr.markers[id].color.r = 1.0;
-                    //     cluster_arr.markers[id].color.g = 0.0;
-                    //     cluster_arr.markers[id].color.b = 0.0;
-                    // }
-                    // else if (a == 1){
-                    //     cluster_arr.markers[id].color.r = 0.0;
-                    //     cluster_arr.markers[id].color.g = 1.0;
-                    //     cluster_arr.markers[id].color.b = 0.0;
-                    // }
-                    // else if (a == 2){
-                    //     cluster_arr.markers[id].color.r = 0.0;
-                    //     cluster_arr.markers[id].color.g = 0.0;
-                    //     cluster_arr.markers[id].color.b = 1.0;
-                    // }
-                    // else if (a == 3){
-                    //     cluster_arr.markers[id].color.r = 0.8;
-                    //     cluster_arr.markers[id].color.g = 0.0;
-                    //     cluster_arr.markers[id].color.b = 1.0;
-                    // }
-                    // else if (a == 4){
-                    //     cluster_arr.markers[id].color.r = 0.2;
-                    //     cluster_arr.markers[id].color.g = 0.3;
-                    //     cluster_arr.markers[id].color.b = 0.5;
-                    // }
-                    // else{
-                    //     cluster_arr.markers[id].color.r = 0.5;
-                    //     cluster_arr.markers[id].color.g = 0.5;
-                    //     cluster_arr.markers[id].color.b = 1.0;
-                    // }
-                    
-                    cluster_arr.markers[id].color.r = 1.0;
-                    cluster_arr.markers[id].color.g = 1.0;
-                    cluster_arr.markers[id].color.b = 0.0;
+                    cluster_arr.markers[id].scale.z = 0.02;    
+                    cluster_arr.markers[id].color.r = 0.3;
+                    cluster_arr.markers[id].color.g = 0.1;
+                    cluster_arr.markers[id].color.b = 0.5;
                     cluster_arr.markers[id].color.a = 1.0;
                     
                     id++;
@@ -199,9 +162,10 @@ class Landmarks
 
             int lm_id = 0;
 
+            // populate estimated landmark array
             for (int a = 0; a < cluster_list.size(); a++)
             {
-                // landmark_arr.markers[lm_id].header.frame_id = "nu_purple_base_scan";
+                // landmark_arr.markers[lm_id].header.frame_id = "nu_purple_base_scan"; // for real robot
                 landmark_arr.markers[lm_id].header.frame_id = "red_base_footprint";
                 landmark_arr.markers[lm_id].header.stamp = ros::Time::now();
                 landmark_arr.markers[lm_id].id = lm_id;
@@ -231,16 +195,12 @@ class Landmarks
                 lm_id++;
             }
 
+            // publish landmark array
             landmark_pub.publish(landmark_arr);
 
+            // clear existing cluster and cluster list
             cluster.clear();
             cluster_list.clear();
-        }
-
-        void main_loop(const ros::TimerEvent &) const
-        {
-            //implement the state machine here
-            
         }
 
     private:

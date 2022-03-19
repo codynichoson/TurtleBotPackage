@@ -18,9 +18,6 @@ constexpr double r = 0.033;
 namespace turtlelib{
     DiffDrive::DiffDrive()
     {
-        // config.x = 0.0; config.y = 0.0; config.theta = 0.0;
-        // wheelangles.left = 0.0; wheelangles.right = 0.0;
-        // wheelvels.left = 0.0; wheelvels.right = 0.0;
         config = {0.0, 0.0, 0.0};
         wheelangles = {0.0, 0.0};
         wheelvels = {0.0, 0.0};
@@ -29,9 +26,6 @@ namespace turtlelib{
     DiffDrive::DiffDrive(Config new_config)
     {
         config = new_config;
-        // config.x = x; config.y = y; config.theta = theta;
-        // wheelangles.left = 0.0; wheelangles.right = 0.0;
-        // wheelvels.left = 0.0; wheelvels.right = 0.0;
     }
 
     Config DiffDrive::fKin(WheelAngles new_wheel_angles){

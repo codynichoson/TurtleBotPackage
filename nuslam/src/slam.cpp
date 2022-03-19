@@ -2,13 +2,17 @@
  * SLAM NODE
  * 
  * Node Description:
- * This node ...
+ * This node performs Extended Kalman Filter SLAM
  * 
  * Publishers:
- * odom - The pose of the robot based on odometry 
+ * odom - The pose of the robot based on odometry
+ * slam_obs - Landmark locations based on SLAM
+ * slam_path - TurtleBot path of robot based on SLAM
+ * odom_path - TurtleBot path of robot based on odometry
  * 
  * Subscribers:
  * joint_states - The positions and velocities of the robot's joints (wheels)
+ * landmarks - Estimated landmarks based on laser scan data
  * 
  * Services:
  * /set_pose - Takes in a robot configuration and moves the blue robot (representing 
@@ -62,22 +66,22 @@ void joints_callback(const sensor_msgs::JointState &js) // odometry callback fun
     config = ddrive.fKin(wheel_angles, config);
 }
 
-/// \brief Subscribes to fake_sensor and updates estimated marker coords
-/// \param fake_sensor - Updated fake_sensor message
+/// \brief Subscribes to landmarks and updates estimated marker coords
+/// \param incoming_landmarks - Updated incoming_landmarks message
 /// \return None
-void laser_callback(const visualization_msgs::MarkerArray &fake_sensor) // odometry callback function
+void laser_callback(const visualization_msgs::MarkerArray &incoming_landmarks)
 {   
-    // int num_markers = fake_sensor.markers.size();
+    // int num_markers = incoming_landmarks.markers.size();
     int num_markers = max_landmarks;
 
     z = arma::mat(2*num_markers, 1);
 
     for (int i = 0; i < num_markers; i++){
 
-        if (i < fake_sensor.markers.size())
+        if (i < incoming_landmarks.markers.size())
         {
-            double xi = fake_sensor.markers[i].pose.position.x;
-            double yi = fake_sensor.markers[i].pose.position.y;
+            double xi = incoming_landmarks.markers[i].pose.position.x;
+            double yi = incoming_landmarks.markers[i].pose.position.y;
 
             nuslam::RangeBearing rb;
             rb.range = std::sqrt(std::pow(xi, 2) + std::pow(yi, 2));
@@ -102,8 +106,8 @@ void laser_callback(const visualization_msgs::MarkerArray &fake_sensor) // odome
     //     std::vector<turtlelib::Vector2D> current_landmarks;
     //     for (int i = 0; i < num_mark; i++){
     //         turtlelib::Vector2D current_landmark;
-    //         current_landmark.x = fake_sensor.markers[i].pose.position.x;
-    //         current_landmark.y = fake_sensor.markers[i].pose.position.y;
+    //         current_landmark.x = incoming_landmarks.markers[i].pose.position.x;
+    //         current_landmark.y = incoming_landmarks.markers[i].pose.position.y;
     //         current_landmarks.push_back(current_landmark);
     //     }
     //     new_landmark = Slammy.check_landmarks(current_landmarks);
@@ -113,7 +117,7 @@ void laser_callback(const visualization_msgs::MarkerArray &fake_sensor) // odome
 
     Slammy.predict(twist);
 
-    state = Slammy.update(num_markers, fake_sensor.markers.size(), z);
+    state = Slammy.update(num_markers, incoming_landmarks.markers.size(), z);
 }
 
 /// \brief Teleports blue robot (odometry) to desired pose in world frame
@@ -126,6 +130,12 @@ bool set_pose_callback(nuturtle_control::set_pose::Request &q, nuturtle_control:
     return true;
 }
 
+/// \brief Calculates distance between two points (double)
+/// \param x1 - first x coordinate
+/// \param y1 - first y coordinate
+/// \param x2 - second x coordinate
+/// \param y2 - second y coordinate
+/// \return distance between two points
 double distance(double x1, double y1, double x2, double y2){
     double distance = (std::sqrt(std::pow(x2 - x1, 2) + std::pow(y2 - y1, 2)));
     return distance;
@@ -208,8 +218,8 @@ int main(int argc, char * argv[])
     ros::Rate r(rate);
 
     ros::Subscriber joint_sub = nh.subscribe("joint_states", 100, joints_callback);
-    // ros::Subscriber fake_sensor_sub = nh.subscribe("/nusim/fake_sensor", 100, laser_callback);
-    ros::Subscriber fake_sensor_sub = nh.subscribe("landmarks", 100, laser_callback);
+    // ros::Subscriber incoming_landmarks_sub = nh.subscribe("/nusim/incoming_landmarks", 100, laser_callback);
+    ros::Subscriber incoming_landmarks_sub = nh.subscribe("landmarks", 100, laser_callback);
 
     ros::Publisher odom_pub = nh.advertise<nav_msgs::Odometry>("odom", rate);
     ros::Publisher slam_obs_pub = nh.advertise<visualization_msgs::MarkerArray>("slam_obs", 1, true);

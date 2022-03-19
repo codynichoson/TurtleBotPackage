@@ -140,6 +140,12 @@ void wheel_cmd_callback(const nuturtlebot_msgs::WheelCommands &wheelcmd)
     sensor_data.right_encoder = encoder_right;
 }
 
+/// \brief Calculates distance between two points
+/// \param x1 - first x coordinate
+/// \param y1 - first y coordinate
+/// \param x2 - second x coordinate
+/// \param y2 - second y coordinate
+/// \return distance between two points
 double distance(double x1, double y1, double x2, double y2){
     double distance = (std::sqrt(std::pow(x2 - x1, 2) + std::pow(y2 - y1, 2)));
     return distance;
