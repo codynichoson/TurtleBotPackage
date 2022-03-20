@@ -95,7 +95,8 @@ namespace nuslam
 
             int Astar_index;
 
-            for (int i = 0; i < eigval.size(); i++)
+            int eigval_size = eigval.size(); 
+            for (int i = 0; i < eigval_size; i++)
             {
                 if (eigval(i) > 0)
                 {
@@ -128,7 +129,8 @@ namespace nuslam
     {
         std::vector<std::vector<turtlelib::Vector2D>> new_cluster_list;
 
-        for (int i = 0; i < cluster_list.size(); i++)
+        int cluster_list_size = cluster_list.size();
+        for (int i = 0; i < cluster_list_size; i++)
         {
             std::vector<turtlelib::Vector2D> cluster = cluster_list.at(i);
             std::vector<double> angle_list; 
@@ -139,7 +141,8 @@ namespace nuslam
 
             double sum = 0.0;
 
-            for (int j = 1; j < cluster.size() - 1; j++)
+            int cluster_size = cluster.size();
+            for (int j = 1; j < cluster_size - 1; j++)
             {
                 turtlelib::Vector2D P1_P{.x = P1.x - cluster.at(j).x, .y = P1.y - cluster.at(j).y}; // vector between P1 and P
                 turtlelib::Vector2D P2_P{.x = P2.x - cluster.at(j).x, .y = P2.y - cluster.at(j).y}; // vector between P2 and P
@@ -154,7 +157,8 @@ namespace nuslam
 
             double val_sum = 0.0;
 
-            for (int k = 0; k < angle_list.size(); k++)
+            int angle_list_size = angle_list.size();
+            for (int k = 0; k < angle_list_size; k++)
             {
                 val_sum += pow((angle_list.at(k) - mean), 2);
             }

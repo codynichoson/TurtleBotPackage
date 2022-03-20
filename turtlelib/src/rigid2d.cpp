@@ -78,7 +78,7 @@ namespace turtlelib{
     Transform2D integrate_twist(const Twist2D &twist){ // The Debacle
         turtlelib::Transform2D Tbbp, Tsb, Tbs, Tssp, Tspbp;
         turtlelib::Vector2D Tbbp_vec;
-        double Tbbp_rot;
+        // double Tbbp_rot;
 
         if (almost_equal(twist.thetadot, 0.0)){ // pure translation
             Tbbp_vec.x = twist.xdot;
@@ -90,8 +90,8 @@ namespace turtlelib{
         }
         else { // translation and rotation
             Vector2D Tsb_vec; 
-            double x = twist.ydot/twist.thetadot;
-            double y = -twist.xdot/twist.thetadot;
+            // double x = twist.ydot/twist.thetadot;
+            // double y = -twist.xdot/twist.thetadot;
             
             Tsb_vec.x = (twist.ydot/twist.thetadot); 
             Tsb_vec.y = (-twist.xdot/twist.thetadot);

@@ -40,9 +40,9 @@ class Landmarks
         void laser_scan_callback(const sensor_msgs::LaserScan & laser_scan)
         {
             double prev_range;
-            double prev_angle;
+            // double prev_angle;
             double curr_range;
-            double curr_angle;
+            // double curr_angle;
             double curr_dist;
             double prev_dist = 0.0;
             double threshold = 0.05;
@@ -54,16 +54,16 @@ class Landmarks
                 if (angle == 0)
                 {   
                     prev_range = laser_scan.ranges[num_degrees-1];
-                    prev_angle = num_degrees-1;
+                    // prev_angle = num_degrees-1;
                 }
                 else if (angle != 0)
                 {
                     prev_range = laser_scan.ranges[angle - 1];
-                    prev_angle = angle - 1;
+                    // prev_angle = angle - 1;
                 }
 
                 curr_range = laser_scan.ranges[angle];
-                curr_angle = angle;
+                // curr_angle = angle;
 
                 curr_dist = abs(curr_range - prev_range);
 
@@ -106,10 +106,12 @@ class Landmarks
             std::vector<nuslam::Circle> est_landmarks;
             est_landmarks.resize(cluster_list.size());
 
-            for (int i = 0; i < cluster_list.size(); i++)
+            int cluster_list_size = cluster_list.size();
+            for (int i = 0; i < cluster_list_size; i++)
             {
                 cluster = cluster_list.at(i);
-                for (int j = 0; j < cluster.size(); j++)
+                int cluster_size = cluster.size();
+                for (int j = 0; j < cluster_size; j++)
                 {
                     point_count++;
                 }
@@ -125,9 +127,10 @@ class Landmarks
             cluster_arr.markers.resize(point_count);
 
             // populate cluster vector
-            for (int a = 0; a < cluster_list.size(); a++)
+            for (int a = 0; a < cluster_list_size; a++)
             {
-                for (int b = 0; b < cluster_list.at(a).size(); b++)
+                int this_cluster_size = cluster_list.at(a).size();
+                for (int b = 0; b < this_cluster_size; b++)
                 {
                     // cluster_arr.markers[id].header.frame_id = "nu_purple_base_scan";  // for real robot
                     cluster_arr.markers[id].header.frame_id = "red_base_footprint";
@@ -163,7 +166,7 @@ class Landmarks
             int lm_id = 0;
 
             // populate estimated landmark array
-            for (int a = 0; a < cluster_list.size(); a++)
+            for (int a = 0; a < cluster_list_size; a++)
             {
                 // landmark_arr.markers[lm_id].header.frame_id = "nu_purple_base_scan"; // for real robot
                 landmark_arr.markers[lm_id].header.frame_id = "red_base_footprint";

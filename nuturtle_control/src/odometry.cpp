@@ -49,7 +49,7 @@ void joints_callback(const sensor_msgs::JointState &js) // odometry callback fun
 /// \brief Teleports blue robot (odometry) to desired pose in world frame
 /// \param q - Desired coniguration in world frame
 /// \return True
-bool set_pose_callback(nuturtle_control::set_pose::Request &q, nuturtle_control::set_pose::Response &res)
+bool set_pose_callback(nuturtle_control::set_pose::Request &q, nuturtle_control::set_pose::Response &)
 {
     config = {q.x, q.y, q.theta};
     ROS_WARN("Odometry has been reset!");

@@ -78,7 +78,8 @@ void laser_callback(const visualization_msgs::MarkerArray &incoming_landmarks)
 
     for (int i = 0; i < num_markers; i++){
 
-        if (i < incoming_landmarks.markers.size())
+        int incoming_landmarks_size = incoming_landmarks.markers.size();
+        if (i < incoming_landmarks_size)
         {
             double xi = incoming_landmarks.markers[i].pose.position.x;
             double yi = incoming_landmarks.markers[i].pose.position.y;
@@ -123,7 +124,7 @@ void laser_callback(const visualization_msgs::MarkerArray &incoming_landmarks)
 /// \brief Teleports blue robot (odometry) to desired pose in world frame
 /// \param q - Desired coniguration in world frame
 /// \return True
-bool set_pose_callback(nuturtle_control::set_pose::Request &q, nuturtle_control::set_pose::Response &res)
+bool set_pose_callback(nuturtle_control::set_pose::Request &q, nuturtle_control::set_pose::Response &)
 {
     config = {q.x, q.y, q.theta};
     ROS_WARN("Odometry has been reset!");

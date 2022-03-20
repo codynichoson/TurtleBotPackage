@@ -35,7 +35,7 @@ static geometry_msgs::Twist twist;
 /// \brief Service that starts robot in circular motion
 /// \param circlevals - radius and angular velocity for circular motion
 /// \return True
-bool control_callback(nuturtle_control::control::Request &circlevals, nuturtle_control::control::Response &res)
+bool control_callback(nuturtle_control::control::Request &circlevals, nuturtle_control::control::Response &)
 {
     publishing = 1;
     twist.linear.x = circlevals.radius * std::abs(circlevals.velocity);
@@ -47,7 +47,7 @@ bool control_callback(nuturtle_control::control::Request &circlevals, nuturtle_c
 /// \brief Service that reverses a current circular motion
 /// \param req - Empty
 /// \return True
-bool reverse_callback(std_srvs::Empty::Request &req, std_srvs::Empty::Response &)
+bool reverse_callback(std_srvs::Empty::Request &, std_srvs::Empty::Response &)
 {
     publishing = 1;
     twist.linear.x = -twist.linear.x;
@@ -59,7 +59,7 @@ bool reverse_callback(std_srvs::Empty::Request &req, std_srvs::Empty::Response &
 /// \brief Service that stops current motion of robot
 /// \param req - Empty
 /// \return True
-bool stop_callback(std_srvs::Empty::Request &req, std_srvs::Empty::Response &)
+bool stop_callback(std_srvs::Empty::Request &, std_srvs::Empty::Response &)
 {
     publishing = 0;
     twist.linear.x = 0.0;

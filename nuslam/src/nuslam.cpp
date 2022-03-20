@@ -69,7 +69,6 @@ namespace nuslam
         arma::mat A(3+2*n, 3+2*n, arma::fill::zeros), temp(3+2*n, 3+2*n, arma::fill::zeros);
 
         double deltax = twist.xdot;
-        double deltay = twist.ydot;
         double deltat = twist.thetadot;
 
         if (twist.thetadot == 0){
@@ -90,7 +89,6 @@ namespace nuslam
         arma::mat transition(3+2*n,1,arma::fill::zeros);
 
         double deltax = twist.xdot;
-        double deltay = twist.ydot;
         double deltat = twist.thetadot;
 
         if (twist.thetadot == 0){
@@ -139,7 +137,9 @@ namespace nuslam
         kalman_gain = covariance*arma::trans(H)*arma::inv((H*covariance*arma::trans(H)) + R);  // Eq 26
 
         arma::mat deltaz = z - z_hat;
-        for (int i = 1; i < deltaz.size(); i = i+2){
+        int deltaz_size = deltaz.size();
+
+        for (int i = 1; i < deltaz_size; i = i+2){
             deltaz(i,0) = turtlelib::normalizeAngle(deltaz(i,0));
         }
         
@@ -165,10 +165,11 @@ namespace nuslam
         double threshold = 0.5;
 
         int original_size = known_landmarks.size();
+        int temp_size = temp_landmarks.size();
 
         // compare currently known landmarks to new ones
-        for (int i = 0; i < known_landmarks.size(); i++){
-            for (int j = 0; j < temp_landmarks.size(); j++){
+        for (int i = 0; i < original_size; i++){
+            for (int j = 0; j < temp_size; j++){
 
                 // if distance between any new and known landmarks is low enough
                 if (SLAM::distance(known_landmarks.at(i), temp_landmarks.at(j)) > threshold){

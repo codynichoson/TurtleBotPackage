@@ -92,7 +92,7 @@ std::mt19937 & get_random()
 /// \brief Resets red robot to origin of world frame
 /// \param req - Trigger
 /// \return True
-bool reset_callback(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res)
+bool reset_callback(std_srvs::Trigger::Request &, std_srvs::Trigger::Response &)
 {
     timestep.data = 0;
     config.x = 0.0;
@@ -107,7 +107,7 @@ bool reset_callback(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response
 /// \brief Teleports red robot to specified configuration in world frame
 /// \param q - Desired configuration in world frame
 /// \return True
-bool teleport_callback(nusim::teleport::Request &q, nusim::teleport::Response &res)
+bool teleport_callback(nusim::teleport::Request &q, nusim::teleport::Response &)
 {
     config.x = q.x;
     config.y = q.y;
@@ -158,8 +158,8 @@ int main(int argc, char * argv[])
     ros::NodeHandle nhp("~");
     ros::NodeHandle nh;
 
-    int collision_flag = 4;
-    double fake_sensor_variance;
+    // int collision_flag = 4;
+    // double fake_sensor_variance;
     double max_laser_range;
     double collision_radius_robot;
 
@@ -177,7 +177,7 @@ int main(int argc, char * argv[])
     nh.getParam("/nusim/motor_cmd_to_radsec", motor_cmd_to_radsec);
     nhp.getParam("/nusim/encoder_ticks_to_rad", encoder_ticks_to_rad);
     nh.getParam("rate", rate);
-    nh.getParam("fake_sensor_variance", fake_sensor_variance);
+    // nh.getParam("fake_sensor_variance", fake_sensor_variance);
     nh.getParam("max_laser_range", max_laser_range);
     nh.getParam("collision_radius_robot", collision_radius_robot);
     nh.getParam("wheel_cmd_mean", wheel_cmd_mean);
@@ -228,7 +228,9 @@ int main(int argc, char * argv[])
         timestep.data = timestep.data + 1;
         timestep_pub.publish(timestep);
 
-        for(int i = 0; i < obs_x.size(); i++){
+        int obsx_size = obs_x.size();
+
+        for(int i = 0; i < obsx_size; i++){
             obs_arr.markers[i].header.frame_id = "world";
             obs_arr.markers[i].header.stamp = ros::Time::now();
             obs_arr.markers[i].id = i;
@@ -252,7 +254,7 @@ int main(int argc, char * argv[])
         obstacles_pub.publish(obs_arr);
 
         // publish fake sensor markers
-        for(int i = 0; i < obs_x.size(); i++){
+        for(int i = 0; i < obsx_size; i++){
             turtlelib::Vector2D config_vec = {config.x, config.y};
             turtlelib::Vector2D Vwm = {obs_x[i], obs_y[i]};
             turtlelib::Transform2D Twr(config_vec, config.theta);
@@ -384,9 +386,9 @@ int main(int argc, char * argv[])
         path_pub.publish(path);
 
         int num_readings = 360;
-        double laser_frequency = 5;
-        double ranges[num_readings];
-        double scan_time = 1/5;
+        // double laser_frequency = 5;
+        // double ranges[num_readings];
+        // double scan_time = 1/5;
         double angle_increment = 2*turtlelib::PI / 360;
         double laser_min = 0.12;
         double laser_max = 3.5;
@@ -420,14 +422,14 @@ int main(int argc, char * argv[])
 
                 // find laser (robot) coordinates in marker frame
                 turtlelib::Transform2D Tmr = Twm.inv()*Twr;
-                turtlelib::Vector2D Vmr = Tmr.translation();
+                // turtlelib::Vector2D Vmr = Tmr.translation();
 
                 turtlelib::Transform2D Trm = Tmr.inv();
                 turtlelib::Vector2D Vrm = Trm.translation();
 
                 // find slope of laser scan line
                 double angle = i*angle_increment;
-                double m = std::tan(angle);
+                // double m = std::tan(angle);
                 
                 // find first point at beginning of laser range
                 x1 = laser_min*std::cos(angle);
