@@ -21,7 +21,7 @@ A simulator and visualizer that provides a simulated robot environment for our T
 A package containing several nodes used for controlling the robot in both simulation and in the real world environment.
 
 `nuslam`
-A C++ library and node that implement Feature-Based Kalman Filter SLAM on the simulated TurtleBot.
+A C++ library and node that (partially) implements Feature-Based Kalman Filter SLAM on the simulated TurtleBot.
 
 
 
