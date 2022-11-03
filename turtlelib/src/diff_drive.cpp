@@ -28,6 +28,9 @@ namespace turtlelib{
         config = new_config;
     }
 
+    /// \brief Forward kinematics for TurtleBot given
+    /// \param new_wheel_angles - updated wheel angle values
+    /// \return updated robot configuration
     Config DiffDrive::fKin(WheelAngles new_wheel_angles){
         wheelvels.left = (new_wheel_angles.left - wheelangles.left);
         wheelvels.right = (new_wheel_angles.right - wheelangles.right);
@@ -63,6 +66,9 @@ namespace turtlelib{
         return config_return;
     };
 
+    /// \brief Forward kinematics for TurtleBot using odometry estimate
+    /// \param new_wheel_angles - updated wheel angle values
+    /// \return updated robot configuration
     Config DiffDrive::fKin(WheelAngles new_wheel_angles, Config odom_config){
         wheelvels.left = (new_wheel_angles.left - wheelangles.left);
         wheelvels.right = (new_wheel_angles.right - wheelangles.right);
@@ -98,6 +104,9 @@ namespace turtlelib{
         return config_return;
     };
 
+    /// \brief Inverse kinematics for TurtleBot
+    /// \param twist - accelerations applied to TurtleBot
+    /// \return left and right wheel velocities
     WheelVel DiffDrive::invKin(Twist2D twist){
         double left_wheel_vel = (-D/r)*twist.thetadot + (1/r)*twist.xdot;
         double right_wheel_vel = (D/r)*twist.thetadot + (1/r)*twist.xdot;
@@ -109,6 +118,9 @@ namespace turtlelib{
         return {left_wheel_vel, right_wheel_vel};
     };
 
+    /// \brief Convert wheel angles to twist
+    /// \param new_wheel_angles - updated wheel angle values
+    /// \return accelerations undergone by TurtleBot
     Twist2D DiffDrive::Ang2Twist(WheelAngles new_wheel_angles){
         wheelvels.left = new_wheel_angles.left - wheelangles.left;
         wheelvels.right = new_wheel_angles.right - wheelangles.right;
@@ -121,6 +133,9 @@ namespace turtlelib{
         return twist;
     }
 
+    /// \brief Convert wheel angles to twist
+    /// \param wheel_vels - left and right wheel velocities
+    /// \return accelerations undergone by TurtleBot
     Twist2D DiffDrive::Vel2Twist(WheelVel wheel_vels){
         Twist2D twist;
         twist.thetadot = (r/(2*D))*(-wheel_vels.left+wheel_vels.right);

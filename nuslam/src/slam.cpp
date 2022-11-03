@@ -320,7 +320,7 @@ int main(int argc, char * argv[])
         // create slam path and publish
         slam_pose.header.stamp = ros::Time::now();
         slam_pose.header.frame_id = "world";
-        slam_pose.pose.position.x = state(1,0);
+        slam_pose.pose.position.x = state(1,0);ros::spinOnce();
         slam_pose.pose.position.y = state(2,0);
         slam_path.header.stamp = ros::Time::now();
         slam_path.header.frame_id = "world";

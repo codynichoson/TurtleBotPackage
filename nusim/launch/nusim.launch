@@ -5,7 +5,6 @@
     <arg name="config_file"       default="basic_world.yaml"    doc=".yaml file to configure simulator"/>
     <arg name="use_rviz"          default="true"                 />
 
-
     <node name="nusim" pkg="nusim" type="nusim_node">
         <param name="~rate" value="$(arg rate)"/>
     </node>

@@ -1,9 +1,15 @@
+/// \file
+/// \brief Circle Library
+
 #include "nuslam/circlelib.hpp"
 #include <turtlelib/diff_drive.hpp>
 #include <ros/ros.h>
 
 namespace nuslam
 {
+    /// \brief Detects circle within a cluster
+    /// \param cluster - 2D vector of cluster points
+    /// \return Detected circle
     Circle CircleFit::detect_circle(std::vector<turtlelib::Vector2D> cluster)
     {
         int n = cluster.size();
@@ -125,6 +131,9 @@ namespace nuslam
         return circle_return;
     }
 
+    /// \brief Removes any non-circular clusters
+    /// \param cluster_list - 2D vector of different clusters
+    /// \return 2D vector of only circular clusters
     std::vector<std::vector<turtlelib::Vector2D>> CircleFit::circles_only(std::vector<std::vector<turtlelib::Vector2D>> cluster_list)
     {
         std::vector<std::vector<turtlelib::Vector2D>> new_cluster_list;
